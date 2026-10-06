@@ -14,7 +14,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.NinePatchDrawable;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Disposable;
-import com.badlogic.gdx.utils.viewport.ScreenViewport;
+import com.badlogic.gdx.utils.viewport.FitViewport;
 import vn.room304.game.dialogue.DialogueController;
 
 import java.util.ArrayList;
@@ -31,23 +31,25 @@ public class DialogueView implements Disposable {
     private final Label nameLabel;
     private final Label lineLabel;
     private final Image portraitImage;
+    private final Table portraitFrame;
     private final Table dialogueBox;
     private String portraitTexturePath;
 
     public DialogueView() {
-        stage = new Stage(new ScreenViewport());
+        // Use a stable virtual canvas so fullscreen keeps the same RPG layout.
+        stage = new Stage(new FitViewport(960f, 540f));
         font = new BitmapFont();
 
         // Semi-transparent dark background overlay
-        Texture dimTexture = createSolidTexture(new Color(0f, 0f, 0f, 0.45f));
+        Texture dimTexture = createSolidTexture(new Color(0.10f, 0.06f, 0.03f, 0.48f));
         dimOverlay = new Image(new TextureRegionDrawable(new TextureRegion(dimTexture)));
         dimOverlay.setFillParent(true);
         dimOverlay.setVisible(false);
 
         // Text styles
-        Label.LabelStyle nameStyle = new Label.LabelStyle(font, new Color(1f, 0.88f, 0.35f, 1f));
-        Label.LabelStyle lineStyle = new Label.LabelStyle(font, new Color(0.96f, 0.96f, 0.98f, 1f));
-        Label.LabelStyle hintStyle = new Label.LabelStyle(font, new Color(0.65f, 0.72f, 0.82f, 0.85f));
+        Label.LabelStyle nameStyle = new Label.LabelStyle(font, new Color(1f, 0.86f, 0.48f, 1f));
+        Label.LabelStyle lineStyle = new Label.LabelStyle(font, new Color(0.98f, 0.91f, 0.75f, 1f));
+        Label.LabelStyle hintStyle = new Label.LabelStyle(font, new Color(0.78f, 0.63f, 0.42f, 1f));
 
         nameLabel = new Label("", nameStyle);
         lineLabel = new Label("", lineStyle);
@@ -60,12 +62,21 @@ public class DialogueView implements Disposable {
         portraitImage.setScaling(com.badlogic.gdx.utils.Scaling.fit);
         portraitImage.setVisible(false);
 
+        portraitFrame = new Table();
+        portraitFrame.setBackground(createNinePatchDrawable(
+            16, 3,
+            new Color(0.20f, 0.11f, 0.06f, 0.98f),
+            new Color(0.82f, 0.52f, 0.20f, 1f)
+        ));
+        portraitFrame.pad(6f);
+        portraitFrame.add(portraitImage).size(180f, 180f);
+
         // Speaker name badge
         nameBadge = new Table();
         nameBadge.setBackground(createNinePatchDrawable(
             10, 1,
-            new Color(0.14f, 0.22f, 0.36f, 0.95f),
-            new Color(0.50f, 0.72f, 0.98f, 0.90f)
+            new Color(0.30f, 0.16f, 0.07f, 1f),
+            new Color(0.91f, 0.65f, 0.28f, 1f)
         ));
         nameBadge.pad(3f, 12f, 3f, 12f);
         nameBadge.add(nameLabel).left();
@@ -74,10 +85,10 @@ public class DialogueView implements Disposable {
         dialogueBox = new Table();
         dialogueBox.setBackground(createNinePatchDrawable(
             12, 2,
-            new Color(0.06f, 0.08f, 0.13f, 0.94f),
-            new Color(0.42f, 0.62f, 0.90f, 0.95f)
+            new Color(0.18f, 0.10f, 0.06f, 0.97f),
+            new Color(0.72f, 0.43f, 0.17f, 1f)
         ));
-        dialogueBox.pad(14f, 18f, 12f, 18f);
+        dialogueBox.pad(13f, 18f, 11f, 18f);
 
         // Header: Speaker Badge
         dialogueBox.add(nameBadge).left().padBottom(6f).row();
@@ -88,12 +99,12 @@ public class DialogueView implements Disposable {
         // Footer: Interaction hint aligned to bottom-right
         dialogueBox.add(hintLabel).right().bottom();
 
-        // Keep the portrait beside the dialogue so the composition scales cleanly in fullscreen.
+        // RPG layout: the character art sits above the dialogue box.
         rootTable = new Table();
         rootTable.setFillParent(true);
         rootTable.bottom().pad(0f, 28f, 22f, 28f);
-        rootTable.add(portraitImage).bottom().padRight(14f);
-        rootTable.add(dialogueBox).growX().minHeight(145f).maxHeight(230f);
+        rootTable.add(portraitFrame).center().bottom().padBottom(8f).row();
+        rootTable.add(dialogueBox).growX().minHeight(120f).maxHeight(165f).row();
         rootTable.setVisible(false);
 
         stage.addActor(dimOverlay);
@@ -121,9 +132,18 @@ public class DialogueView implements Disposable {
 
     public void resize(int width, int height) {
         stage.getViewport().update(width, height, true);
-        float portraitSize = Math.min(220f, Math.max(120f, height * 0.32f));
+        // Keep the portrait compact, like a classic RPG dialogue layout.
+        float viewportWidth = stage.getViewport().getWorldWidth();
+        float viewportHeight = stage.getViewport().getWorldHeight();
+        float portraitSize = Math.min(178f, Math.max(120f, viewportHeight * 0.33f));
+        float dialogueHeight = Math.min(155f, Math.max(120f, viewportHeight * 0.30f));
+        float dialogueWidth = Math.max(480f, viewportWidth - 56f);
+
         portraitImage.setSize(portraitSize, portraitSize);
-        dialogueBox.getCell(lineLabel).width(Math.max(280f, width * 0.45f));
+        portraitFrame.getCell(portraitImage).size(portraitSize, portraitSize);
+        rootTable.getCell(portraitFrame).size(portraitSize + 12f, portraitSize + 12f);
+        rootTable.getCell(dialogueBox).width(dialogueWidth).height(dialogueHeight);
+        dialogueBox.getCell(lineLabel).width(dialogueWidth - 44f);
     }
 
     private void updatePortrait(String texturePath) {

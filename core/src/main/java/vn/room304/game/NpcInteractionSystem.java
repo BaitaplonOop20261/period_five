@@ -19,14 +19,15 @@ public class NpcInteractionSystem {
 
         if (nearbyNpc != activeNpc) {
             activeNpc = nearbyNpc;
-            if (activeNpc != null) {
-                Gdx.app.log("Interaction", "Press F to talk to " + activeNpc.getName());
-            }
         }
 
         if (activeNpc != null && Gdx.input.isKeyJustPressed(Input.Keys.F)) {
             dialogueController.start(activeNpc);
         }
+    }
+
+    public Npc getActiveNpc() {
+        return activeNpc;
     }
 
     private Npc findNearbyNpc(Player player, List<Npc> npcs) {
