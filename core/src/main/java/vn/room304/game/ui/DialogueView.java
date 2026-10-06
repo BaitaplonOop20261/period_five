@@ -30,6 +30,9 @@ public class DialogueView implements Disposable {
     private final Table nameBadge;
     private final Label nameLabel;
     private final Label lineLabel;
+    private final Image portraitImage;
+    private final Table dialogueBox;
+    private String portraitTexturePath;
 
     public DialogueView() {
         stage = new Stage(new ScreenViewport());
@@ -53,6 +56,10 @@ public class DialogueView implements Disposable {
 
         Label hintLabel = new Label("[F / ENTER] Tiep tuc >", hintStyle);
 
+        portraitImage = new Image();
+        portraitImage.setScaling(com.badlogic.gdx.utils.Scaling.fit);
+        portraitImage.setVisible(false);
+
         // Speaker name badge
         nameBadge = new Table();
         nameBadge.setBackground(createNinePatchDrawable(
@@ -64,7 +71,7 @@ public class DialogueView implements Disposable {
         nameBadge.add(nameLabel).left();
 
         // Main dialogue box container
-        Table dialogueBox = new Table();
+        dialogueBox = new Table();
         dialogueBox.setBackground(createNinePatchDrawable(
             12, 2,
             new Color(0.06f, 0.08f, 0.13f, 0.94f),
@@ -81,11 +88,12 @@ public class DialogueView implements Disposable {
         // Footer: Interaction hint aligned to bottom-right
         dialogueBox.add(hintLabel).right().bottom();
 
-        // Root table anchored at the bottom of the screen with margin
+        // Keep the portrait beside the dialogue so the composition scales cleanly in fullscreen.
         rootTable = new Table();
         rootTable.setFillParent(true);
-        rootTable.bottom().pad(0f, 28f, 20f, 28f);
-        rootTable.add(dialogueBox).growX().height(145f);
+        rootTable.bottom().pad(0f, 28f, 22f, 28f);
+        rootTable.add(portraitImage).bottom().padRight(14f);
+        rootTable.add(dialogueBox).growX().minHeight(145f).maxHeight(230f);
         rootTable.setVisible(false);
 
         stage.addActor(dimOverlay);
@@ -103,6 +111,8 @@ public class DialogueView implements Disposable {
             nameLabel.setText(hasSpeaker ? speaker : "");
             nameBadge.setVisible(hasSpeaker);
             lineLabel.setText(dialogueController.getCurrentLine());
+
+            updatePortrait(dialogueController.getSpeakerPortraitTexturePath());
         }
 
         stage.act();
@@ -111,6 +121,29 @@ public class DialogueView implements Disposable {
 
     public void resize(int width, int height) {
         stage.getViewport().update(width, height, true);
+        float portraitSize = Math.min(220f, Math.max(120f, height * 0.32f));
+        portraitImage.setSize(portraitSize, portraitSize);
+        dialogueBox.getCell(lineLabel).width(Math.max(280f, width * 0.45f));
+    }
+
+    private void updatePortrait(String texturePath) {
+        if (texturePath == null || texturePath.trim().isEmpty()) {
+            portraitImage.setDrawable(null);
+            portraitImage.setVisible(false);
+            return;
+        }
+
+        if (texturePath.equals(portraitTexturePath)) {
+            portraitImage.setVisible(true);
+            return;
+        }
+
+        Texture portraitTexture = new Texture(texturePath);
+        portraitTexture.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
+        textures.add(portraitTexture);
+        portraitTexturePath = texturePath;
+        portraitImage.setDrawable(new TextureRegionDrawable(new TextureRegion(portraitTexture)));
+        portraitImage.setVisible(true);
     }
 
     @Override

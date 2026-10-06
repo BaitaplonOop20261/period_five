@@ -34,6 +34,10 @@ public class DialogueController {
         return speaker.getName();
     }
 
+    public String getSpeakerPortraitTexturePath() {
+        return speaker.getPortraitTexturePath();
+    }
+
     public String getCurrentLine() {
         return dialogue.getLine(lineIndex);
     }
