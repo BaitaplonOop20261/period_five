@@ -11,6 +11,12 @@ public class DialogueLine {
     public DialogueLine() {
     }
 
+    public DialogueLine(String speaker, String text, String portrait) {
+        this.speaker = speaker;
+        this.text = text;
+        this.portrait = portrait;
+    }
+
     public String getSpeaker() {
         return speaker;
     }

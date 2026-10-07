@@ -17,6 +17,8 @@ public class WorldMap implements Disposable {
      */
     public static final float WIDTH = 900f;
     public static final float HEIGHT = 600f;
+    public static final float EXIT_CENTER_X = 255f;
+    private static final float EXIT_INTERACTION_WIDTH = 150f;
 
     private final Texture background;
     private final List<Furniture> furniture;
@@ -25,6 +27,10 @@ public class WorldMap implements Disposable {
     private final List<Npc> npcs;
 
     public WorldMap() {
+        this(true);
+    }
+
+    public WorldMap(boolean includeNpc) {
         background = new Texture("bedroom_background.png");
 
         furniture = new ArrayList<>();
@@ -54,13 +60,20 @@ public class WorldMap implements Disposable {
         furniture.add(bed);
 
         // 4. NPC Trang with animated idle sprite sheet (standing on rug at left)
-        npcs.add(new Npc(
-            "Trang",
-            DialogueLoader.load("dialogue/npc_trang_intro.json"),
-            "npc_trang_idle.png",
-            180f, 120f,
-            60f
-        ));
+        if (includeNpc) {
+            npcs.add(new Npc(
+                "Trang",
+                DialogueLoader.load("dialogue/npc_trang_intro.json"),
+                "npc_trang_idle.png",
+                180f, 120f,
+                60f
+            ));
+        }
+    }
+
+    public Rectangle getExitBounds() {
+        return new Rectangle(EXIT_CENTER_X - EXIT_INTERACTION_WIDTH / 2f, 18f,
+            EXIT_INTERACTION_WIDTH, 42f);
     }
 
     public List<Wall> getWalls() {

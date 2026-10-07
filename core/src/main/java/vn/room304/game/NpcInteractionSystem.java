@@ -1,7 +1,5 @@
 package vn.room304.game;
 
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input;
 import java.util.List;
 import vn.room304.game.dialogue.DialogueController;
 
@@ -20,8 +18,10 @@ public class NpcInteractionSystem {
         if (nearbyNpc != activeNpc) {
             activeNpc = nearbyNpc;
         }
+    }
 
-        if (activeNpc != null && Gdx.input.isKeyJustPressed(Input.Keys.F)) {
+    public void interact() {
+        if (activeNpc != null) {
             dialogueController.start(activeNpc.getDialogue());
         }
     }

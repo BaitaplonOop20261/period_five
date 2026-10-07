@@ -27,6 +27,7 @@ public class Player implements Disposable {
     public static final float WIDTH = 72f;
     public static final float HEIGHT = 36f;
     private static final float FRAME_DURATION = 0.12f;
+    private static final float SPRINT_MULTIPLIER = 1.5f;
 
     private final Rectangle bounds;
     private final Rectangle nextBounds;
@@ -141,7 +142,11 @@ public class Player implements Disposable {
     }
 
     public void update(float delta, List<Wall> walls, List<Furniture> furniture, List<Npc> npcs) {
-        stateTime += delta;
+        update(delta, walls, furniture, npcs, WorldMap.WIDTH, WorldMap.HEIGHT);
+    }
+
+    public void update(float delta, List<Wall> walls, List<Furniture> furniture, List<Npc> npcs,
+                       float worldWidth, float worldHeight) {
         movement.set(0f, 0f);
 
         if (Gdx.input.isKeyPressed(Input.Keys.W)) {
@@ -161,10 +166,14 @@ public class Player implements Disposable {
         }
 
         moving = !movement.isZero();
+        boolean sprinting = moving && (Gdx.input.isKeyPressed(Input.Keys.CONTROL_LEFT)
+            || Gdx.input.isKeyPressed(Input.Keys.CONTROL_RIGHT));
+        float speedMultiplier = sprinting ? SPRINT_MULTIPLIER : 1f;
+        stateTime += delta * speedMultiplier;
 
         if (moving) {
             updateDirection();
-            movement.nor().scl(speed * delta);
+            movement.nor().scl(speed * speedMultiplier * delta);
 
             float newX = bounds.x + movement.x;
             if (!isColliding(newX, bounds.y, walls, furniture, npcs)) {
@@ -180,15 +189,19 @@ public class Player implements Disposable {
         if (bounds.x < 24f) {
             bounds.x = 24f;
         }
-        if (bounds.x + bounds.width > WorldMap.WIDTH - 24f) {
-            bounds.x = WorldMap.WIDTH - 24f - bounds.width;
+        if (bounds.x + bounds.width > worldWidth - 24f) {
+            bounds.x = worldWidth - 24f - bounds.width;
         }
         if (bounds.y < 18f) {
             bounds.y = 18f;
         }
-        if (bounds.y + bounds.height > WorldMap.HEIGHT - 18f) {
-            bounds.y = WorldMap.HEIGHT - 18f - bounds.height;
+        if (bounds.y + bounds.height > worldHeight - 18f) {
+            bounds.y = worldHeight - 18f - bounds.height;
         }
+    }
+
+    public void setPosition(float x, float y) {
+        bounds.setPosition(x, y);
     }
 
     /**

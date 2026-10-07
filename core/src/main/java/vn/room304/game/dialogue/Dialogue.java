@@ -12,6 +12,11 @@ public class Dialogue {
     public Dialogue() {
     }
 
+    public Dialogue(String id, List<DialogueLine> lines) {
+        this.id = id;
+        this.lines = lines;
+    }
+
     public String getId() {
         return id;
     }

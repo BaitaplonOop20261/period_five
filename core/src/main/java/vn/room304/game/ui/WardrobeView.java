@@ -234,6 +234,7 @@ public class WardrobeView implements Disposable {
         }
 
         stage.act();
+        stage.getViewport().apply();
         stage.draw();
     }
 

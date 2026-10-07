@@ -1,16 +1,19 @@
 package vn.room304.game.ui;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.NinePatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.utils.NinePatchDrawable;
+import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Disposable;
@@ -24,6 +27,8 @@ public class DialogueView implements Disposable {
 
     private final Stage stage;
     private final BitmapFont font;
+    private final FreeTypeFontGenerator dialogueFontGenerator;
+    private final BitmapFont dialogueFont;
     private final List<Texture> textures = new ArrayList<>();
     private final Image dimOverlay;
     private final Table rootTable;
@@ -33,12 +38,21 @@ public class DialogueView implements Disposable {
     private final Image portraitImage;
     private final Table portraitFrame;
     private final Table dialogueBox;
+    private final Table dialogueColumn;
+    private final Table responseChoices;
+    private final List<Table> responseOptionBoxes = new ArrayList<>();
     private String portraitTexturePath;
 
     public DialogueView() {
         // Use a stable virtual canvas so fullscreen keeps the same RPG layout.
         stage = new Stage(new FitViewport(960f, 540f));
         font = new BitmapFont();
+        // The default bitmap font has no Vietnamese glyphs for the locked-door message.
+        dialogueFontGenerator = new FreeTypeFontGenerator(Gdx.files.internal("fonts/NotoSans-Regular.ttf"));
+        FreeTypeFontGenerator.FreeTypeFontParameter fontParameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
+        fontParameter.size = 15;
+        fontParameter.incremental = true;
+        dialogueFont = dialogueFontGenerator.generateFont(fontParameter);
 
         // Semi-transparent dark background overlay
         Texture dimTexture = createSolidTexture(new Color(0.10f, 0.06f, 0.03f, 0.48f));
@@ -48,7 +62,7 @@ public class DialogueView implements Disposable {
 
         // Text styles
         Label.LabelStyle nameStyle = new Label.LabelStyle(font, new Color(1f, 0.86f, 0.48f, 1f));
-        Label.LabelStyle lineStyle = new Label.LabelStyle(font, new Color(0.98f, 0.91f, 0.75f, 1f));
+        Label.LabelStyle lineStyle = new Label.LabelStyle(dialogueFont, new Color(0.98f, 0.91f, 0.75f, 1f));
         Label.LabelStyle hintStyle = new Label.LabelStyle(font, new Color(0.78f, 0.63f, 0.42f, 1f));
 
         nameLabel = new Label("", nameStyle);
@@ -56,7 +70,7 @@ public class DialogueView implements Disposable {
         lineLabel.setWrap(true);
         lineLabel.setAlignment(Align.topLeft);
 
-        Label hintLabel = new Label("[F / ENTER] Tiep tuc >", hintStyle);
+        Label hintLabel = new Label("F / ENTER   Tiep tuc >", hintStyle);
 
         portraitImage = new Image();
         portraitImage.setScaling(com.badlogic.gdx.utils.Scaling.fit);
@@ -69,7 +83,7 @@ public class DialogueView implements Disposable {
             new Color(0.82f, 0.52f, 0.20f, 1f)
         ));
         portraitFrame.pad(6f);
-        portraitFrame.add(portraitImage).size(180f, 180f);
+        portraitFrame.add(portraitImage);
 
         // Speaker name badge
         nameBadge = new Table();
@@ -99,12 +113,28 @@ public class DialogueView implements Disposable {
         // Footer: Interaction hint aligned to bottom-right
         dialogueBox.add(hintLabel).right().bottom();
 
-        // RPG layout: the character art sits above the dialogue box.
+        responseChoices = new Table();
+        responseChoices.defaults().right().padTop(8f);
+        Drawable optionBackground = createNinePatchDrawable(
+            10, 1,
+            new Color(0.18f, 0.10f, 0.06f, 0.96f),
+            new Color(0.72f, 0.43f, 0.17f, 1f)
+        );
+        addResponseOption("Hello", hintStyle, optionBackground);
+        addResponseOption("Room304 la gi", hintStyle, optionBackground);
+        addResponseOption("Ban la ai", hintStyle, optionBackground);
+
+        // Keep the character portrait to the left and dialogue panel at the upper right.
         rootTable = new Table();
         rootTable.setFillParent(true);
-        rootTable.bottom().pad(0f, 28f, 22f, 28f);
-        rootTable.add(portraitFrame).center().bottom().padBottom(8f).row();
-        rootTable.add(dialogueBox).growX().minHeight(120f).maxHeight(165f).row();
+        rootTable.center().pad(30f, 32f, 30f, 32f);
+        rootTable.add(portraitFrame).center().padRight(28f);
+
+        dialogueColumn = new Table();
+        dialogueColumn.top().right().padTop(28f);
+        dialogueColumn.add(dialogueBox).top().right().row();
+        dialogueColumn.add(responseChoices).top().right().padTop(4f);
+        rootTable.add(dialogueColumn).growY().top();
         rootTable.setVisible(false);
 
         stage.addActor(dimOverlay);
@@ -127,23 +157,39 @@ public class DialogueView implements Disposable {
         }
 
         stage.act();
+        stage.getViewport().apply();
         stage.draw();
     }
 
     public void resize(int width, int height) {
         stage.getViewport().update(width, height, true);
-        // Keep the portrait compact, like a classic RPG dialogue layout.
+        // Keep the side-by-side portrait and dialogue panel within the virtual canvas.
         float viewportWidth = stage.getViewport().getWorldWidth();
         float viewportHeight = stage.getViewport().getWorldHeight();
-        float portraitSize = Math.min(178f, Math.max(120f, viewportHeight * 0.33f));
-        float dialogueHeight = Math.min(155f, Math.max(120f, viewportHeight * 0.30f));
-        float dialogueWidth = Math.max(480f, viewportWidth - 56f);
+        float portraitWidth = Math.min(245f, viewportWidth * 0.27f);
+        float portraitHeight = Math.min(330f, viewportHeight * 0.62f);
+        float dialogueHeight = Math.min(178f, Math.max(145f, viewportHeight * 0.32f));
+        float dialogueWidth = Math.max(380f, viewportWidth - portraitWidth - 104f);
 
-        portraitImage.setSize(portraitSize, portraitSize);
-        portraitFrame.getCell(portraitImage).size(portraitSize, portraitSize);
-        rootTable.getCell(portraitFrame).size(portraitSize + 12f, portraitSize + 12f);
-        rootTable.getCell(dialogueBox).width(dialogueWidth).height(dialogueHeight);
+        portraitImage.setSize(portraitWidth, portraitHeight);
+        portraitFrame.getCell(portraitImage).size(portraitWidth, portraitHeight);
+        rootTable.getCell(portraitFrame).size(portraitWidth + 12f, portraitHeight + 12f);
+        rootTable.getCell(dialogueColumn).width(dialogueWidth).growY();
+        dialogueColumn.getCell(dialogueBox).width(dialogueWidth).height(dialogueHeight);
         dialogueBox.getCell(lineLabel).width(dialogueWidth - 44f);
+        float optionWidth = dialogueWidth * 0.66f;
+        for (Table optionBox : responseOptionBoxes) {
+            responseChoices.getCell(optionBox).width(optionWidth).height(42f);
+        }
+    }
+
+    private void addResponseOption(String text, Label.LabelStyle style,
+                                   Drawable background) {
+        Table optionBox = new Table();
+        optionBox.setBackground(background);
+        optionBox.add(new Label(text, style)).center();
+        responseChoices.add(optionBox).width(250f).height(42f).right().row();
+        responseOptionBoxes.add(optionBox);
     }
 
     private void updatePortrait(String texturePath) {
@@ -170,6 +216,8 @@ public class DialogueView implements Disposable {
     public void dispose() {
         stage.dispose();
         font.dispose();
+        dialogueFont.dispose();
+        dialogueFontGenerator.dispose();
         for (Texture texture : textures) {
             texture.dispose();
         }
