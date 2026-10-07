@@ -9,7 +9,6 @@ import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
-import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.FitViewport;
@@ -30,7 +29,7 @@ public class GameScreen implements Screen {
     private static final float VIRTUAL_HEIGHT = VIRTUAL_WIDTH * 9f / 16f;
     // World art uses x6 scaling. Zoom 2 shows 1920x1080 world units.
     private static final float CAMERA_ZOOM = 2f;
-    private static final float BACKGROUND_GRAY = 0.2f;
+    private static final float BACKGROUND_GRAY = 0.15f;
 
     private enum RoomInteraction {
         NONE, NPC, WARDROBE, EXIT
@@ -112,31 +111,10 @@ public class GameScreen implements Screen {
             Gdx.input.setInputProcessor(null);
         }
 
-        float worldWidth = switch (scene) {
-            case ROOM -> WorldMap.WIDTH;
-            case HALLWAY -> hallwayMap.getWidth();
-            case BACKYARD -> backyardMap.getWidth();
-        };
-        float worldHeight = switch (scene) {
-            case ROOM -> WorldMap.HEIGHT;
-            case HALLWAY -> hallwayMap.getHeight();
-            case BACKYARD -> backyardMap.getHeight();
-        };
-
-        // Clamp the zoomed view to the map; center axes smaller than the visible area.
-        float halfVw = viewport.getWorldWidth() * camera.zoom / 2f;
-        float halfVh = viewport.getWorldHeight() * camera.zoom / 2f;
-        float targetCamX = player.getX() + player.getBounds().width / 2f;
-        float targetCamY = player.getY() + player.getSpriteHeight() / 2f;
-
-        float minX = Math.min(halfVw, worldWidth / 2f);
-        float maxX = Math.max(minX, worldWidth - halfVw);
-        float minY = Math.min(halfVh, worldHeight / 2f);
-        float maxY = Math.max(minY, worldHeight - halfVh);
-
+        // Follow the player's sprite center in every scene, including map edges.
         camera.position.set(
-            MathUtils.clamp(targetCamX, minX, maxX),
-            MathUtils.clamp(targetCamY, minY, maxY),
+            player.getX() + player.getBounds().width / 2f,
+            player.getY() + player.getSpriteHeight() / 2f,
             0
         );
         viewport.apply();

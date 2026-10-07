@@ -27,13 +27,15 @@ public class Player implements Disposable {
     public static final float WIDTH = 72f;
     public static final float HEIGHT = 36f;
     private static final float FRAME_DURATION = 0.12f;
-    private static final float SPRINT_MULTIPLIER = 1.5f;
+    private static final float SPRINT_MULTIPLIER = 1.8f;
+    // Movement animations use their original cadence at this world speed.
+    private static final float ANIMATION_REFERENCE_SPEED = 220f;
 
     private final Rectangle bounds;
     private final Rectangle nextBounds;
     private final Vector2 movement = new Vector2();
 
-    private float speed = 220f;
+    private float speed = 280f;
 
     private final Texture idleSheet;
     private final Texture downRunSheet;
@@ -169,7 +171,8 @@ public class Player implements Disposable {
         boolean sprinting = moving && (Gdx.input.isKeyPressed(Input.Keys.CONTROL_LEFT)
             || Gdx.input.isKeyPressed(Input.Keys.CONTROL_RIGHT));
         float speedMultiplier = sprinting ? SPRINT_MULTIPLIER : 1f;
-        stateTime += delta * speedMultiplier;
+        float animationMultiplier = moving ? speed * speedMultiplier / ANIMATION_REFERENCE_SPEED : 1f;
+        stateTime += delta * animationMultiplier;
 
         if (moving) {
             updateDirection();
