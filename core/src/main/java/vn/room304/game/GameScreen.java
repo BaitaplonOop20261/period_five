@@ -18,6 +18,7 @@ import java.util.List;
 import vn.room304.game.dialogue.Dialogue;
 import vn.room304.game.dialogue.DialogueController;
 import vn.room304.game.dialogue.DialogueLine;
+import vn.room304.game.gameplay.BackyardMap;
 import vn.room304.game.ui.DialogueView;
 import vn.room304.game.ui.WardrobeView;
 import vn.room304.game.wardrobe.WardrobeController;
@@ -35,12 +36,17 @@ public class GameScreen implements Screen {
         NONE, NPC, WARDROBE, EXIT
     }
 
+    private enum Scene {
+        ROOM, HALLWAY, BACKYARD
+    }
+
     private ShapeRenderer shapeRenderer;
     private SpriteBatch spriteBatch;
     private Player player;
     private WorldMap worldMap;
     private HallwayMap hallwayMap;
-    private boolean inHallway;
+    private BackyardMap backyardMap;
+    private Scene scene = Scene.ROOM;
     private int activeRoom = 305;
     private NpcInteractionSystem npcInteractionSystem;
     private DialogueController dialogueController;
@@ -59,6 +65,7 @@ public class GameScreen implements Screen {
         spriteBatch = new SpriteBatch();
         worldMap = new WorldMap(true);
         hallwayMap = new HallwayMap();
+        backyardMap = new BackyardMap();
         player = new Player(WorldMap.EXIT_CENTER_X - Player.WIDTH / 2f, 24f);
         dialogueController = new DialogueController();
         dialogueView = new DialogueView();
@@ -89,8 +96,10 @@ public class GameScreen implements Screen {
             dialogueController.update();
         } else if (wardrobeController.isOpen()) {
             wardrobeController.update();
-        } else if (inHallway) {
+        } else if (scene == Scene.HALLWAY) {
             updateHallway(delta);
+        } else if (scene == Scene.BACKYARD) {
+            updateBackyard(delta);
         } else {
             worldMap.update(delta);
             player.update(delta, worldMap.getWalls(), worldMap.getFurniture(), worldMap.getNpcs());
@@ -103,8 +112,16 @@ public class GameScreen implements Screen {
             Gdx.input.setInputProcessor(null);
         }
 
-        float worldWidth = inHallway ? hallwayMap.getWidth() : WorldMap.WIDTH;
-        float worldHeight = inHallway ? hallwayMap.getHeight() : WorldMap.HEIGHT;
+        float worldWidth = switch (scene) {
+            case ROOM -> WorldMap.WIDTH;
+            case HALLWAY -> hallwayMap.getWidth();
+            case BACKYARD -> backyardMap.getWidth();
+        };
+        float worldHeight = switch (scene) {
+            case ROOM -> WorldMap.HEIGHT;
+            case HALLWAY -> hallwayMap.getHeight();
+            case BACKYARD -> backyardMap.getHeight();
+        };
 
         // Clamp the zoomed view to the map; center axes smaller than the visible area.
         float halfVw = viewport.getWorldWidth() * camera.zoom / 2f;
@@ -127,11 +144,18 @@ public class GameScreen implements Screen {
         // 1. Render World layers (Background -> Furniture -> Y-Sorted NPCs & Player)
         spriteBatch.setProjectionMatrix(camera.combined);
         spriteBatch.begin();
-        if (inHallway) {
+        if (scene == Scene.HALLWAY) {
             hallwayMap.renderBackground(spriteBatch);
             player.render(spriteBatch);
-            if (!dialogueController.isActive() && hallwayMap.findNearbyDoor(player.getBounds()) != -1) {
-                renderHallwayDoorMarker();
+            if (!dialogueController.isActive() && hallwayMap.findNearbyInteraction(player.getBounds()) != -1) {
+                renderHallwayInteractionMarker();
+            }
+        } else if (scene == Scene.BACKYARD) {
+            backyardMap.renderBackground(spriteBatch);
+            player.render(spriteBatch);
+            if (backyardMap.getEntranceBounds().overlaps(player.getBounds())) {
+                renderPassageMarker(backyardMap.getEntranceBounds(),
+                    backyardMap.getSpawnY() + Player.SPRITE_HEIGHT + 8f);
             }
         } else {
             worldMap.renderBackground(spriteBatch);
@@ -234,13 +258,26 @@ public class GameScreen implements Screen {
         }
     }
 
-    private void renderHallwayDoorMarker() {
-        int roomNumber = hallwayMap.findNearbyDoor(player.getBounds());
+    private void renderHallwayInteractionMarker() {
+        int roomNumber = hallwayMap.findNearbyInteraction(player.getBounds());
+        if (roomNumber == HallwayMap.BACKYARD_EXIT) {
+            Rectangle exit = hallwayMap.getBackyardExitBounds();
+            renderPassageMarker(exit, exit.y + exit.height + 8f);
+            return;
+        }
         float markerWidth = 8f * Npc.SPRITE_SCALE;
         float markerHeight = 25f * Npc.SPRITE_SCALE;
         TextureRegion markerFrame = interactionMarkAnimation.getKeyFrame(interactionMarkStateTime);
         spriteBatch.draw(markerFrame, hallwayMap.getDoorCenterX(roomNumber) - markerWidth / 2f,
             hallwayMap.getDoorTopY() - Player.SPRITE_SCALE, markerWidth, markerHeight);
+    }
+
+    private void renderPassageMarker(Rectangle passage, float y) {
+        float markerWidth = 8f * Npc.SPRITE_SCALE;
+        float markerHeight = 25f * Npc.SPRITE_SCALE;
+        TextureRegion markerFrame = interactionMarkAnimation.getKeyFrame(interactionMarkStateTime);
+        spriteBatch.draw(markerFrame, passage.x + (passage.width - markerWidth) / 2f,
+            y, markerWidth, markerHeight);
     }
 
     private void updateHallway(float delta) {
@@ -250,13 +287,16 @@ public class GameScreen implements Screen {
             return;
         }
 
-        int roomNumber = hallwayMap.findNearbyDoor(player.getBounds());
-        if (roomNumber == 304) {
+        int roomNumber = hallwayMap.findNearbyInteraction(player.getBounds());
+        if (roomNumber == HallwayMap.BACKYARD_EXIT) {
+            scene = Scene.BACKYARD;
+            player.setPosition(backyardMap.getSpawnX(), backyardMap.getSpawnY());
+        } else if (roomNumber == 304) {
             dialogueController.start(new Dialogue("locked_room_door",
                 List.of(new DialogueLine("", "Cửa bị khóa rồi", null))));
         } else if (roomNumber == 305 || roomNumber == 306) {
             activeRoom = roomNumber;
-            inHallway = false;
+            scene = Scene.ROOM;
             worldMap.dispose();
             worldMap = new WorldMap(activeRoom == 305);
             player.setPosition(WorldMap.EXIT_CENTER_X - Player.WIDTH / 2f, 24f);
@@ -264,9 +304,21 @@ public class GameScreen implements Screen {
     }
 
     private void enterHallway() {
-        inHallway = true;
+        scene = Scene.HALLWAY;
         player.setPosition(hallwayMap.getDoorCenterX(activeRoom) - Player.WIDTH / 2f,
             hallwayMap.getDoorStandY());
+    }
+
+    private void updateBackyard(float delta) {
+        player.update(delta, backyardMap.getWalls(), null, List.of(),
+            backyardMap.getWidth(), backyardMap.getHeight());
+        if (backyardMap.getEntranceBounds().overlaps(player.getBounds())
+            && Gdx.input.isKeyJustPressed(Input.Keys.F)) {
+            scene = Scene.HALLWAY;
+            Rectangle exit = hallwayMap.getBackyardExitBounds();
+            player.setPosition(exit.x + (exit.width - Player.WIDTH) / 2f,
+                hallwayMap.getDoorStandY());
+        }
     }
 
     @Override
@@ -294,6 +346,7 @@ public class GameScreen implements Screen {
         spriteBatch.dispose();
         worldMap.dispose();
         hallwayMap.dispose();
+        backyardMap.dispose();
         player.dispose();
         interactionMark.dispose();
         dialogueView.dispose();

@@ -8,9 +8,10 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-/** Hallway scene and the three room door interaction zones. */
+/** Hallway scene, room door interaction zones and the backyard passage. */
 public class HallwayMap implements Disposable {
 
+    public static final int BACKYARD_EXIT = 0;
     private static final float SCALE = Player.SPRITE_SCALE;
     // Image coordinates start at the top; the floor begins below row 88.
     private static final float FLOOR_TOP_IN_IMAGE = 89f;
@@ -22,6 +23,7 @@ public class HallwayMap implements Disposable {
     private final float width;
     private final float height;
     private final float floorTop;
+    private final Rectangle backyardExitBounds;
     private final Map<Integer, Rectangle> doors = new LinkedHashMap<>();
     private final List<Wall> walls;
 
@@ -30,6 +32,7 @@ public class HallwayMap implements Disposable {
         width = background.getWidth() * SCALE;
         height = background.getHeight() * SCALE;
         floorTop = (background.getHeight() - FLOOR_TOP_IN_IMAGE) * SCALE;
+        backyardExitBounds = new Rectangle(24f, 18f, 16f * SCALE, floorTop - 18f);
 
         addDoor(306, 118f);
         addDoor(305, 352f);
@@ -63,6 +66,17 @@ public class HallwayMap implements Disposable {
 
     public Rectangle getDoorBounds(int roomNumber) {
         return doors.get(roomNumber);
+    }
+
+    public Rectangle getBackyardExitBounds() {
+        return backyardExitBounds;
+    }
+
+    public int findNearbyInteraction(Rectangle playerBounds) {
+        if (backyardExitBounds.overlaps(playerBounds)) {
+            return BACKYARD_EXIT;
+        }
+        return findNearbyDoor(playerBounds);
     }
 
     public float getDoorStandY() {
