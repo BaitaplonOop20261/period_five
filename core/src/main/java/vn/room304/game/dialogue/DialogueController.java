@@ -2,17 +2,18 @@ package vn.room304.game.dialogue;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
-import vn.room304.game.Npc;
 
 public class DialogueController {
 
-    private Npc speaker;
     private Dialogue dialogue;
     private int lineIndex;
 
-    public void start(Npc speaker) {
-        this.speaker = speaker;
-        dialogue = speaker.getDialogue();
+    public void start(Dialogue dialogue) {
+        if (dialogue == null || !dialogue.hasLines()) {
+            close();
+            return;
+        }
+        this.dialogue = dialogue;
         lineIndex = 0;
     }
 
@@ -27,24 +28,24 @@ public class DialogueController {
     }
 
     public boolean isActive() {
-        return speaker != null && dialogue != null;
+        return dialogue != null;
     }
 
     public String getSpeakerName() {
-        return speaker.getName();
+        return dialogue.getLine(lineIndex).getSpeaker();
     }
 
     public String getSpeakerPortraitTexturePath() {
-        return speaker.getPortraitTexturePath();
+        return dialogue.getLine(lineIndex).getPortrait();
     }
 
     public String getCurrentLine() {
-        return dialogue.getLine(lineIndex);
+        return dialogue.getLine(lineIndex).getText();
     }
 
     private void advanceOrClose() {
         int nextLineIndex = lineIndex + 1;
-        if (dialogue.hasLine(nextLineIndex)) {
+        if (nextLineIndex < dialogue.getLineCount()) {
             lineIndex = nextLineIndex;
             return;
         }
@@ -53,7 +54,6 @@ public class DialogueController {
     }
 
     private void close() {
-        speaker = null;
         dialogue = null;
         lineIndex = 0;
     }

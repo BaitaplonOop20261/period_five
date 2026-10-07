@@ -22,7 +22,7 @@ public class NpcInteractionSystem {
         }
 
         if (activeNpc != null && Gdx.input.isKeyJustPressed(Input.Keys.F)) {
-            dialogueController.start(activeNpc);
+            dialogueController.start(activeNpc.getDialogue());
         }
     }
 

@@ -4,10 +4,10 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.utils.Disposable;
-import java.util.List;
 import java.util.ArrayList;
 import java.util.Collections;
-import vn.room304.game.dialogue.Dialogue;
+import java.util.List;
+import vn.room304.game.dialogue.DialogueLoader;
 
 public class WorldMap implements Disposable {
 
@@ -56,9 +56,8 @@ public class WorldMap implements Disposable {
         // 4. NPC Trang with animated idle sprite sheet (standing on rug at left)
         npcs.add(new Npc(
             "Trang",
-            new Dialogue(List.of("Chao mung ban den Room304.")),
+            DialogueLoader.load("dialogue/npc_trang_intro.json"),
             "npc_trang_idle.png",
-            "npc_trang_dialogueUI.png",
             180f, 120f,
             60f
         ));
@@ -90,10 +89,16 @@ public class WorldMap implements Disposable {
         batch.draw(background, 0, 0, WIDTH, HEIGHT);
     }
 
-    public void renderFurniture(SpriteBatch batch) {
+    public void renderFurnitureExceptWardrobe(SpriteBatch batch) {
         for (Furniture f : furniture) {
-            f.render(batch);
+            if (f != wardrobe) {
+                f.render(batch);
+            }
         }
+    }
+
+    public void renderWardrobe(SpriteBatch batch) {
+        wardrobe.render(batch);
     }
 
     public void renderNpcs(SpriteBatch batch) {

@@ -2,19 +2,29 @@ package vn.room304.game.dialogue;
 
 import java.util.List;
 
+/** JSON-friendly dialogue content, independent of its loading source. */
 public class Dialogue {
 
-    private final List<String> lines;
+    private String id;
+    private List<DialogueLine> lines;
 
-    public Dialogue(List<String> lines) {
-        this.lines = List.copyOf(lines);
+    /** Required by LibGDX Json. */
+    public Dialogue() {
     }
 
-    public String getLine(int index) {
+    public String getId() {
+        return id;
+    }
+
+    public boolean hasLines() {
+        return lines != null && !lines.isEmpty();
+    }
+
+    public int getLineCount() {
+        return lines == null ? 0 : lines.size();
+    }
+
+    public DialogueLine getLine(int index) {
         return lines.get(index);
-    }
-
-    public boolean hasLine(int index) {
-        return index >= 0 && index < lines.size();
     }
 }

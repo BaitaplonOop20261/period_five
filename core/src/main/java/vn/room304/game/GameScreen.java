@@ -109,7 +109,12 @@ public class GameScreen implements Screen {
         spriteBatch.setProjectionMatrix(viewport.getCamera().combined);
         spriteBatch.begin();
         worldMap.renderBackground(spriteBatch);
-        worldMap.renderFurniture(spriteBatch);
+        worldMap.renderFurnitureExceptWardrobe(spriteBatch);
+
+        boolean playerBehindWardrobe = player.getY() >= worldMap.getWardrobe().getCollisionBounds().y;
+        if (!playerBehindWardrobe) {
+            worldMap.renderWardrobe(spriteBatch);
+        }
 
         // Y-sort between Player and NPCs for realistic depth
         boolean playerDrawn = false;
@@ -122,6 +127,10 @@ public class GameScreen implements Screen {
         }
         if (!playerDrawn) {
             player.render(spriteBatch);
+        }
+
+        if (playerBehindWardrobe) {
+            worldMap.renderWardrobe(spriteBatch);
         }
 
         if (!dialogueController.isActive() && !wardrobeController.isOpen()) {

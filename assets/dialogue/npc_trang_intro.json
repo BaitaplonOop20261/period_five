@@ -1,0 +1,10 @@
+{
+  "id": "npc_trang_intro",
+  "lines": [
+    {
+      "speaker": "Trang",
+      "text": "Chao mung ban den Room304.",
+      "portrait": "npc_trang_dialogueUI.png"
+    }
+  ]
+}

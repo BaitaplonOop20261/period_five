@@ -22,7 +22,6 @@ public class Npc implements Disposable {
 
     private final String name;
     private final Dialogue dialogue;
-    private final String portraitTexturePath;
     private final Rectangle bounds;
     private final Rectangle interactionBounds;
 
@@ -30,11 +29,10 @@ public class Npc implements Disposable {
     private final Animation<TextureRegion> idleAnimation;
     private float stateTime = 0f;
 
-    public Npc(String name, Dialogue dialogue, String idleTexturePath, String portraitTexturePath,
+    public Npc(String name, Dialogue dialogue, String idleTexturePath,
                float x, float y, float interactionRange) {
         this.name = name;
         this.dialogue = dialogue;
-        this.portraitTexturePath = portraitTexturePath;
         this.bounds = new Rectangle(x, y, HITBOX_WIDTH, HITBOX_HEIGHT);
         this.interactionBounds = new Rectangle(
             x - interactionRange,
@@ -56,13 +54,8 @@ public class Npc implements Disposable {
     }
 
     public Npc(String name, Dialogue dialogue, String idleTexturePath,
-               float x, float y, float interactionRange) {
-        this(name, dialogue, idleTexturePath, null, x, y, interactionRange);
-    }
-
-    public Npc(String name, Dialogue dialogue, String idleTexturePath,
                float x, float y, float width, float height, float interactionRange) {
-        this(name, dialogue, idleTexturePath, null, x, y, interactionRange);
+        this(name, dialogue, idleTexturePath, x, y, interactionRange);
     }
 
     public void update(float delta) {
@@ -75,10 +68,6 @@ public class Npc implements Disposable {
 
     public Dialogue getDialogue() {
         return dialogue;
-    }
-
-    public String getPortraitTexturePath() {
-        return portraitTexturePath;
     }
 
     public Rectangle getBounds() {
