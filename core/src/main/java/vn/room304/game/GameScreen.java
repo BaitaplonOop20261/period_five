@@ -8,7 +8,6 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.FitViewport;
@@ -39,7 +38,6 @@ public class GameScreen implements Screen {
         ROOM, HALLWAY, BACKYARD
     }
 
-    private ShapeRenderer shapeRenderer;
     private SpriteBatch spriteBatch;
     private Player player;
     private WorldMap worldMap;
@@ -60,7 +58,15 @@ public class GameScreen implements Screen {
 
     @Override
     public void show() {
-        shapeRenderer = new ShapeRenderer();
+        if (spriteBatch == null) {
+            initialize();
+        }
+        if (wardrobeController.isOpen()) {
+            Gdx.input.setInputProcessor(wardrobeView.getStage());
+        }
+    }
+
+    private void initialize() {
         spriteBatch = new SpriteBatch();
         worldMap = new WorldMap(true);
         hallwayMap = new HallwayMap();
@@ -89,6 +95,13 @@ public class GameScreen implements Screen {
         // Clear the whole window so letterboxing and space outside small maps match.
         ScreenUtils.clear(BACKGROUND_GRAY, BACKGROUND_GRAY, BACKGROUND_GRAY, 1f);
 
+        updateGame(delta);
+        renderWorld();
+        dialogueView.render(dialogueController);
+        wardrobeView.render(wardrobeController);
+    }
+
+    private void updateGame(float delta) {
         interactionMarkStateTime += delta;
 
         if (scene == Scene.ROOM) {
@@ -98,8 +111,7 @@ public class GameScreen implements Screen {
         if (dialogueController.isActive()) {
             dialogueController.update();
             if (scene == Scene.ROOM) {
-                player.update(delta, worldMap.getWalls(), worldMap.getFurniture(), worldMap.getNpcs());
-                npcInteractionSystem.update(player, worldMap.getNpcs());
+                updateRoomPlayer(delta);
             }
         } else if (wardrobeController.isOpen()) {
             wardrobeController.update();
@@ -108,8 +120,7 @@ public class GameScreen implements Screen {
         } else if (scene == Scene.BACKYARD) {
             updateBackyard(delta);
         } else {
-            player.update(delta, worldMap.getWalls(), worldMap.getFurniture(), worldMap.getNpcs());
-            npcInteractionSystem.update(player, worldMap.getNpcs());
+            updateRoomPlayer(delta);
             handleRoomInteraction();
         }
 
@@ -117,7 +128,14 @@ public class GameScreen implements Screen {
         if (!wardrobeController.isOpen() && Gdx.input.getInputProcessor() == wardrobeView.getStage()) {
             Gdx.input.setInputProcessor(null);
         }
+    }
 
+    private void updateRoomPlayer(float delta) {
+        player.update(delta, worldMap.getWalls(), worldMap.getFurniture(), worldMap.getNpcs());
+        npcInteractionSystem.update(player, worldMap.getNpcs());
+    }
+
+    private void renderWorld() {
         // Follow the player's sprite center in every scene, including map edges.
         camera.position.set(
             player.getX() + player.getBounds().width / 2f,
@@ -143,40 +161,40 @@ public class GameScreen implements Screen {
                     backyardMap.getSpawnY() + Player.SPRITE_HEIGHT + 8f);
             }
         } else {
-            worldMap.renderBackground(spriteBatch);
-            worldMap.renderFurnitureExceptWardrobe(spriteBatch);
-
-            boolean playerBehindWardrobe = player.getY() >= worldMap.getWardrobe().getCollisionBounds().y;
-            if (!playerBehindWardrobe) {
-                worldMap.renderWardrobe(spriteBatch);
-            }
-
-            boolean playerDrawn = false;
-            for (Npc npc : worldMap.getNpcs()) {
-                if (!playerDrawn && player.getY() >= npc.getY()) {
-                    player.render(spriteBatch);
-                    playerDrawn = true;
-                }
-                npc.render(spriteBatch);
-            }
-            if (!playerDrawn) {
-                player.render(spriteBatch);
-            }
-
-            if (playerBehindWardrobe) {
-                worldMap.renderWardrobe(spriteBatch);
-            }
-
-            if (!dialogueController.isActive() && !wardrobeController.isOpen()) {
-                renderInteractionMarkers();
-            }
+            renderRoom();
         }
 
         spriteBatch.end();
+    }
 
-        // 2. Render UI layers
-        dialogueView.render(dialogueController);
-        wardrobeView.render(wardrobeController);
+    private void renderRoom() {
+        worldMap.renderBackground(spriteBatch);
+        worldMap.renderFurnitureExceptWardrobe(spriteBatch);
+
+        boolean playerBehindWardrobe = player.getY() >= worldMap.getWardrobe().getCollisionBounds().y;
+        if (!playerBehindWardrobe) {
+            worldMap.renderWardrobe(spriteBatch);
+        }
+
+        boolean playerDrawn = false;
+        for (Npc npc : worldMap.getNpcs()) {
+            if (!playerDrawn && player.getY() >= npc.getY()) {
+                player.render(spriteBatch);
+                playerDrawn = true;
+            }
+            npc.render(spriteBatch);
+        }
+        if (!playerDrawn) {
+            player.render(spriteBatch);
+        }
+
+        if (playerBehindWardrobe) {
+            worldMap.renderWardrobe(spriteBatch);
+        }
+
+        if (!dialogueController.isActive() && !wardrobeController.isOpen()) {
+            renderInteractionMarkers();
+        }
     }
 
     private RoomInteraction getRoomInteractionTarget() {
@@ -323,11 +341,14 @@ public class GameScreen implements Screen {
 
     @Override
     public void hide() {
+        if (wardrobeView != null && Gdx.input.getInputProcessor() == wardrobeView.getStage()) {
+            Gdx.input.setInputProcessor(null);
+        }
     }
 
     @Override
     public void dispose() {
-        shapeRenderer.dispose();
+        hide();
         spriteBatch.dispose();
         worldMap.dispose();
         hallwayMap.dispose();

@@ -13,3 +13,25 @@ dependencies {
 jar {
   duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 }
+
+// Logic regression checks use Java assertions and the existing LibGDX API only.
+sourceSets {
+  regression {
+    compileClasspath += sourceSets.main.output + sourceSets.main.compileClasspath
+    runtimeClasspath += sourceSets.main.runtimeClasspath
+  }
+}
+
+tasks.register('regressionTest', JavaExec) {
+  group = 'verification'
+  description = 'Checks dialogue and inventory behavior without an OpenGL context.'
+  dependsOn tasks.named('regressionClasses')
+  classpath = sourceSets.regression.runtimeClasspath
+  mainClass = 'vn.room304.game.RegressionChecks'
+  enableAssertions = true
+  args layout.buildDirectory.dir('regression-fixtures').get().asFile.absolutePath
+}
+
+tasks.named('check') {
+  dependsOn tasks.named('regressionTest')
+}

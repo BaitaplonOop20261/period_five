@@ -21,7 +21,9 @@ import com.badlogic.gdx.utils.viewport.FitViewport;
 import vn.room304.game.dialogue.DialogueController;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class DialogueView implements Disposable {
 
@@ -41,7 +43,7 @@ public class DialogueView implements Disposable {
     private final Table dialogueColumn;
     private final Table responseChoices;
     private final List<Table> responseOptionBoxes = new ArrayList<>();
-    private String portraitTexturePath;
+    private final Map<String, TextureRegionDrawable> portraits = new HashMap<>();
 
     public DialogueView() {
         // Use a stable virtual canvas so fullscreen keeps the same RPG layout.
@@ -199,16 +201,17 @@ public class DialogueView implements Disposable {
             return;
         }
 
-        if (texturePath.equals(portraitTexturePath)) {
-            portraitImage.setVisible(true);
-            return;
+        TextureRegionDrawable portrait = portraits.get(texturePath);
+        if (portrait == null) {
+            Texture portraitTexture = new Texture(texturePath);
+            portraitTexture.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
+            textures.add(portraitTexture);
+            portrait = new TextureRegionDrawable(new TextureRegion(portraitTexture));
+            portraits.put(texturePath, portrait);
         }
-
-        Texture portraitTexture = new Texture(texturePath);
-        portraitTexture.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
-        textures.add(portraitTexture);
-        portraitTexturePath = texturePath;
-        portraitImage.setDrawable(new TextureRegionDrawable(new TextureRegion(portraitTexture)));
+        if (portraitImage.getDrawable() != portrait) {
+            portraitImage.setDrawable(portrait);
+        }
         portraitImage.setVisible(true);
     }
 
@@ -222,6 +225,7 @@ public class DialogueView implements Disposable {
             texture.dispose();
         }
         textures.clear();
+        portraits.clear();
     }
 
     private Texture createSolidTexture(Color color) {
