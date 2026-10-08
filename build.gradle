@@ -25,30 +25,25 @@ allprojects {
   }
 }
 
+// Both modules share one generated asset list. Write only when the task executes.
+def assetsFolder = layout.projectDirectory.dir('assets').asFile
+def assetsFile = new File(assetsFolder, 'assets.txt')
+def assetFiles = fileTree(assetsFolder) { exclude 'assets.txt' }
+tasks.register('generateAssetList') {
+  inputs.files(assetFiles).withPathSensitivity(PathSensitivity.RELATIVE)
+  outputs.file(assetsFile)
+  doLast {
+    def paths = assetFiles.files.collect { assetsFolder.relativePath(it) }.sort()
+    assetsFile.setText(paths.join('\n') + '\n', 'UTF-8')
+  }
+}
+
 configure(subprojects) {
   apply plugin: 'java-library'
   java.sourceCompatibility = 21
   java.targetCompatibility = 21
 
-  // From https://lyze.dev/2021/04/29/libGDX-Internal-Assets-List/
-  // The article can be helpful when using assets.txt in your project.
-  tasks.register('generateAssetList') {
-    inputs.dir("${project.rootDir}/assets/")
-    // projectFolder/assets
-    File assetsFolder = new File("${project.rootDir}/assets/")
-    // projectFolder/assets/assets.txt
-    File assetsFile = new File(assetsFolder, "assets.txt")
-    // delete that file in case we've already created it
-    assetsFile.delete()
-
-    // iterate through all files inside that folder
-    // convert it to a relative path
-    // and append it to the file assets.txt
-    fileTree(assetsFolder).collect { assetsFolder.relativePath(it) }.sort().each {
-      assetsFile.append(it + "\n")
-    }
-  }
-  processResources.dependsOn 'generateAssetList'
+  processResources.dependsOn rootProject.tasks.named('generateAssetList')
 
   compileJava {
     options.incremental = true

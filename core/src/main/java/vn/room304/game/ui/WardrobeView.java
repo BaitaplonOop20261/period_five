@@ -37,6 +37,7 @@ public class WardrobeView implements Disposable {
     private final Label tooltipLabel;
     private final TextButton closeButton;
     private boolean wardrobeCloseRequested;
+    private WardrobeController controller;
 
     private final Table wardrobeGrid;
     private final Table playerGrid;
@@ -50,6 +51,7 @@ public class WardrobeView implements Disposable {
         final Table container;
         final Label itemLabel;
         final Label countLabel;
+        WardrobeItem item;
 
         SlotCell(Table container, Label itemLabel, Label countLabel) {
             this.container = container;
@@ -124,6 +126,10 @@ public class WardrobeView implements Disposable {
         initSlotGrid(hotbarGrid, hotbarCells, 9, 1, slotDrawable);
         mainPanel.add(hotbarGrid).padTop(3f).padBottom(8f).row();
 
+        addSlotListeners(wardrobeCells, true, 0);
+        addSlotListeners(playerCells, false, 0);
+        addSlotListeners(hotbarCells, false, WardrobeController.INVENTORY_SLOTS);
+
         // Footer Tooltip / Hint
         tooltipLabel = new Label("CLICK DE CHUYEN DO  |  F / ESC DE DONG", hintStyle);
         tooltipLabel.setFontScale(0.85f);
@@ -177,7 +183,27 @@ public class WardrobeView implements Disposable {
         }
     }
 
+    private void addSlotListeners(SlotCell[] cells, boolean fromWardrobe, int offset) {
+        for (int i = 0; i < cells.length; i++) {
+            final int slotIndex = offset + i;
+            cells[i].container.addListener(new ClickListener() {
+                @Override
+                public void clicked(InputEvent event, float x, float y) {
+                    if (controller == null || !controller.isOpen()) {
+                        return;
+                    }
+                    if (fromWardrobe) {
+                        controller.transferWardrobeToPlayer(slotIndex);
+                    } else {
+                        controller.transferPlayerToWardrobe(slotIndex);
+                    }
+                }
+            });
+        }
+    }
+
     public void render(WardrobeController controller) {
+        this.controller = controller;
         if (wardrobeCloseRequested) {
             controller.close();
             wardrobeCloseRequested = false;
@@ -194,28 +220,12 @@ public class WardrobeView implements Disposable {
         for (int i = 0; i < wardrobeCells.length; i++) {
             WardrobeItem item = controller.getWardrobeItem(i);
             updateCell(wardrobeCells[i], item);
-            final int slotIndex = i;
-            wardrobeCells[i].container.clearListeners();
-            wardrobeCells[i].container.addListener(new ClickListener() {
-                @Override
-                public void clicked(InputEvent event, float x, float y) {
-                    controller.transferWardrobeToPlayer(slotIndex);
-                }
-            });
         }
 
         // Update player inventory slots
         for (int i = 0; i < playerCells.length; i++) {
             WardrobeItem item = controller.getPlayerItem(i);
             updateCell(playerCells[i], item);
-            final int slotIndex = i;
-            playerCells[i].container.clearListeners();
-            playerCells[i].container.addListener(new ClickListener() {
-                @Override
-                public void clicked(InputEvent event, float x, float y) {
-                    controller.transferPlayerToWardrobe(slotIndex);
-                }
-            });
         }
 
         // Update hotbar slots (indices 27 to 35 in playerItems)
@@ -223,14 +233,6 @@ public class WardrobeView implements Disposable {
             int playerSlotIdx = WardrobeController.INVENTORY_SLOTS + i;
             WardrobeItem item = controller.getPlayerItem(playerSlotIdx);
             updateCell(hotbarCells[i], item);
-            final int slotIndex = playerSlotIdx;
-            hotbarCells[i].container.clearListeners();
-            hotbarCells[i].container.addListener(new ClickListener() {
-                @Override
-                public void clicked(InputEvent event, float x, float y) {
-                    controller.transferPlayerToWardrobe(slotIndex);
-                }
-            });
         }
 
         stage.act();
@@ -239,6 +241,11 @@ public class WardrobeView implements Disposable {
     }
 
     private void updateCell(SlotCell cell, WardrobeItem item) {
+        // WardrobeItem is immutable, so unchanged references need no label formatting.
+        if (cell.item == item) {
+            return;
+        }
+        cell.item = item;
         if (item != null) {
             String shortName = item.getName();
             if (shortName.length() > 6) {
