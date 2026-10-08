@@ -91,8 +91,16 @@ public class GameScreen implements Screen {
 
         interactionMarkStateTime += delta;
 
+        if (scene == Scene.ROOM) {
+            worldMap.update(delta);
+        }
+
         if (dialogueController.isActive()) {
             dialogueController.update();
+            if (scene == Scene.ROOM) {
+                player.update(delta, worldMap.getWalls(), worldMap.getFurniture(), worldMap.getNpcs());
+                npcInteractionSystem.update(player, worldMap.getNpcs());
+            }
         } else if (wardrobeController.isOpen()) {
             wardrobeController.update();
         } else if (scene == Scene.HALLWAY) {
@@ -100,7 +108,6 @@ public class GameScreen implements Screen {
         } else if (scene == Scene.BACKYARD) {
             updateBackyard(delta);
         } else {
-            worldMap.update(delta);
             player.update(delta, worldMap.getWalls(), worldMap.getFurniture(), worldMap.getNpcs());
             npcInteractionSystem.update(player, worldMap.getNpcs());
             handleRoomInteraction();
