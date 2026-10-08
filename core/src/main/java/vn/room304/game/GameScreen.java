@@ -1,7 +1,7 @@
 package vn.room304.game;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input;
+import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
@@ -17,7 +17,12 @@ import vn.room304.game.dialogue.Dialogue;
 import vn.room304.game.dialogue.DialogueController;
 import vn.room304.game.dialogue.DialogueLine;
 import vn.room304.game.gameplay.BackyardMap;
+import vn.room304.game.gameplay.GameplayInput;
+import vn.room304.game.gameplay.RoomInteractionSystem;
+import vn.room304.game.gameplay.RoomInteractionSystem.Kind;
+import vn.room304.game.gameplay.RoomInteractionSystem.Target;
 import vn.room304.game.ui.DialogueView;
+import vn.room304.game.ui.PauseMenuView;
 import vn.room304.game.ui.WardrobeView;
 import vn.room304.game.wardrobe.WardrobeController;
 
@@ -29,10 +34,7 @@ public class GameScreen implements Screen {
     // World art uses x6 scaling. Zoom 2 shows 1920x1080 world units.
     private static final float CAMERA_ZOOM = 2f;
     private static final float BACKGROUND_GRAY = 0.15f;
-
-    private enum RoomInteraction {
-        NONE, NPC, WARDROBE, EXIT
-    }
+    private static final float FADE_SECONDS = 1f;
 
     private enum Scene {
         ROOM, HALLWAY, BACKYARD
@@ -45,7 +47,7 @@ public class GameScreen implements Screen {
     private BackyardMap backyardMap;
     private Scene scene = Scene.ROOM;
     private int activeRoom = 305;
-    private NpcInteractionSystem npcInteractionSystem;
+    private RoomInteractionSystem roomInteractions;
     private DialogueController dialogueController;
     private DialogueView dialogueView;
     private WardrobeController wardrobeController;
@@ -55,15 +57,23 @@ public class GameScreen implements Screen {
     private Texture interactionMark;
     private Animation<TextureRegion> interactionMarkAnimation;
     private float interactionMarkStateTime;
+    private final Runnable onReturnToMenu;
+    private PauseMenuView pauseMenu;
+    private boolean paused;
+    private boolean skipNextUpdate;
+    private float fadeRemaining = FADE_SECONDS;
+    private final GameplayInput input = new GameplayInput();
+
+    public GameScreen(Runnable onReturnToMenu) {
+        this.onReturnToMenu = onReturnToMenu;
+    }
 
     @Override
     public void show() {
         if (spriteBatch == null) {
             initialize();
         }
-        if (wardrobeController.isOpen()) {
-            Gdx.input.setInputProcessor(wardrobeView.getStage());
-        }
+        restoreInputProcessor();
     }
 
     private void initialize() {
@@ -74,9 +84,10 @@ public class GameScreen implements Screen {
         player = new Player(WorldMap.EXIT_CENTER_X - Player.WIDTH / 2f, 24f);
         dialogueController = new DialogueController();
         dialogueView = new DialogueView();
-        npcInteractionSystem = new NpcInteractionSystem(dialogueController);
+        roomInteractions = new RoomInteractionSystem(worldMap);
         wardrobeController = new WardrobeController();
-        wardrobeView = new WardrobeView();
+        wardrobeView = new WardrobeView(wardrobeController);
+        pauseMenu = new PauseMenuView(() -> setPaused(false), onReturnToMenu);
         interactionMark = new Texture("interaction_mark.png");
         TextureRegion[][] markFrames = TextureRegion.split(interactionMark, 8, 25);
         TextureRegion[] frames = new TextureRegion[markFrames[0].length];
@@ -95,10 +106,41 @@ public class GameScreen implements Screen {
         // Clear the whole window so letterboxing and space outside small maps match.
         ScreenUtils.clear(BACKGROUND_GRAY, BACKGROUND_GRAY, BACKGROUND_GRAY, 1f);
 
-        updateGame(delta);
+        input.capture(Gdx.input);
+        boolean transitioning = fadeRemaining > 0f;
+        boolean skipUpdate = skipNextUpdate;
+        skipNextUpdate = false;
+        if (!transitioning && input.isPauseRequested()) {
+            setPaused(!paused);
+            skipUpdate = true;
+        }
+        if (!transitioning && !paused && !skipUpdate) {
+            updateGame(delta);
+        }
         renderWorld();
         dialogueView.render(dialogueController);
-        wardrobeView.render(wardrobeController);
+        wardrobeView.render();
+        if (transitioning) {
+            pauseMenu.renderFade(fadeRemaining / FADE_SECONDS);
+            fadeRemaining = Math.max(0f, fadeRemaining - delta);
+        } else if (paused) {
+            pauseMenu.render(delta);
+        }
+    }
+
+    private void setPaused(boolean paused) {
+        this.paused = paused;
+        skipNextUpdate = true;
+        if (paused) wardrobeView.getStage().cancelTouchFocus();
+        restoreInputProcessor();
+    }
+
+    private void restoreInputProcessor() {
+        InputProcessor processor = paused ? pauseMenu.getStage()
+            : wardrobeController.isOpen() ? wardrobeView.getStage() : null;
+        if (Gdx.input.getInputProcessor() != processor) {
+            Gdx.input.setInputProcessor(processor);
+        }
     }
 
     private void updateGame(float delta) {
@@ -108,31 +150,48 @@ public class GameScreen implements Screen {
             worldMap.update(delta);
         }
 
+        Scene previousScene = scene;
+        boolean wardrobeCloseRequested = wardrobeView.consumeCloseRequest();
+        boolean movementWasAllowed = !dialogueController.isActive() && !wardrobeController.isOpen();
         if (dialogueController.isActive()) {
-            dialogueController.update();
-            if (scene == Scene.ROOM) {
-                updateRoomPlayer(delta);
+            if (input.isDialogueAdvanceRequested()) {
+                dialogueController.advance();
             }
         } else if (wardrobeController.isOpen()) {
-            wardrobeController.update();
-        } else if (scene == Scene.HALLWAY) {
-            updateHallway(delta);
-        } else if (scene == Scene.BACKYARD) {
-            updateBackyard(delta);
-        } else {
-            updateRoomPlayer(delta);
-            handleRoomInteraction();
+            if (input.isWardrobeCloseRequested() || wardrobeCloseRequested) {
+                wardrobeController.close();
+            }
+        } else if (input.isInteractionRequested()) {
+            switch (scene) {
+                case ROOM -> handleRoomInteraction();
+                case HALLWAY -> handleHallwayInteraction();
+                case BACKYARD -> handleBackyardInteraction();
+            }
         }
 
-        // Restore input processor when wardrobe closes
-        if (!wardrobeController.isOpen() && Gdx.input.getInputProcessor() == wardrobeView.getStage()) {
-            Gdx.input.setInputProcessor(null);
+        // Opening and closing a modal each consume the frame's controls. Scene teleports do too.
+        boolean movementAllowed = movementWasAllowed && !dialogueController.isActive()
+            && !wardrobeController.isOpen() && scene == previousScene;
+        updatePlayer(delta, movementAllowed);
+        if (scene == Scene.ROOM) {
+            roomInteractions.update(player.getBounds());
         }
+
+        restoreInputProcessor();
     }
 
-    private void updateRoomPlayer(float delta) {
-        player.update(delta, worldMap.getWalls(), worldMap.getFurniture(), worldMap.getNpcs());
-        npcInteractionSystem.update(player, worldMap.getNpcs());
+    private void updatePlayer(float delta, boolean movementAllowed) {
+        float horizontal = movementAllowed ? input.getHorizontal() : 0f;
+        float vertical = movementAllowed ? input.getVertical() : 0f;
+        boolean sprinting = movementAllowed && input.isSprinting();
+        switch (scene) {
+            case ROOM -> player.update(delta, horizontal, vertical, sprinting,
+                worldMap.getWalls(), worldMap.getFurniture(), worldMap.getNpcs(), WorldMap.WIDTH, WorldMap.HEIGHT);
+            case HALLWAY -> player.update(delta, horizontal, vertical, sprinting,
+                hallwayMap.getWalls(), null, List.of(), hallwayMap.getWidth(), hallwayMap.getHeight());
+            case BACKYARD -> player.update(delta, horizontal, vertical, sprinting,
+                backyardMap.getWalls(), null, List.of(), backyardMap.getWidth(), backyardMap.getHeight());
+        }
     }
 
     private void renderWorld() {
@@ -197,57 +256,35 @@ public class GameScreen implements Screen {
         }
     }
 
-    private RoomInteraction getRoomInteractionTarget() {
-        // Preserve the existing priority for overlapping interaction ranges.
-        if (npcInteractionSystem.getActiveNpc() != null) {
-            return RoomInteraction.NPC;
-        }
-        Wardrobe wardrobe = worldMap.getWardrobe();
-        if (wardrobe != null && wardrobe.canInteract(player.getBounds())) {
-            return RoomInteraction.WARDROBE;
-        }
-        if (worldMap.getExitBounds().overlaps(player.getBounds())) {
-            return RoomInteraction.EXIT;
-        }
-        return RoomInteraction.NONE;
-    }
-
     private void handleRoomInteraction() {
-        if (!Gdx.input.isKeyJustPressed(Input.Keys.F)) {
-            return;
-        }
-        switch (getRoomInteractionTarget()) {
-            case NPC -> npcInteractionSystem.interact();
-            case WARDROBE -> {
-                wardrobeController.open();
-                Gdx.input.setInputProcessor(wardrobeView.getStage());
-            }
+        roomInteractions.update(player.getBounds());
+        Target target = roomInteractions.getActiveTarget();
+        if (target == null) return;
+        switch (target.getKind()) {
+            case NPC -> dialogueController.start(target.getNpc().getDialogue());
+            case WARDROBE -> wardrobeController.open();
             case EXIT -> enterHallway();
-            case NONE -> { }
         }
     }
 
     private void renderInteractionMarkers() {
-        RoomInteraction target = getRoomInteractionTarget();
+        Target target = roomInteractions.getActiveTarget();
+        if (target == null) return;
         // The game uses 6x pixel scaling; preserve that scale for the marker.
         final float markerWidth = 8f * Npc.SPRITE_SCALE;
         final float markerHeight = 25f * Npc.SPRITE_SCALE;
         TextureRegion markerFrame = interactionMarkAnimation.getKeyFrame(interactionMarkStateTime);
 
-        Npc activeNpc = npcInteractionSystem.getActiveNpc();
-        if (target == RoomInteraction.NPC) {
-            Rectangle bounds = activeNpc.getBounds();
+        if (target.getKind() == Kind.NPC) {
+            Rectangle bounds = target.getBounds();
             spriteBatch.draw(markerFrame,
                 bounds.x + (bounds.width - markerWidth) / 2f,
                 bounds.y + Npc.SPRITE_HEIGHT - 8f,
                 markerWidth, markerHeight);
         }
 
-        Wardrobe wardrobe = worldMap.getWardrobe();
-        if (target == RoomInteraction.WARDROBE) {
-            Rectangle bounds = wardrobe.getCollisionBounds() != null
-                ? wardrobe.getCollisionBounds()
-                : wardrobe.getDrawBounds();
+        if (target.getKind() == Kind.WARDROBE) {
+            Rectangle bounds = target.getBounds();
             spriteBatch.draw(markerFrame,
                 bounds.x + (bounds.width - markerWidth) / 2f,
                 bounds.y + bounds.height + 8f,
@@ -255,7 +292,7 @@ public class GameScreen implements Screen {
         }
 
         Rectangle exit = worldMap.getExitBounds();
-        if (target == RoomInteraction.EXIT) {
+        if (target.getKind() == Kind.EXIT) {
             spriteBatch.draw(markerFrame, WorldMap.EXIT_CENTER_X - markerWidth / 2f,
                 exit.y + exit.height - 8f, markerWidth, markerHeight);
         }
@@ -283,13 +320,7 @@ public class GameScreen implements Screen {
             y, markerWidth, markerHeight);
     }
 
-    private void updateHallway(float delta) {
-        player.update(delta, hallwayMap.getWalls(), null, List.of(),
-            hallwayMap.getWidth(), hallwayMap.getHeight());
-        if (!Gdx.input.isKeyJustPressed(Input.Keys.F)) {
-            return;
-        }
-
+    private void handleHallwayInteraction() {
         int roomNumber = hallwayMap.findNearbyInteraction(player.getBounds());
         if (roomNumber == HallwayMap.BACKYARD_EXIT) {
             scene = Scene.BACKYARD;
@@ -302,7 +333,9 @@ public class GameScreen implements Screen {
             scene = Scene.ROOM;
             worldMap.dispose();
             worldMap = new WorldMap(activeRoom == 305);
+            roomInteractions = new RoomInteractionSystem(worldMap);
             player.setPosition(WorldMap.EXIT_CENTER_X - Player.WIDTH / 2f, 24f);
+            roomInteractions.update(player.getBounds());
         }
     }
 
@@ -312,11 +345,8 @@ public class GameScreen implements Screen {
             hallwayMap.getDoorStandY());
     }
 
-    private void updateBackyard(float delta) {
-        player.update(delta, backyardMap.getWalls(), null, List.of(),
-            backyardMap.getWidth(), backyardMap.getHeight());
-        if (backyardMap.getEntranceBounds().overlaps(player.getBounds())
-            && Gdx.input.isKeyJustPressed(Input.Keys.F)) {
+    private void handleBackyardInteraction() {
+        if (backyardMap.getEntranceBounds().overlaps(player.getBounds())) {
             scene = Scene.HALLWAY;
             Rectangle exit = hallwayMap.getBackyardExitBounds();
             player.setPosition(exit.x + (exit.width - Player.WIDTH) / 2f,
@@ -329,10 +359,12 @@ public class GameScreen implements Screen {
         viewport.update(width, height);
         dialogueView.resize(width, height);
         wardrobeView.resize(width, height);
+        pauseMenu.resize(width, height);
     }
 
     @Override
     public void pause() {
+        setPaused(true);
     }
 
     @Override
@@ -341,7 +373,8 @@ public class GameScreen implements Screen {
 
     @Override
     public void hide() {
-        if (wardrobeView != null && Gdx.input.getInputProcessor() == wardrobeView.getStage()) {
+        if (wardrobeView != null && (Gdx.input.getInputProcessor() == wardrobeView.getStage()
+            || Gdx.input.getInputProcessor() == pauseMenu.getStage())) {
             Gdx.input.setInputProcessor(null);
         }
     }
@@ -357,5 +390,6 @@ public class GameScreen implements Screen {
         interactionMark.dispose();
         dialogueView.dispose();
         wardrobeView.dispose();
+        pauseMenu.dispose();
     }
 }

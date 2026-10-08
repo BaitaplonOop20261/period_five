@@ -25,6 +25,10 @@ public class WorldMap implements Disposable {
     private final Wardrobe wardrobe;
     private final List<Wall> walls;
     private final List<Npc> npcs;
+    private final Rectangle exitBounds = new Rectangle(
+        EXIT_CENTER_X - EXIT_INTERACTION_WIDTH / 2f, 18f, EXIT_INTERACTION_WIDTH, 42f);
+    private final Rectangle exitThresholdBounds = new Rectangle(
+        EXIT_CENTER_X - EXIT_INTERACTION_WIDTH / 2f, 18f, EXIT_INTERACTION_WIDTH, 0f);
 
     public WorldMap() {
         this(true);
@@ -65,15 +69,19 @@ public class WorldMap implements Disposable {
                 "Trang",
                 DialogueLoader.load("dialogue/npc_trang_intro.json"),
                 "npc_trang_idle.png",
-                180f, 120f,
+                216f - Npc.HITBOX_WIDTH / 2f, 120f,
                 60f
             ));
         }
     }
 
     public Rectangle getExitBounds() {
-        return new Rectangle(EXIT_CENTER_X - EXIT_INTERACTION_WIDTH / 2f, 18f,
-            EXIT_INTERACTION_WIDTH, 42f);
+        return exitBounds;
+    }
+
+    /** Actual doorway line used for distance; the larger exit bounds only limit reach. */
+    public Rectangle getExitThresholdBounds() {
+        return exitThresholdBounds;
     }
 
     public List<Wall> getWalls() {

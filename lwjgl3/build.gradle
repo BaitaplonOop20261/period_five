@@ -196,6 +196,24 @@ distributions {
 startScripts.dependsOn(':lwjgl3:jar')
 startScripts.classpath = project.tasks.jar.outputs.files
 
+// Optional desktop checks need a working OpenGL context; keep core checks headless.
+sourceSets {
+  regression {
+    compileClasspath += sourceSets.main.output + sourceSets.main.compileClasspath
+    runtimeClasspath += sourceSets.main.runtimeClasspath
+  }
+}
+
+tasks.register('desktopRegressionTest', JavaExec) {
+  group = 'verification'
+  description = 'Checks door interaction and dialogue movement locks with the desktop renderer.'
+  dependsOn tasks.named('regressionClasses')
+  classpath = sourceSets.regression.runtimeClasspath
+  mainClass = 'vn.room304.game.lwjgl3.GameplayRegressionChecks'
+  workingDir = rootProject.file('assets')
+  jvmArgs tasks.named('run').get().jvmArgs
+}
+
 // Helps if debugging on Linux with an Nvidia GPU.
 // This means StartupHelper won't try to restart the JVM, which can prevent debugging.
 // This only applies to Gradle tasks, not main methods debugged when launching a main() method directly.

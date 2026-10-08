@@ -13,6 +13,7 @@ import vn.room304.game.dialogue.Dialogue;
 import vn.room304.game.dialogue.DialogueController;
 import vn.room304.game.dialogue.DialogueLine;
 import vn.room304.game.dialogue.DialogueLoader;
+import vn.room304.game.gameplay.GameplayInput;
 import vn.room304.game.wardrobe.WardrobeController;
 import vn.room304.game.wardrobe.WardrobeItem;
 
@@ -33,10 +34,11 @@ public final class RegressionChecks {
             checkInvalidSlots();
             checkFullInventories();
             checkHotbarTransfer();
-            checkWardrobeInput();
+            checkWardrobeState();
+            checkGameplayInput();
             checkDialogueProgression();
             checkDialogueLoading(Path.of(args[0]));
-            System.out.println("Regression checks passed: 7 scenarios (inventory, input, dialogue, JSON validation).");
+            System.out.println("Regression checks passed: 8 scenarios (inventory, input snapshot, dialogue, JSON validation).");
         } finally {
             Gdx.input = previousInput;
             Gdx.files = previousFiles;
@@ -110,18 +112,42 @@ public final class RegressionChecks {
         return (WardrobeItem[]) field.get(controller);
     }
 
-    private static void checkWardrobeInput() {
+    private static void checkWardrobeState() {
         WardrobeController controller = new WardrobeController();
+        assert !controller.isOpen();
         controller.open();
-        press(-1);
-        controller.update();
         assert controller.isOpen();
-        for (int key : new int[] {Input.Keys.F, Input.Keys.ESCAPE, Input.Keys.E}) {
-            controller.open();
+        controller.close();
+        assert !controller.isOpen();
+        controller.toggle();
+        assert controller.isOpen();
+        controller.toggle();
+        assert !controller.isOpen();
+    }
+
+    private static void checkGameplayInput() {
+        GameplayInput input = new GameplayInput();
+        press(Input.Keys.F, Input.Keys.W, Input.Keys.D, Input.Keys.CONTROL_LEFT);
+        input.capture(Gdx.input);
+        assert input.getHorizontal() == 1f && input.getVertical() == 1f;
+        assert input.isSprinting();
+        assert input.isInteractionRequested() && input.isDialogueAdvanceRequested() && input.isWardrobeCloseRequested();
+        press(-1, Input.Keys.W, Input.Keys.S, Input.Keys.A, Input.Keys.D, Input.Keys.F);
+        input.capture(Gdx.input);
+        assert input.getHorizontal() == 0f && input.getVertical() == 0f : "Opposite keys must cancel";
+        assert !input.isSprinting() && !input.isInteractionRequested() : "Held F must not repeat interactions";
+        assert !input.isDialogueAdvanceRequested() && !input.isWardrobeCloseRequested();
+        for (int key : new int[] {Input.Keys.ENTER, Input.Keys.E, Input.Keys.ESCAPE}) {
             press(key);
-            controller.update();
-            assert !controller.isOpen() : "Each supported close key must close the wardrobe";
+            input.capture(Gdx.input);
+            assert !input.isInteractionRequested();
+            assert input.isDialogueAdvanceRequested() == (key == Input.Keys.ENTER);
+            assert input.isWardrobeCloseRequested() == (key == Input.Keys.E);
+            assert input.isPauseRequested() == (key == Input.Keys.ESCAPE) : "Esc belongs to pause, not wardrobe close";
         }
+        press(-1);
+        input.capture(Gdx.input);
+        assert !input.isPauseRequested() && !input.isDialogueAdvanceRequested() && !input.isWardrobeCloseRequested();
     }
 
     private static void checkDialogueProgression() {
@@ -133,17 +159,13 @@ public final class RegressionChecks {
         assert controller.isActive();
         assert controller.getSpeakerName().equals("Trang");
         assert controller.getSpeakerPortraitTexturePath().equals("portrait.png");
-        press(-1);
-        controller.update();
-        assert controller.getCurrentLine().equals("First") : "No key must preserve current line";
-        press(Input.Keys.F);
-        controller.update();
+        assert controller.getCurrentLine().equals("First");
+        controller.advance();
         assert controller.getCurrentLine().equals("Second");
         assert controller.getSpeakerPortraitTexturePath() == null;
-        press(Input.Keys.ENTER);
-        controller.update();
+        controller.advance();
         assert !controller.isActive() : "Last line must close instead of reading past the list";
-        controller.update(); // Inactive update is safe.
+        controller.advance(); // Advancing an inactive dialogue is safe.
         controller.start(dialogue);
         assert controller.getCurrentLine().equals("First") : "Restart must reset line index";
         controller.start(new Dialogue("empty", List.of()));
@@ -195,11 +217,17 @@ public final class RegressionChecks {
         }
     }
 
-    private static void press(int key) {
+    private static void press(int key, int... held) {
         Gdx.input = (Input) Proxy.newProxyInstance(Input.class.getClassLoader(), new Class<?>[] {Input.class},
             (proxy, method, args) -> {
                 if (method.getName().equals("isKeyJustPressed")) {
                     return (int) args[0] == key;
+                }
+                if (method.getName().equals("isKeyPressed")) {
+                    for (int heldKey : held) {
+                        if (heldKey == (int) args[0]) return true;
+                    }
+                    return false;
                 }
                 throw new UnsupportedOperationException(method.getName());
             });

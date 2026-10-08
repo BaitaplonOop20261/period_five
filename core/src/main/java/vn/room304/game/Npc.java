@@ -16,8 +16,9 @@ public class Npc implements Disposable {
     public static final float SPRITE_WIDTH = 32f * SPRITE_SCALE;   // 192f
     public static final float SPRITE_HEIGHT = 32f * SPRITE_SCALE;  // 192f
 
-    public static final float HITBOX_WIDTH = 72f;
-    public static final float HITBOX_HEIGHT = 36f;
+    /** Match the player's 18x10-pixel ground footprint. */
+    public static final float HITBOX_WIDTH = 18f * SPRITE_SCALE;
+    public static final float HITBOX_HEIGHT = 10f * SPRITE_SCALE;
     private static final float FRAME_DURATION = 0.15f;
 
     private final String name;

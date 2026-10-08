@@ -1,13 +1,13 @@
 package vn.room304.game;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Rectangle;
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Disposable;
 import java.util.List;
@@ -23,19 +23,20 @@ public class Player implements Disposable {
     public static final float SPRITE_WIDTH = 32f * SPRITE_SCALE;   // 192f
     public static final float SPRITE_HEIGHT = 32f * SPRITE_SCALE;  // 192f
 
-    /** Feet / base hitbox used for environment collision */
-    public static final float WIDTH = 72f;
-    public static final float HEIGHT = 36f;
+    /** 18x10 sprite pixels cover the feet and lower body without blocking at the head. */
+    public static final float WIDTH = 18f * SPRITE_SCALE;
+    public static final float HEIGHT = 10f * SPRITE_SCALE;
     private static final float FRAME_DURATION = 0.12f;
     private static final float SPRINT_MULTIPLIER = 1.8f;
     // Movement animations use their original cadence at this world speed.
     private static final float ANIMATION_REFERENCE_SPEED = 220f;
+    private static final float MOVEMENT_SPEED = 280f;
+    private static final float HORIZONTAL_MARGIN = 24f;
+    private static final float VERTICAL_MARGIN = 18f;
 
     private final Rectangle bounds;
     private final Rectangle nextBounds;
     private final Vector2 movement = new Vector2();
-
-    private float speed = 280f;
 
     private final Texture idleSheet;
     private final Texture downRunSheet;
@@ -49,7 +50,6 @@ public class Player implements Disposable {
 
     private float stateTime = 0f;
     private boolean flipX = false;
-    private boolean moving = false;
 
     /** Tracks which directional animation to use while moving. */
     private Animation<TextureRegion> currentRunAnimation;
@@ -139,44 +139,21 @@ public class Player implements Disposable {
         return SPRITE_HEIGHT;
     }
 
-    public void update(float delta, List<Wall> walls, List<Npc> npcs) {
-        update(delta, walls, null, npcs);
-    }
-
-    public void update(float delta, List<Wall> walls, List<Furniture> furniture, List<Npc> npcs) {
-        update(delta, walls, furniture, npcs, WorldMap.WIDTH, WorldMap.HEIGHT);
-    }
-
-    public void update(float delta, List<Wall> walls, List<Furniture> furniture, List<Npc> npcs,
+    public void update(float delta, float horizontal, float vertical, boolean sprinting,
+                       List<Wall> walls, List<Furniture> furniture, List<Npc> npcs,
                        float worldWidth, float worldHeight) {
-        movement.set(0f, 0f);
+        updateMovement(delta, horizontal, vertical, sprinting, walls, furniture, npcs, worldWidth, worldHeight);
+        updateAnimation(delta);
+    }
 
-        if (Gdx.input.isKeyPressed(Input.Keys.W)) {
-            movement.y += 1f;
-        }
-
-        if (Gdx.input.isKeyPressed(Input.Keys.S)) {
-            movement.y -= 1f;
-        }
-
-        if (Gdx.input.isKeyPressed(Input.Keys.A)) {
-            movement.x -= 1f;
-        }
-
-        if (Gdx.input.isKeyPressed(Input.Keys.D)) {
-            movement.x += 1f;
-        }
-
-        moving = !movement.isZero();
-        boolean sprinting = moving && (Gdx.input.isKeyPressed(Input.Keys.CONTROL_LEFT)
-            || Gdx.input.isKeyPressed(Input.Keys.CONTROL_RIGHT));
-        float speedMultiplier = sprinting ? SPRINT_MULTIPLIER : 1f;
-        float animationMultiplier = moving ? speed * speedMultiplier / ANIMATION_REFERENCE_SPEED : 1f;
-        stateTime += delta * animationMultiplier;
-
-        if (moving) {
-            updateDirection();
-            movement.nor().scl(speed * speedMultiplier * delta);
+    private void updateMovement(float delta, float horizontal, float vertical, boolean sprinting,
+                                List<Wall> walls, List<Furniture> furniture, List<Npc> npcs,
+                                float worldWidth, float worldHeight) {
+        float previousX = bounds.x;
+        float previousY = bounds.y;
+        movement.set(horizontal, vertical);
+        if (!movement.isZero()) {
+            movement.nor().scl(MOVEMENT_SPEED * (sprinting ? SPRINT_MULTIPLIER : 1f) * delta);
 
             float newX = bounds.x + movement.x;
             if (!isColliding(newX, bounds.y, walls, furniture, npcs)) {
@@ -189,27 +166,32 @@ public class Player implements Disposable {
             }
         }
 
-        if (bounds.x < 24f) {
-            bounds.x = 24f;
+        bounds.x = MathUtils.clamp(bounds.x, HORIZONTAL_MARGIN, worldWidth - HORIZONTAL_MARGIN - bounds.width);
+        bounds.y = MathUtils.clamp(bounds.y, VERTICAL_MARGIN, worldHeight - VERTICAL_MARGIN - bounds.height);
+        movement.set(bounds.x - previousX, bounds.y - previousY);
+    }
+
+    private void updateAnimation(float delta) {
+        if (isMoving()) {
+            updateDirection();
+            stateTime += movement.len() / ANIMATION_REFERENCE_SPEED;
+        } else {
+            stateTime += delta;
         }
-        if (bounds.x + bounds.width > worldWidth - 24f) {
-            bounds.x = worldWidth - 24f - bounds.width;
-        }
-        if (bounds.y < 18f) {
-            bounds.y = 18f;
-        }
-        if (bounds.y + bounds.height > worldHeight - 18f) {
-            bounds.y = worldHeight - 18f - bounds.height;
-        }
+    }
+
+    public boolean isMoving() {
+        return !movement.isZero();
     }
 
     public void setPosition(float x, float y) {
         bounds.setPosition(x, y);
+        movement.setZero();
     }
 
     /**
-     * Picks the correct run animation and flip state based on raw input direction.
-     * Horizontal input takes priority over vertical for animation selection.
+     * Picks the run animation and flip state from displacement after collision.
+     * Horizontal displacement takes priority over vertical for animation selection.
      */
     private void updateDirection() {
         if (movement.x > 0) {
@@ -227,7 +209,7 @@ public class Player implements Disposable {
 
     public void render(SpriteBatch batch) {
         TextureRegion frame;
-        if (moving) {
+        if (isMoving()) {
             frame = currentRunAnimation.getKeyFrame(stateTime, true);
         } else {
             frame = idleAnimation.getKeyFrame(stateTime, true);

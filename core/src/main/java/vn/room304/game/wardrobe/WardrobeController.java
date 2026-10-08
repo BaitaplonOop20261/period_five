@@ -1,8 +1,5 @@
 package vn.room304.game.wardrobe;
 
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input;
-
 public class WardrobeController {
 
     public static final int WARDROBE_SLOTS = 27;  // 9 x 3 (Minecraft chest slots)
@@ -41,18 +38,6 @@ public class WardrobeController {
 
     public boolean isOpen() {
         return open;
-    }
-
-    public void update() {
-        if (!open) {
-            return;
-        }
-
-        if (Gdx.input.isKeyJustPressed(Input.Keys.F)
-            || Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)
-            || Gdx.input.isKeyJustPressed(Input.Keys.E)) {
-            close();
-        }
     }
 
     public WardrobeItem getWardrobeItem(int index) {

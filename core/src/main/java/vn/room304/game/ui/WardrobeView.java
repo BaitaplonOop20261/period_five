@@ -23,6 +23,7 @@ import vn.room304.game.wardrobe.WardrobeItem;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class WardrobeView implements Disposable {
 
@@ -37,7 +38,7 @@ public class WardrobeView implements Disposable {
     private final Label tooltipLabel;
     private final TextButton closeButton;
     private boolean wardrobeCloseRequested;
-    private WardrobeController controller;
+    private final WardrobeController controller;
 
     private final Table wardrobeGrid;
     private final Table playerGrid;
@@ -60,7 +61,8 @@ public class WardrobeView implements Disposable {
         }
     }
 
-    public WardrobeView() {
+    public WardrobeView(WardrobeController controller) {
+        this.controller = Objects.requireNonNull(controller, "controller");
         // Keep the wardrobe panel at a predictable size in fullscreen.
         stage = new Stage(new FitViewport(960f, 540f));
         font = new BitmapFont();
@@ -189,7 +191,7 @@ public class WardrobeView implements Disposable {
             cells[i].container.addListener(new ClickListener() {
                 @Override
                 public void clicked(InputEvent event, float x, float y) {
-                    if (controller == null || !controller.isOpen()) {
+                    if (!controller.isOpen()) {
                         return;
                     }
                     if (fromWardrobe) {
@@ -202,12 +204,13 @@ public class WardrobeView implements Disposable {
         }
     }
 
-    public void render(WardrobeController controller) {
-        this.controller = controller;
-        if (wardrobeCloseRequested) {
-            controller.close();
-            wardrobeCloseRequested = false;
-        }
+    public boolean consumeCloseRequest() {
+        boolean requested = wardrobeCloseRequested;
+        wardrobeCloseRequested = false;
+        return requested;
+    }
+
+    public void render() {
         boolean open = controller.isOpen();
         dimOverlay.setVisible(open);
         mainPanel.setVisible(open);

@@ -117,3 +117,44 @@ Checklist thủ công tiếp theo: di chuyển/Ctrl trước và trong NPC dialo
 3. Reproduce delta lớn trước khi chọn collision substep; chưa đổi movement policy chỉ vì rủi ro lý thuyết.
 4. Khi cần recovery/loading, xử lý rollback khi khởi tạo asset lỗi và cân nhắc AssetManager có ownership chung.
 5. Chốt yêu cầu narrator/branching/quest/save trước khi thêm schema hoặc abstraction. Dùng test framework chuẩn khi suite và nhu cầu reporting tăng đủ để biện minh dependency test.
+
+## Đợt tiếp theo — systematic game logic refactoring
+
+Phần này ghi kết quả trên working tree mới hơn audit ban đầu: đã có OpeningScreen, pause, hitbox mới, RoomInteractionSystem chọn vật gần nhất và desktop regression checks. Những thay đổi có sẵn đó được giữ lại. Yêu cầu hiện tại xác định rõ dialogue phải khóa movement và animation phản ánh chuyển động thực tế.
+
+### Nguyên nhân xác nhận và cách sửa
+
+| Vấn đề trước đợt này | Nguyên nhân gốc | Thay đổi |
+| --- | --- | --- |
+| `Player.moving` được gán từ phím trước collision | Đồng nhất ý định di chuyển với chuyển động thật; đâm tường vẫn dùng run animation | Xác định độ dời sau collision/clamp; `isMoving()` suy ra từ độ dời, hướng và cadence dựa trên độ dời |
+| Screen gọi `updateIdle(delta)` khi thoại và `updateIdle(0)` ngay sau mở thoại | Ngừng player update theo ngữ cảnh rồi sửa pose ở tầng điều phối; movement đã chạy trên frame mở | Xử lý lệnh trước movement; một luồng player update cho mọi scene, truyền hướng 0 khi input khóa; bỏ `updateIdle()` |
+| Player, dialogue, wardrobe và screen tự đọc phím | Binding và quyền xử lý lệnh phân tán; controller phụ thuộc hardware/global input | Thêm một `GameplayInput` snapshot; screen route theo ngữ cảnh; controller nhận `advance/open/close`, player nhận movement intent đã được kiểm tra |
+| `WardrobeView.render()` đóng controller khi có yêu cầu X | Business state thay đổi trong bước draw, sau khi screen đã giải quyết input processor | Bind controller một lần; X chỉ phát request, screen consume trong update; gom processor selection vào `restoreInputProcessor()` |
+| Movement được cập nhật riêng ở từng nhánh scene/UI | Nhiều đường đi quyết định player có được update hay không | Một lần `updatePlayer()` mỗi gameplay tick, collision vẫn theo map hiện tại; opening/closing UI và teleport tiêu thụ quyền movement của frame |
+
+Chỉ thêm một class `GameplayInput`; movement/animation tách thành private method trong Player. Không tạo interface, movement manager, animation manager, event bus hoặc trạng thái IDLE/WALK riêng bị trùng với độ dời. DialogueController sở hữu tiến trình thoại; WardrobeController sở hữu open/items; Player sở hữu vị trí và độ dời; screen sở hữu scene/pause và phân phối quyền điều khiển. Render không tự tiến/đóng business state.
+
+Các API nội bộ được cập nhật cùng mọi caller: Player.update nhận hướng/sprint và kích thước map rõ ràng; bỏ overload tự đọc bàn phím/default map và `updateIdle`; `DialogueController.update()` đổi thành `advance()`; bỏ `WardrobeController.update()` đọc phím; WardrobeView nhận controller trong constructor và `render()` không nhận model động. Không giữ wrapper đọc hardware vì sẽ duy trì coupling đã xác định.
+
+### Kiểm chứng thực tế của đợt này
+
+- Baseline: core checks và desktop checks hiện có đều thành công trước khi sửa.
+- Nhóm input/movement/animation: compile cả hai module, **8 core scenarios** và desktop checks cũ thành công.
+- Nhóm UI command routing và bổ sung coverage: **`build :lwjgl3:desktopRegressionTest` thành công**, offline trên JDK 21; JAR/start scripts/TAR/ZIP được tạo. Không thêm dependency/build plugin hoặc tải dữ liệu mạng.
+- Desktop checks khởi tạo **LWJGL3/OpenGL thật, asset thật, cửa sổ ẩn**. Kiểm tra: đứng yên và idle clock; đi được và tốc độ cũ; zero delta; sprint bị tường chặn; trượt dọc tường và hướng/cadence thực tế; góc tường chặn cả hai trục; world clamp; collision với furniture/NPC; opening/closing dialogue với phím giữ, WASD/Ctrl, F/Enter, 5 vòng lặp mở/đóng; pause/resume; chuyển phòng và các test selector cũ.
+- UI checks dispatch touchDown/touchUp qua Scene2D Stage thật: giữ click qua 3 frame chuyển đúng một item; listener không bị thay; wardrobe mở/đóng bằng X/F/E khóa movement trên frame tương ứng; pause không route F vào wardrobe; draw view hai lần không đóng controller; X giải phóng input processor trong cùng update; hide/show giữ batch và khôi phục stage.
+- Core checks xác nhận snapshot reset qua frame, WASD đối nhau triệt tiêu, held F không tự lặp, binding Enter/E/Esc đúng ngữ cảnh; inventory/dialogue/JSON validation vẫn đạt.
+
+Lệnh kiểm chứng:
+
+```powershell
+.\gradlew.bat --offline --no-daemon -g .gradle-user-home build :lwjgl3:desktopRegressionTest --console=plain '-Dorg.gradle.logging.level=lifecycle'
+```
+
+Các check desktop chứng minh trạng thái và thao tác tự động trên runtime thật; **chưa có visual QA bằng mắt hoặc kiểm thử toàn bộ menu mở đầu/audio/resize**. Không tuyên bố gameplay được bảo toàn hoàn toàn. Hai thay đổi hành vi có chủ đích: run animation phản ánh chuyển động thật khi bị chặn, và frame mở modal không áp dụng movement trước rồi sửa pose. X/keyboard close đều tiêu thụ movement của frame đóng; frame sau nhận lại phím giữ. Tốc độ, hitbox, nearest-target/tie policy, assets và nội dung thoại được giữ.
+
+Không thêm tài nguyên đồ họa hoặc đổi dispose ownership. Runtime checks tạo Player fixture có `finally` dispose; screen chính vẫn do Game owner dispose. Các vấn đề partial initialization khi asset lỗi, large-delta collision và sorting nhiều NPC vẫn để sau vì cần recovery policy/reproduction hoặc scene thực tế; không thêm quest/cutscene/ending/scene framework khi chưa có yêu cầu cụ thể.
+
+### File sửa riêng trong đợt này
+
+`GameScreen.java`, `Player.java`, `dialogue/DialogueController.java`, `wardrobe/WardrobeController.java`, `ui/WardrobeView.java`, class mới `gameplay/GameplayInput.java`, hai bộ `RegressionChecks.java` / `GameplayRegressionChecks.java`, `README.md` và báo cáo này. Không sửa các thay đổi menu/audio/map/asset hoặc build config đã có trong working tree; không commit/push.

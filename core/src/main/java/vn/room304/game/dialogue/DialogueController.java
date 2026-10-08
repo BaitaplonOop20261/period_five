@@ -1,8 +1,5 @@
 package vn.room304.game.dialogue;
 
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input;
-
 public class DialogueController {
 
     private Dialogue dialogue;
@@ -17,14 +14,12 @@ public class DialogueController {
         lineIndex = 0;
     }
 
-    public void update() {
+    public void advance() {
         if (!isActive()) {
             return;
         }
 
-        if (Gdx.input.isKeyJustPressed(Input.Keys.F) || Gdx.input.isKeyJustPressed(Input.Keys.ENTER)) {
-            advanceOrClose();
-        }
+        advanceOrClose();
     }
 
     public boolean isActive() {
