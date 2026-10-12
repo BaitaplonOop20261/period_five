@@ -137,7 +137,8 @@ public class GameScreen implements Screen {
 
     private void restoreInputProcessor() {
         InputProcessor processor = paused ? pauseMenu.getStage()
-            : wardrobeController.isOpen() ? wardrobeView.getStage() : null;
+            : wardrobeController.isOpen() ? wardrobeView.getStage()
+            : dialogueController.isActive() ? dialogueView.getStage() : null;
         if (Gdx.input.getInputProcessor() != processor) {
             Gdx.input.setInputProcessor(processor);
         }
@@ -374,7 +375,8 @@ public class GameScreen implements Screen {
     @Override
     public void hide() {
         if (wardrobeView != null && (Gdx.input.getInputProcessor() == wardrobeView.getStage()
-            || Gdx.input.getInputProcessor() == pauseMenu.getStage())) {
+            || Gdx.input.getInputProcessor() == pauseMenu.getStage()
+            || Gdx.input.getInputProcessor() == dialogueView.getStage())) {
             Gdx.input.setInputProcessor(null);
         }
     }

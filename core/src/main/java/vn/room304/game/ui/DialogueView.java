@@ -12,6 +12,7 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
+import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.NinePatchDrawable;
 import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
@@ -19,6 +20,7 @@ import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import vn.room304.game.dialogue.DialogueController;
+import vn.room304.game.dialogue.DialogueChoice;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -44,6 +46,9 @@ public class DialogueView implements Disposable {
     private final Table responseChoices;
     private final List<Table> responseOptionBoxes = new ArrayList<>();
     private final Map<String, TextureRegionDrawable> portraits = new HashMap<>();
+    private final Drawable optionBackground;
+    private final Label.LabelStyle choiceStyle;
+    private String choiceSignature;
 
     public DialogueView() {
         // Use a stable virtual canvas so fullscreen keeps the same RPG layout.
@@ -66,6 +71,7 @@ public class DialogueView implements Disposable {
         Label.LabelStyle nameStyle = new Label.LabelStyle(font, new Color(1f, 0.86f, 0.48f, 1f));
         Label.LabelStyle lineStyle = new Label.LabelStyle(dialogueFont, new Color(0.98f, 0.91f, 0.75f, 1f));
         Label.LabelStyle hintStyle = new Label.LabelStyle(font, new Color(0.78f, 0.63f, 0.42f, 1f));
+        choiceStyle = new Label.LabelStyle(dialogueFont, new Color(0.92f, 0.82f, 0.65f, 1f));
 
         nameLabel = new Label("", nameStyle);
         lineLabel = new Label("", lineStyle);
@@ -117,14 +123,11 @@ public class DialogueView implements Disposable {
 
         responseChoices = new Table();
         responseChoices.defaults().right().padTop(8f);
-        Drawable optionBackground = createNinePatchDrawable(
+        optionBackground = createNinePatchDrawable(
             10, 1,
             new Color(0.18f, 0.10f, 0.06f, 0.96f),
             new Color(0.72f, 0.43f, 0.17f, 1f)
         );
-        addResponseOption("Hello", hintStyle, optionBackground);
-        addResponseOption("Room304 la gi", hintStyle, optionBackground);
-        addResponseOption("Ban la ai", hintStyle, optionBackground);
 
         // Keep the character portrait to the left and dialogue panel at the upper right.
         rootTable = new Table();
@@ -149,13 +152,20 @@ public class DialogueView implements Disposable {
         rootTable.setVisible(active);
 
         if (active) {
-            String speaker = dialogueController.getSpeakerName();
-            boolean hasSpeaker = speaker != null && !speaker.trim().isEmpty();
-            nameLabel.setText(hasSpeaker ? speaker : "");
-            nameBadge.setVisible(hasSpeaker);
-            lineLabel.setText(dialogueController.getCurrentLine());
-
-            updatePortrait(dialogueController.getSpeakerPortraitTexturePath());
+            boolean choosing = dialogueController.isChoosing();
+            dialogueBox.setVisible(!choosing);
+            portraitFrame.setVisible(!choosing);
+            responseChoices.setVisible(choosing);
+            if (choosing) {
+                updateChoices(dialogueController);
+            } else {
+                String speaker = dialogueController.getSpeakerName();
+                boolean hasSpeaker = speaker != null && !speaker.trim().isEmpty();
+                nameLabel.setText(hasSpeaker ? speaker : "");
+                nameBadge.setVisible(hasSpeaker);
+                lineLabel.setText(dialogueController.getCurrentLine());
+                updatePortrait(dialogueController.getSpeakerPortraitTexturePath());
+            }
         }
 
         stage.act();
@@ -181,17 +191,43 @@ public class DialogueView implements Disposable {
         dialogueBox.getCell(lineLabel).width(dialogueWidth - 44f);
         float optionWidth = dialogueWidth * 0.66f;
         for (Table optionBox : responseOptionBoxes) {
-            responseChoices.getCell(optionBox).width(optionWidth).height(42f);
+            responseChoices.getCell(optionBox).width(optionWidth).height(52f);
         }
     }
 
-    private void addResponseOption(String text, Label.LabelStyle style,
-                                   Drawable background) {
-        Table optionBox = new Table();
-        optionBox.setBackground(background);
-        optionBox.add(new Label(text, style)).center();
-        responseChoices.add(optionBox).width(250f).height(42f).right().row();
-        responseOptionBoxes.add(optionBox);
+    private void updateChoices(DialogueController dialogueController) {
+        List<DialogueChoice> choices = dialogueController.getAvailableChoices();
+        StringBuilder signature = new StringBuilder();
+        for (DialogueChoice choice : choices) signature.append(choice.getId()).append('|');
+        if (signature.toString().equals(choiceSignature)) return;
+
+        responseChoices.clearChildren();
+        responseOptionBoxes.clear();
+        choiceSignature = signature.toString();
+        float viewportWidth = stage.getViewport().getWorldWidth();
+        float portraitWidth = Math.min(245f, viewportWidth * 0.27f);
+        float optionWidth = Math.max(380f, viewportWidth - portraitWidth - 104f) * 0.66f;
+        for (int i = 0; i < choices.size(); i++) {
+            final int choiceIndex = i;
+            Table optionBox = new Table();
+            optionBox.setBackground(optionBackground);
+            Label choiceLabel = new Label(choices.get(i).getText(), choiceStyle);
+            choiceLabel.setWrap(true);
+            optionBox.add(choiceLabel).growX().center();
+            optionBox.addListener(new ClickListener() {
+                @Override
+                public void clicked(com.badlogic.gdx.scenes.scene2d.InputEvent event,
+                                    float x, float y) {
+                    dialogueController.choose(choiceIndex);
+                }
+            });
+            responseChoices.add(optionBox).width(optionWidth).height(52f).right().row();
+            responseOptionBoxes.add(optionBox);
+        }
+    }
+
+    public Stage getStage() {
+        return stage;
     }
 
     private void updatePortrait(String texturePath) {

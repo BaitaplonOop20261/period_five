@@ -7,6 +7,8 @@ public class Dialogue {
 
     private String id;
     private List<DialogueLine> lines;
+    private List<DialogueChoice> choices;
+    private DialogueChoice exit_choice;
 
     /** Required by LibGDX Json. */
     public Dialogue() {
@@ -31,5 +33,21 @@ public class Dialogue {
 
     public DialogueLine getLine(int index) {
         return lines.get(index);
+    }
+
+    public List<DialogueLine> getLines() {
+        return lines;
+    }
+
+    public List<DialogueChoice> getChoices() {
+        return choices;
+    }
+
+    public DialogueChoice getExitChoice() {
+        return exit_choice;
+    }
+
+    public boolean hasChoices() {
+        return choices != null && !choices.isEmpty();
     }
 }

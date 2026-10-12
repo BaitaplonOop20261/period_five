@@ -1,10 +1,66 @@
 {
   "id": "npc_trang_intro",
-  "lines": [
+  "choices": [
     {
-      "speaker": "Trang",
-      "text": "hello",
-      "portrait": "npc_trang_dialogueUI.png"
+      "id": "ask_why_abandoned",
+      "text": "Vì sao căn phòng này bị bỏ không?",
+      "lines": [
+        {
+          "speaker": "Linh",
+          "text": "Cậu có biết vì sao phòng 304 bị bỏ không lâu như vậy không? Trường sắp sửa khu nhà này mà đến giờ nó vẫn đầy đồ cũ.",
+          "portrait": null
+        },
+        {
+          "speaker": "Trang",
+          "text": "Tớ chỉ nghe nói mười năm trước khu nhà này từng xảy ra một vụ cháy. Sau đó phòng 304 không còn được dùng làm lớp học rồi dần biến thành kho. Nhưng tớ không biết chính xác chuyện hôm ấy diễn ra thế nào; mấy lời đồn trong trường cũng chẳng giống nhau hoàn toàn.",
+          "portrait": "npc_trang_dialogueUI.png"
+        },
+        {
+          "speaker": "Linh",
+          "text": "Vậy mình đừng vội tin lời đồn. Nếu tư liệu cũ còn ở đây, có lẽ mình sẽ tìm được thông tin đáng tin hơn.",
+          "portrait": null
+        }
+      ],
+      "return_to_choices": true
+    },
+    {
+      "id": "ask_anything_strange",
+      "text": "Cậu có thấy căn phòng này có gì kỳ lạ không?",
+      "lines": [
+        {
+          "speaker": "Linh",
+          "text": "Không biết có phải do phòng lâu ngày không có người dùng không, nhưng tớ thấy nơi này im ắng quá mức. Cậu có cảm giác gì lạ không?",
+          "portrait": null
+        },
+        {
+          "speaker": "Trang",
+          "text": "Ngoài bụi, mùi gỗ cũ với mấy cái bàn bị xếp chồng lên nhau thì tớ chưa thấy gì đáng gọi là kỳ lạ. Có điều, đúng là yên tĩnh thật. Cậu đừng tự dọa mình trước khi có chuyện gì xảy ra nhé; cứ kiểm tra từng món đồ đã.",
+          "portrait": "npc_trang_dialogueUI.png"
+        },
+        {
+          "speaker": "Linh",
+          "text": "Ừ, tớ hỏi vậy thôi. Mình cứ làm việc bình thường trước đã.",
+          "portrait": null
+        }
+      ],
+      "return_to_choices": true
     }
-  ]
+  ],
+  "exit_choice": {
+    "id": "finish_intro_chat",
+    "text": "Thôi, mình đi xem quanh phòng đã.",
+    "lines": [
+      {
+        "speaker": "Linh",
+        "text": "Thôi, mình đi xem quanh phòng đã. Chắc nhìn kỹ mấy món đồ sẽ có ích hơn là đứng đoán mò.",
+        "portrait": null
+      },
+      {
+        "speaker": "Trang",
+        "text": "Được. Tớ sẽ xem danh sách đồ, còn cậu kiểm tra ảnh với cuốn sổ trên bàn nhé. Có gì lạ thì gọi tớ, đừng tự ý mang đồ ra khỏi phòng.",
+        "portrait": "npc_trang_dialogueUI.png"
+      }
+    ],
+    "close_dialogue": true
+  }
 }
