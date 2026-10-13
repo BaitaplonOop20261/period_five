@@ -41,6 +41,9 @@ import com.room304.world.wardrobe.WardrobeItem;
 
 /** Reproduces user-facing interaction bugs against real assets and the desktop renderer. */
 public final class GameplayRegressionChecks {
+    private static final String ASK_ABANDONED = "ask_why_abandoned";
+    private static final String ASK_STRANGE = "ask_anything_strange";
+    private static final String FINISH_CHAT = "finish_intro_chat";
     private static Throwable failure;
 
     private GameplayRegressionChecks() {
@@ -72,7 +75,8 @@ public final class GameplayRegressionChecks {
         System.out.println("Desktop gameplay checks passed: overlapping door/NPC ranges, "
             + "nearest geometry across all targets, exact ties, NPC order independence, "
             + "room round trip, actual movement/animation/collision, dialogue opening/closing locks, pause, "
-            + "wardrobe gestures and command routing, screen hide/show, movement restored.");
+            + "Trang choices and topic return/exit, nameplate visibility, wardrobe gestures and command routing, "
+            + "screen hide/show, movement restored.");
     }
 
     private static void checkApplicationAssetLifecycle() throws ReflectiveOperationException {
@@ -125,6 +129,13 @@ public final class GameplayRegressionChecks {
         DialogueController dialogue = field(screen, "dialogueController", DialogueController.class);
         DialogueUI ui = field(screen, "dialogueUI", DialogueUI.class);
         WorldMap world = field(screen, "worldMap", WorldMap.class);
+        check(player.getName().equals("Linh"), "Default player name must identify Linh");
+        check(screen.isNameplatesVisible(), "Nameplates must be visible by default");
+        screen.setNameplatesVisible(false);
+        screen.render(0f);
+        check(!screen.isNameplatesVisible(), "Nameplates must be hideable while rendering");
+        screen.setNameplatesVisible(true);
+        screen.render(0f);
         checkPlayerMovement(world);
         checkManagedAssetsAndSweptCollision();
         checkApplicationAssetLifecycle();
@@ -187,16 +198,38 @@ public final class GameplayRegressionChecks {
         check(field(player, "stateTime", Float.class) > idleEnd && dialogue.isActive(),
             "Resuming must restart idle and preserve dialogue");
 
+        advanceToTrangChoices(screen, dialogue, ui, player);
+        capture("dialogue-choices.png");
+        check(ASK_ABANDONED.equals(ui.selectedChoiceId()), "Initial Trang choice must be the first topic");
+        renderLockedInput(screen, player, Input.Keys.S);
+        check(ASK_STRANGE.equals(ui.selectedChoiceId()), "S must highlight the second topic");
+        renderLockedInput(screen, player, Input.Keys.W);
+        check(ASK_ABANDONED.equals(ui.selectedChoiceId()), "W must highlight the previous topic");
+        renderLockedInput(screen, player, Input.Keys.W);
+        check(FINISH_CHAT.equals(ui.selectedChoiceId()), "W from the first topic must wrap to exit");
+        renderLockedInput(screen, player, Input.Keys.S);
+        check(ASK_ABANDONED.equals(ui.selectedChoiceId()), "S from exit must wrap to the first topic");
+        renderLockedInput(screen, player, Input.Keys.ENTER);
+        check(dialogue.isActive() && !ui.isChoosing() && ASK_ABANDONED.equals(dialogue.getLastChoiceId()),
+            "Enter must open the highlighted first topic");
+        advanceToTrangChoices(screen, dialogue, ui, player);
+        check(ASK_ABANDONED.equals(ui.selectedChoiceId()), "Returning from a topic must reset the menu highlight");
+        renderLockedInput(screen, player, Input.Keys.S);
+        renderLockedInput(screen, player, Input.Keys.F);
+        check(dialogue.isActive() && !ui.isChoosing() && ASK_STRANGE.equals(dialogue.getLastChoiceId()),
+            "F must open the highlighted second topic");
+        advanceToTrangChoices(screen, dialogue, ui, player);
+        closeTrangDialogue(screen, dialogue, ui, player, Input.Keys.ENTER);
+        check(FINISH_CHAT.equals(dialogue.getLastChoiceId()), "Exit must finish with the authored choice ID");
+
         // Closing dialogue must not move the player or re-trigger an interaction in that frame.
         for (int key : new int[] {Input.Keys.F, Input.Keys.ENTER}) {
             if (!dialogue.isActive()) {
                 renderInput(screen, Input.Keys.F);
                 check(dialogue.isActive(), "NPC dialogue must be reopenable");
             }
-            for (int remaining = 100; dialogue.isActive() && remaining > 0; remaining--) {
-                renderInput(screen, key, Input.Keys.D);
-                check(player.getX() == x && player.getY() == y, "Player moved on a dialogue advance/close frame");
-            }
+            closeTrangDialogue(screen, dialogue, ui, player, key);
+            check(player.getX() == x && player.getY() == y, "Player moved on a dialogue advance/close frame");
             check(!dialogue.isActive(), "F and Enter must close dialogue normally");
             check(scene(screen).equals("ROOM"), "Closing dialogue must not leave the room");
         }
@@ -208,10 +241,8 @@ public final class GameplayRegressionChecks {
             renderInput(screen, Input.Keys.F, Input.Keys.D);
             check(dialogue.isActive() && !player.isMoving(), "Repeated opening with held movement must stay idle");
             check(player.getX() == openingX, "Repeated opening must not leak movement");
-            for (int remaining = 100; dialogue.isActive() && remaining > 0; remaining--) {
-                renderInput(screen, Input.Keys.F, Input.Keys.D);
-                check(player.getX() == openingX && !player.isMoving(), "Held key must not move on dialogue advance/close");
-            }
+            closeTrangDialogue(screen, dialogue, ui, player, Input.Keys.F);
+            check(player.getX() == openingX && !player.isMoving(), "Held key must not move on dialogue advance/close");
             check(!dialogue.isActive(), "Repeated dialogue must close");
             renderInput(screen, -1, Input.Keys.D);
             check(player.getX() > openingX && player.isMoving(), "Held movement must resume on the following frame");
@@ -223,6 +254,36 @@ public final class GameplayRegressionChecks {
         player.setPosition(WorldMap.EXIT_CENTER_X - Player.WIDTH / 2f, 24f);
         renderInput(screen, Input.Keys.F);
         check(scene(screen).equals("HALLWAY"), "Door must remain usable after NPC dialogue");
+    }
+
+    private static void advanceToTrangChoices(DemoGameScreen screen, DialogueController controller,
+                                              DialogueUI ui, Player player) {
+        for (int remaining = 100; controller.isActive() && !ui.isChoosing() && remaining > 0; remaining--) {
+            renderLockedInput(screen, player, Input.Keys.F);
+        }
+        check(controller.isActive() && ui.isChoosing() && controller.getLine().getId().equals("school"),
+            "Trang topic dialogue must return to the visible menu");
+    }
+
+    private static void closeTrangDialogue(DemoGameScreen screen, DialogueController controller,
+                                          DialogueUI ui, Player player, int key) {
+        for (int remaining = 100; controller.isActive() && remaining > 0; remaining--) {
+            if (ui.isChoosing()) {
+                for (int selection = 0; !FINISH_CHAT.equals(ui.selectedChoiceId()) && selection < 3; selection++) {
+                    renderLockedInput(screen, player, Input.Keys.W);
+                }
+                check(FINISH_CHAT.equals(ui.selectedChoiceId()), "Closing must explicitly highlight Trang's exit");
+            }
+            renderLockedInput(screen, player, key);
+        }
+        check(!controller.isActive(), "Trang dialogue must close after selecting exit");
+    }
+
+    private static void renderLockedInput(DemoGameScreen screen, Player player, int key) {
+        float x = player.getX(), y = player.getY();
+        renderInput(screen, key, Input.Keys.D);
+        check(player.getX() == x && player.getY() == y && !player.isMoving(),
+            "Dialogue navigation, choice, advance and close must block held movement");
     }
 
     private static void checkPlayerMovement(WorldMap world) throws ReflectiveOperationException {

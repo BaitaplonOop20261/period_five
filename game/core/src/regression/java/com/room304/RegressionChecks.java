@@ -1,7 +1,5 @@
 package com.room304;
 
-import com.room304.world.Wardrobe;
-
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.files.FileHandle;
@@ -43,7 +41,7 @@ public final class RegressionChecks {
             checkDialogueReferences(Path.of(args[0]));
             com.room304.story.FoundationChecks.run(Path.of(args[0]), Path.of(args[1]));
             com.room304.story.StoryRuntimeChecks.run(Path.of(args[0]), Path.of(args[1]));
-        System.out.println("Regression checks passed: 9 scenarios (inventory, input, dialogue, speaker/choice references, JSON validation).");
+            System.out.println("Regression checks passed: 9 scenarios (inventory, input, dialogue, speaker/choice references, JSON validation).");
         } finally {
             Gdx.input = previousInput;
             Gdx.files = previousFiles;
@@ -153,6 +151,18 @@ public final class RegressionChecks {
         press(-1);
         input.capture(Gdx.input);
         assert !input.isPauseRequested() && !input.isDialogueAdvanceRequested() && !input.isWardrobeCloseRequested();
+        press(Input.Keys.W);
+        input.capture(Gdx.input);
+        assert input.isDialogueChoiceUpRequested() && !input.isDialogueChoiceDownRequested() && !input.isDialogueChoiceConfirmRequested();
+        press(Input.Keys.S);
+        input.capture(Gdx.input);
+        assert input.isDialogueChoiceDownRequested() && !input.isDialogueChoiceUpRequested() && !input.isDialogueChoiceConfirmRequested();
+        press(Input.Keys.ENTER);
+        input.capture(Gdx.input);
+        assert input.isDialogueChoiceConfirmRequested();
+        press(Input.Keys.F);
+        input.capture(Gdx.input);
+        assert input.isDialogueChoiceConfirmRequested();
     }
 
     private static void checkDialogueProgression() {

@@ -6,7 +6,9 @@
   "speakers": {
     "trang": {
       "name": "Trang",
-      "portraits": { "normal": "portraits/student_placeholder.png" }
+      "portraits": {
+        "normal": "portraits/student_placeholder.png"
+      }
     }
   },
   "lines": [
@@ -20,14 +22,84 @@
     {
       "id": "school",
       "speakerId": "trang",
+      "expression": "normal",
       "text": "Hành lang yên tĩnh quá. Mình đang chờ một người bạn rồi mới về.",
-      "next": "farewell"
+      "choices": [
+        {
+          "id": "ask_why_abandoned",
+          "text": "Vì sao căn phòng này bị bỏ không?",
+          "next": "ask_why_abandoned_1"
+        },
+        {
+          "id": "ask_anything_strange",
+          "text": "Cậu có thấy căn phòng này có gì kỳ lạ không?",
+          "next": "ask_anything_strange_1"
+        },
+        {
+          "id": "finish_intro_chat",
+          "text": "Thôi, mình đi xem quanh phòng đã.",
+          "next": "finish_intro_chat_1"
+        }
+      ]
     },
     {
-      "id": "farewell",
+      "id": "ask_why_abandoned_1",
+      "speaker": "Linh",
+      "text": "Cậu có biết vì sao phòng 304 bị bỏ không lâu như vậy không? Trường sắp sửa khu nhà này mà đến giờ nó vẫn đầy đồ cũ.",
+      "next": "ask_why_abandoned_2",
+      "portrait": null
+    },
+    {
+      "id": "ask_why_abandoned_2",
+      "speaker": "Trang",
+      "text": "Tớ chỉ nghe nói mười năm trước khu nhà này từng xảy ra một vụ cháy. Sau đó phòng 304 không còn được dùng làm lớp học rồi dần biến thành kho. Nhưng tớ không biết chính xác chuyện hôm ấy diễn ra thế nào; mấy lời đồn trong trường cũng chẳng giống nhau hoàn toàn.",
+      "next": "ask_why_abandoned_3",
       "speakerId": "trang",
-      "text": "Nếu cần hỏi gì thì cứ lại gần và gọi mình nhé. Hẹn gặp lại cậu!",
-      "next": "END"
+      "expression": "normal"
+    },
+    {
+      "id": "ask_why_abandoned_3",
+      "speaker": "Linh",
+      "text": "Vậy mình đừng vội tin lời đồn. Nếu tư liệu cũ còn ở đây, có lẽ mình sẽ tìm được thông tin đáng tin hơn.",
+      "next": "school",
+      "portrait": null
+    },
+    {
+      "id": "ask_anything_strange_1",
+      "speaker": "Linh",
+      "text": "Không biết có phải do phòng lâu ngày không có người dùng không, nhưng tớ thấy nơi này im ắng quá mức. Cậu có cảm giác gì lạ không?",
+      "next": "ask_anything_strange_2",
+      "portrait": null
+    },
+    {
+      "id": "ask_anything_strange_2",
+      "speaker": "Trang",
+      "text": "Ngoài bụi, mùi gỗ cũ với mấy cái bàn bị xếp chồng lên nhau thì tớ chưa thấy gì đáng gọi là kỳ lạ. Có điều, đúng là yên tĩnh thật. Cậu đừng tự dọa mình trước khi có chuyện gì xảy ra nhé; cứ kiểm tra từng món đồ đã.",
+      "next": "ask_anything_strange_3",
+      "speakerId": "trang",
+      "expression": "normal"
+    },
+    {
+      "id": "ask_anything_strange_3",
+      "speaker": "Linh",
+      "text": "Ừ, tớ hỏi vậy thôi. Mình cứ làm việc bình thường trước đã.",
+      "next": "school",
+      "portrait": null
+    },
+    {
+      "id": "finish_intro_chat_1",
+      "speaker": "Linh",
+      "text": "Thôi, mình đi xem quanh phòng đã. Chắc nhìn kỹ mấy món đồ sẽ có ích hơn là đứng đoán mò.",
+      "next": "finish_intro_chat_2",
+      "portrait": null
+    },
+    {
+      "id": "finish_intro_chat_2",
+      "speaker": "Trang",
+      "text": "Được. Tớ sẽ xem danh sách đồ, còn cậu kiểm tra ảnh với cuốn sổ trên bàn nhé. Có gì lạ thì gọi tớ, đừng tự ý mang đồ ra khỏi phòng.",
+      "next": "END",
+      "speakerId": "trang",
+      "expression": "normal"
     }
   ]
 }

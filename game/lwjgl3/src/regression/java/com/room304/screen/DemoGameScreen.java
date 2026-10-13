@@ -2,11 +2,9 @@ package com.room304.screen;
 
 import com.room304.assets.GameAssets;
 
-import com.room304.world.Furniture;
 import com.room304.world.HallwayMap;
 import com.room304.world.Npc;
 import com.room304.world.Player;
-import com.room304.world.Wardrobe;
 import com.room304.world.WorldMap;
 
 import com.badlogic.gdx.Gdx;
@@ -57,6 +55,8 @@ public class DemoGameScreen implements Screen {
     private RoomInteractionSystem roomInteractions;
     private DialogueController dialogueController;
     private DialogueUI dialogueUI;
+    private CharacterNameplateRenderer nameplateRenderer;
+    private boolean nameplatesVisible = true;
     private WardrobeController wardrobeController;
     private WardrobeView wardrobeView;
     private OrthographicCamera camera;
@@ -96,6 +96,7 @@ public class DemoGameScreen implements Screen {
         player = new Player(assets, WorldMap.EXIT_CENTER_X - Player.WIDTH / 2f, 24f);
         dialogueController = new DialogueController();
         dialogueUI = new DialogueUI(assets, DialogueLayout.load(assets.catalog().path("ui.dialogue.layout")));
+        nameplateRenderer = new CharacterNameplateRenderer(assets);
         roomInteractions = new RoomInteractionSystem(worldMap);
         wardrobeController = new WardrobeController();
         wardrobeView = new WardrobeView(wardrobeController);
@@ -235,12 +236,18 @@ public class DemoGameScreen implements Screen {
         if (scene == Scene.HALLWAY) {
             hallwayMap.renderBackground(spriteBatch);
             player.render(spriteBatch);
+            if (nameplatesVisible) {
+                nameplateRenderer.render(spriteBatch, player);
+            }
             if (!dialogueController.isActive() && hallwayMap.findNearbyInteraction(player.getBounds()) != -1) {
                 renderHallwayInteractionMarker();
             }
         } else if (scene == Scene.BACKYARD) {
             backyardMap.renderBackground(spriteBatch);
             player.render(spriteBatch);
+            if (nameplatesVisible) {
+                nameplateRenderer.render(spriteBatch, player);
+            }
             if (backyardMap.getEntranceBounds().overlaps(player.getBounds())) {
                 renderPassageMarker(backyardMap.getEntranceBounds(),
                     backyardMap.getSpawnY() + Player.SPRITE_HEIGHT + 8f);
@@ -277,6 +284,13 @@ public class DemoGameScreen implements Screen {
             worldMap.renderWardrobe(spriteBatch);
         }
 
+        if (nameplatesVisible) {
+            for (Npc npc : worldMap.getNpcs()) {
+                nameplateRenderer.render(spriteBatch, npc);
+            }
+            nameplateRenderer.render(spriteBatch, player);
+        }
+
         if (!dialogueController.isActive() && !wardrobeController.isOpen()) {
             renderInteractionMarkers();
         }
@@ -305,7 +319,7 @@ public class DemoGameScreen implements Screen {
             Rectangle bounds = target.getBounds();
             spriteBatch.draw(markerFrame,
                 bounds.x + (bounds.width - markerWidth) / 2f,
-                bounds.y + target.getNpc().getSpriteHeight() - 8f,
+                bounds.y + target.getNpc().getSpriteHeight() + (nameplatesVisible ? 36f : -8f),
                 markerWidth, markerHeight);
         }
 
@@ -418,6 +432,15 @@ public class DemoGameScreen implements Screen {
         dialogueUI.dispose();
         wardrobeView.dispose();
         pauseMenu.dispose();
+        nameplateRenderer.dispose();
         if (ownsAssets) assets.dispose();
+    }
+
+    public boolean isNameplatesVisible() {
+        return nameplatesVisible;
+    }
+
+    public void setNameplatesVisible(boolean nameplatesVisible) {
+        this.nameplatesVisible = nameplatesVisible;
     }
 }

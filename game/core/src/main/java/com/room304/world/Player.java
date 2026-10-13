@@ -50,6 +50,7 @@ public class Player implements Disposable {
     private final Animation<TextureRegion> backRunAnimation;
     private final Animation<TextureRegion> sideRunAnimation;
 
+    private final String name;
     private float stateTime = 0f;
     private float animationReferenceSpeed=ANIMATION_REFERENCE_SPEED;
     private boolean flipX = false;
@@ -57,9 +58,16 @@ public class Player implements Disposable {
     /** Tracks which directional animation to use while moving. */
     private Animation<TextureRegion> currentRunAnimation;
 
-    public Player(float x, float y) { this(null, x, y); }
+    public Player(float x, float y) { this(null, "Linh", x, y); }
+
+    public Player(String name, float x, float y) { this(null, name, x, y); }
 
     public Player(GameAssets sharedAssets, float x, float y) {
+        this(sharedAssets, "Linh", x, y);
+    }
+
+    private Player(GameAssets sharedAssets, String name, float x, float y) {
+        this.name = name;
         ownsAssets = sharedAssets == null;
         assets = ownsAssets ? new GameAssets() : sharedAssets;
         bounds = new Rectangle(x, y, WIDTH, HEIGHT);
@@ -72,6 +80,7 @@ public class Player implements Disposable {
     }
 
     public Player(GameAssets sharedAssets, float x, float y, SceneCatalog.PlayerDef profile) {
+        name = "Linh";
         ownsAssets = false; assets = sharedAssets;
         bounds = new Rectangle(x,y,profile.footWidth,profile.footHeight); nextBounds = new Rectangle(bounds);
         spriteScale = profile.scale; speed = profile.speed;animationReferenceSpeed=profile.speed;anchorX=profile.anchorX;anchorY=profile.anchorY; marginX = marginY = 8;
@@ -144,6 +153,10 @@ public class Player implements Disposable {
 
     public float getSpriteHeight() {
         return idleAnimation == null ? canvasHeight : idleAnimation.getKeyFrames()[0].getRegionHeight() * spriteScale;
+    }
+
+    public String getName() {
+        return name;
     }
 
     public void update(float delta, float horizontal, float vertical, boolean sprinting,
