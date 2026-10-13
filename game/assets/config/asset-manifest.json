@@ -1,0 +1,407 @@
+{
+  "version": 1,
+  "assets": [
+    {
+      "id": "map.demo.room",
+      "path": "maps/bedroom_background.png",
+      "type": "texture",
+      "required": false,
+      "filter": "Nearest"
+    },
+    {
+      "id": "map.demo.hall",
+      "path": "maps/hall_background.png",
+      "type": "texture",
+      "required": false,
+      "filter": "Nearest"
+    },
+    {
+      "id": "map.demo.yard",
+      "path": "maps/back_yard.png",
+      "type": "texture",
+      "required": false,
+      "filter": "Nearest"
+    },
+    {
+      "id": "prop.demo.bed",
+      "path": "sprites/bed.png",
+      "type": "texture",
+      "required": false,
+      "filter": "Nearest"
+    },
+    {
+      "id": "prop.demo.wardrobe",
+      "path": "sprites/wardrobe.png",
+      "type": "texture",
+      "required": false,
+      "filter": "Nearest"
+    },
+    {
+      "id": "font.ui",
+      "path": "fonts/NotoSans-Regular.ttf",
+      "type": "file",
+      "required": true
+    },
+    {
+      "id": "dialogue.demo.trang",
+      "path": "dialogue/npc_trang_intro.json",
+      "type": "file",
+      "required": false
+    },
+    {
+      "id": "ui.dialogue.layout",
+      "path": "dialogue/ui-layout.json",
+      "type": "file",
+      "required": false
+    },
+    {
+      "id": "portrait.placeholder",
+      "path": "portraits/student_placeholder.png",
+      "type": "texture",
+      "required": false,
+      "filter": "Linear"
+    },
+    {
+      "id": "audio.school.birds",
+      "path": "audio/ambience/school_birds.ogg",
+      "type": "music",
+      "required": false
+    },
+    {
+      "id": "audio.school.voices",
+      "path": "audio/ambience/school_distant_voices.ogg",
+      "type": "music",
+      "required": false
+    },
+    {
+      "id": "player.idle",
+      "path": "sprites/player_idle.png",
+      "type": "texture",
+      "required": false,
+      "filter": "Nearest",
+      "frameWidth": 32,
+      "frameHeight": 32,
+      "frameCount": 7,
+      "frameDuration": 0.12
+    },
+    {
+      "id": "player.down",
+      "path": "sprites/player_down_run.png",
+      "type": "texture",
+      "required": false,
+      "filter": "Nearest",
+      "frameWidth": 32,
+      "frameHeight": 32,
+      "frameCount": 6,
+      "frameDuration": 0.12
+    },
+    {
+      "id": "player.back",
+      "path": "sprites/player_back_run.png",
+      "type": "texture",
+      "required": false,
+      "filter": "Nearest",
+      "frameWidth": 32,
+      "frameHeight": 32,
+      "frameCount": 6,
+      "frameDuration": 0.12
+    },
+    {
+      "id": "player.side",
+      "path": "sprites/player_side_run.png",
+      "type": "texture",
+      "required": false,
+      "filter": "Nearest",
+      "frameWidth": 32,
+      "frameHeight": 32,
+      "frameCount": 7,
+      "frameDuration": 0.12
+    },
+    {
+      "id": "npc.trang.idle",
+      "path": "sprites/npc_trang_idle.png",
+      "type": "texture",
+      "required": false,
+      "filter": "Nearest",
+      "frameWidth": 32,
+      "frameHeight": 32,
+      "frameCount": 5,
+      "frameDuration": 0.15
+    },
+    {
+      "id": "ui.interaction",
+      "path": "sprites/interaction_mark.png",
+      "type": "texture",
+      "required": false,
+      "filter": "Nearest",
+      "frameWidth": 8,
+      "frameHeight": 25,
+      "frameCount": 4,
+      "frameDuration": 0.2
+    },
+    {
+      "id": "npc.demo.config",
+      "path": "config/demo-npcs.json",
+      "type": "file",
+      "required": false
+    },
+    {
+      "id": "dialogue.demo.locked-door",
+      "path": "dialogue/demo_locked_door.json",
+      "type": "file",
+      "required": false
+    },
+    {
+      "id": "story.content",
+      "path": "story/content.json",
+      "type": "file",
+      "required": true
+    },
+    {
+      "id": "story.world",
+      "path": "config/story-world.json",
+      "type": "file",
+      "required": true
+    },
+    {
+      "id": "story.ui.layout",
+      "path": "story/ui-layout.json",
+      "type": "file",
+      "required": true
+    },
+    {
+      "id": "portrait.linh.normal",
+      "path": "portraits/linh_normal.png",
+      "type": "texture",
+      "required": false,
+      "filter": "Linear"
+    },
+    {
+      "id": "portrait.trang.normal",
+      "path": "portraits/trang_normal.png",
+      "type": "texture",
+      "required": false,
+      "filter": "Linear"
+    },
+    {
+      "id": "portrait.duc.normal",
+      "path": "portraits/duc_normal.png",
+      "type": "texture",
+      "required": false,
+      "filter": "Linear"
+    },
+    {
+      "id": "portrait.nam.normal",
+      "path": "portraits/nam_normal.png",
+      "type": "texture",
+      "required": false,
+      "filter": "Linear"
+    },
+    {
+      "id": "portrait.hung.normal",
+      "path": "portraits/hung_normal.png",
+      "type": "texture",
+      "required": false,
+      "filter": "Linear"
+    },
+    {
+      "id": "portrait.nga.normal",
+      "path": "portraits/nga_normal.png",
+      "type": "texture",
+      "required": false,
+      "filter": "Linear"
+    },
+    {
+      "id": "map.story.room_304",
+      "path": "maps/room_304.png",
+      "type": "texture",
+      "required": false
+    },
+    {
+      "id": "map.tmx.room_304",
+      "path": "maps/room_304.tmx",
+      "type": "file",
+      "required": false
+    },
+    {
+      "id": "map.story.hallway",
+      "path": "maps/hallway.png",
+      "type": "texture",
+      "required": false
+    },
+    {
+      "id": "map.tmx.hallway",
+      "path": "maps/hallway.tmx",
+      "type": "file",
+      "required": false
+    },
+    {
+      "id": "map.story.guard_room",
+      "path": "maps/guard_room.png",
+      "type": "texture",
+      "required": false
+    },
+    {
+      "id": "map.tmx.guard_room",
+      "path": "maps/guard_room.tmx",
+      "type": "file",
+      "required": false
+    },
+    {
+      "id": "map.story.classroom",
+      "path": "maps/classroom.png",
+      "type": "texture",
+      "required": false
+    },
+    {
+      "id": "map.tmx.classroom",
+      "path": "maps/classroom.tmx",
+      "type": "file",
+      "required": false
+    },
+    {
+      "id": "prop.photo",
+      "path": "sprites/props/photo.png",
+      "type": "texture",
+      "required": false
+    },
+    {
+      "id": "prop.register",
+      "path": "sprites/props/register.png",
+      "type": "texture",
+      "required": false
+    },
+    {
+      "id": "prop.player",
+      "path": "sprites/props/player.png",
+      "type": "texture",
+      "required": false
+    },
+    {
+      "id": "prop.crate",
+      "path": "sprites/props/crate.png",
+      "type": "texture",
+      "required": false
+    },
+    {
+      "id": "prop.cabinet",
+      "path": "sprites/props/cabinet.png",
+      "type": "texture",
+      "required": false
+    },
+    {
+      "id": "prop.papers",
+      "path": "sprites/props/papers.png",
+      "type": "texture",
+      "required": false
+    },
+    {
+      "id": "story.audio",
+      "path": "config/story-audio.json",
+      "type": "file",
+      "required": true
+    },
+    {
+      "id": "ui.skin",
+      "path": "ui/room304-skin.json",
+      "type": "file",
+      "required": false
+    },
+    {
+      "id": "document.msg",
+      "path": "documents/msg.png",
+      "type": "texture",
+      "required": false
+    },
+    {
+      "id": "document.photo",
+      "path": "documents/photo.png",
+      "type": "texture",
+      "required": false
+    },
+    {
+      "id": "document.register",
+      "path": "documents/register.png",
+      "type": "texture",
+      "required": false
+    },
+    {
+      "id": "document.news",
+      "path": "documents/news.png",
+      "type": "texture",
+      "required": false
+    },
+    {
+      "id": "document.gate",
+      "path": "documents/gate.png",
+      "type": "texture",
+      "required": false
+    },
+    {
+      "id": "document.report",
+      "path": "documents/report.png",
+      "type": "texture",
+      "required": false
+    },
+    {
+      "id": "document.inventory",
+      "path": "documents/inventory.png",
+      "type": "texture",
+      "required": false
+    },
+    {
+      "id": "document.signed",
+      "path": "documents/signed.png",
+      "type": "texture",
+      "required": false
+    },
+    {
+      "id": "document.family",
+      "path": "documents/family.png",
+      "type": "texture",
+      "required": false
+    },
+    {
+      "id": "effect.memory",
+      "path": "effects/memory.png",
+      "type": "texture",
+      "required": false
+    },
+    {
+      "id": "document.c_phone",
+      "path": "documents/trang_phone.png",
+      "type": "texture",
+      "required": false
+    },
+    {
+      "id": "story.visuals",
+      "path": "config/story-visuals.json",
+      "type": "file",
+      "required": true
+    },
+    {
+      "id": "background.menu",
+      "path": "ui/menu.png",
+      "type": "texture",
+      "required": false
+    },
+    {
+      "id": "background.ending.a",
+      "path": "endings/a.png",
+      "type": "texture",
+      "required": false
+    },
+    {
+      "id": "background.ending.b",
+      "path": "endings/b.png",
+      "type": "texture",
+      "required": false
+    },
+    {
+      "id": "background.ending.c",
+      "path": "endings/c.png",
+      "type": "texture",
+      "required": false
+    }
+  ]
+}

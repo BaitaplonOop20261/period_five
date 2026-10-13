@@ -1,0 +1,14 @@
+{
+  "version": 1,
+  "npcs": [
+    {
+      "id": "trang",
+      "name": "Trang",
+      "animation": "npc.trang.idle",
+      "dialogue": "dialogue.demo.trang",
+      "x": 162,
+      "y": 120,
+      "interactionRange": 60
+    }
+  ]
+}

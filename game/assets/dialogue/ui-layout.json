@@ -1,0 +1,19 @@
+{
+  "width": 960,
+  "height": 540,
+  "portraitCenterX": 480,
+  "portraitBottom": -12,
+  "portraitHeight": 518,
+  "portraitMaxWidth": 510,
+  "textLeft": 170,
+  "textBottom": 66,
+  "textWidth": 640,
+  "textRows": 3,
+  "nameGap": 14,
+  "gradientHeight": 250,
+  "dimAlpha": 0.22,
+  "font": "fonts/NotoSans-Regular.ttf",
+  "fontSize": 22,
+  "charactersPerSecond": 32,
+  "fallbackPortrait": "portrait.placeholder"
+}

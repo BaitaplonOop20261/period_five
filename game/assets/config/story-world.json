@@ -1,0 +1,856 @@
+{
+  "version": 1,
+  "enableC": false,
+  "player": {
+    "speed": 120,
+    "scale": 1,
+    "footWidth": 18,
+    "footHeight": 10,
+    "canvasWidth": 32,
+    "canvasHeight": 48,
+    "animations": {}
+  },
+  "npcs": [
+    {
+      "id": "trang",
+      "name": "Trang",
+      "animations": {},
+      "canvasWidth": 32,
+      "canvasHeight": 48,
+      "footWidth": 18,
+      "footHeight": 10,
+      "scale": 1,
+      "anchorX": 0.5,
+      "anchorY": 0
+    },
+    {
+      "id": "duc",
+      "name": "Đức",
+      "animations": {},
+      "canvasWidth": 32,
+      "canvasHeight": 48,
+      "footWidth": 18,
+      "footHeight": 10,
+      "scale": 1,
+      "anchorX": 0.5,
+      "anchorY": 0
+    },
+    {
+      "id": "nam",
+      "name": "Bà Năm",
+      "animations": {},
+      "canvasWidth": 32,
+      "canvasHeight": 48,
+      "footWidth": 18,
+      "footHeight": 10,
+      "scale": 1,
+      "anchorX": 0.5,
+      "anchorY": 0
+    },
+    {
+      "id": "hung",
+      "name": "Thầy Hùng",
+      "animations": {},
+      "canvasWidth": 32,
+      "canvasHeight": 48,
+      "footWidth": 18,
+      "footHeight": 10,
+      "scale": 1,
+      "anchorX": 0.5,
+      "anchorY": 0
+    },
+    {
+      "id": "nga",
+      "name": "Nga",
+      "animations": {},
+      "canvasWidth": 32,
+      "canvasHeight": 48,
+      "footWidth": 18,
+      "footHeight": 10,
+      "scale": 1,
+      "anchorX": 0.5,
+      "anchorY": 0
+    }
+  ],
+  "placements": {
+    "INTRO": [
+      {
+        "id": "trang",
+        "room": "CURRENT"
+      }
+    ],
+    "INITIAL": [
+      {
+        "id": "trang",
+        "room": "ROOM_304"
+      }
+    ],
+    "LOOP": [
+      {
+        "id": "trang",
+        "room": "CURRENT"
+      },
+      {
+        "id": "duc",
+        "room": "HALLWAY",
+        "event": "LOOP_CONFIRMED"
+      }
+    ],
+    "GROUP": [
+      {
+        "id": "trang",
+        "room": "CURRENT"
+      },
+      {
+        "id": "duc",
+        "room": "CURRENT"
+      },
+      {
+        "id": "nam",
+        "room": "CURRENT",
+        "event": "NAM_MET"
+      }
+    ],
+    "DECISION": [
+      {
+        "id": "trang",
+        "room": "CURRENT"
+      },
+      {
+        "id": "duc",
+        "room": "CURRENT"
+      },
+      {
+        "id": "nam",
+        "room": "CURRENT"
+      },
+      {
+        "id": "hung",
+        "room": "CURRENT"
+      }
+    ],
+    "INVESTIGATE": [
+      {
+        "id": "trang",
+        "room": "CLASSROOM"
+      },
+      {
+        "id": "duc",
+        "room": "ROOM_304",
+        "x": 435,
+        "y": 327
+      },
+      {
+        "id": "nam",
+        "room": "GUARD_ROOM"
+      },
+      {
+        "id": "hung",
+        "room": "CLASSROOM"
+      }
+    ],
+    "CONFRONT": [
+      {
+        "id": "trang",
+        "room": "CLASSROOM"
+      },
+      {
+        "id": "duc",
+        "room": "CLASSROOM"
+      },
+      {
+        "id": "nam",
+        "room": "GUARD_ROOM"
+      },
+      {
+        "id": "hung",
+        "room": "CLASSROOM"
+      }
+    ],
+    "READY": [
+      {
+        "id": "trang",
+        "room": "CLASSROOM"
+      },
+      {
+        "id": "duc",
+        "room": "CLASSROOM"
+      },
+      {
+        "id": "nam",
+        "room": "GUARD_ROOM"
+      },
+      {
+        "id": "hung",
+        "room": "CLASSROOM"
+      }
+    ],
+    "FINAL": [
+      {
+        "id": "trang",
+        "room": "ROOM_304"
+      },
+      {
+        "id": "duc",
+        "room": "ROOM_304"
+      },
+      {
+        "id": "nam",
+        "room": "ROOM_304"
+      },
+      {
+        "id": "hung",
+        "room": "ROOM_304"
+      },
+      {
+        "id": "nga",
+        "room": "ROOM_304"
+      }
+    ],
+    "EXIT_A": [
+      {
+        "id": "trang",
+        "room": "GUARD_ROOM",
+        "x": 260,
+        "y": 36
+      },
+      {
+        "id": "duc",
+        "room": "GUARD_ROOM",
+        "x": 210,
+        "y": 36
+      },
+      {
+        "id": "nam",
+        "room": "GUARD_ROOM",
+        "x": 460,
+        "y": 36
+      },
+      {
+        "id": "hung",
+        "room": "GUARD_ROOM",
+        "x": 390,
+        "y": 36
+      }
+    ],
+    "EXIT_B": [
+      {
+        "id": "trang",
+        "room": "GUARD_ROOM",
+        "x": 260,
+        "y": 36
+      },
+      {
+        "id": "duc",
+        "room": "GUARD_ROOM",
+        "x": 210,
+        "y": 36
+      },
+      {
+        "id": "nam",
+        "room": "GUARD_ROOM",
+        "x": 460,
+        "y": 36
+      },
+      {
+        "id": "hung",
+        "room": "GUARD_ROOM",
+        "x": 390,
+        "y": 36
+      }
+    ]
+  },
+  "scenes": [
+    {
+      "id": "ROOM_304",
+      "name": "Phòng 304",
+      "width": 640,
+      "height": 480,
+      "background": "map.story.room_304",
+      "tmx": "map.tmx.room_304",
+      "spawns": {
+        "entry": {
+          "x": 315,
+          "y": 90
+        },
+        "desk": {
+          "x": 278,
+          "y": 298
+        },
+        "cabinet": {
+          "x": 550,
+          "y": 327
+        },
+        "family": {
+          "x": 458,
+          "y": 317
+        }
+      },
+      "collisions": [
+        {
+          "x": 0,
+          "y": 0,
+          "width": 640,
+          "height": 8
+        },
+        {
+          "x": 0,
+          "y": 472,
+          "width": 640,
+          "height": 8
+        },
+        {
+          "x": 0,
+          "y": 0,
+          "width": 8,
+          "height": 480
+        },
+        {
+          "x": 632,
+          "y": 0,
+          "width": 8,
+          "height": 480
+        },
+        {
+          "x": 45,
+          "y": 340,
+          "width": 54,
+          "height": 10
+        },
+        {
+          "x": 240,
+          "y": 340,
+          "width": 80,
+          "height": 10
+        },
+        {
+          "x": 510,
+          "y": 270,
+          "width": 54,
+          "height": 10
+        },
+        {
+          "x": 510,
+          "y": 190,
+          "width": 54,
+          "height": 10
+        },
+        {
+          "x": 535,
+          "y": 370,
+          "width": 46,
+          "height": 10
+        },
+        {
+          "x": 535,
+          "y": 420,
+          "width": 46,
+          "height": 10
+        },
+        {
+          "x": 435,
+          "y": 355,
+          "width": 58,
+          "height": 10
+        },
+        {
+          "x": 375,
+          "y": 420,
+          "width": 74,
+          "height": 10
+        }
+      ],
+      "objects": [
+        {
+          "id": "door.hall",
+          "type": "DOOR",
+          "label": "WORLD-SIGN-304",
+          "x": 300,
+          "y": 36,
+          "width": 60,
+          "height": 22,
+          "range": 44,
+          "target": "HALLWAY",
+          "spawn": "room304",
+          "name": "Cửa hành lang"
+        },
+        {
+          "id": "photo",
+          "type": "PROP",
+          "label": "UI-PHOTO",
+          "x": 45,
+          "y": 340,
+          "width": 54,
+          "height": 34,
+          "range": 44,
+          "asset": "prop.photo",
+          "name": "Ảnh lớp"
+        },
+        {
+          "id": "desk",
+          "type": "PROP",
+          "label": "UI-REGISTER",
+          "x": 240,
+          "y": 340,
+          "width": 80,
+          "height": 34,
+          "range": 44,
+          "asset": "prop.register",
+          "name": "Bàn giáo viên"
+        },
+        {
+          "id": "player",
+          "type": "PROP",
+          "label": "UI-PLAYER",
+          "x": 510,
+          "y": 270,
+          "width": 54,
+          "height": 28,
+          "range": 44,
+          "asset": "prop.player",
+          "name": "Máy cassette"
+        },
+        {
+          "id": "crate",
+          "type": "PROP",
+          "label": "UI-CRATE",
+          "x": 510,
+          "y": 190,
+          "width": 54,
+          "height": 28,
+          "range": 44,
+          "asset": "prop.crate",
+          "name": "Thùng thiết bị"
+        },
+        {
+          "id": "cabinet",
+          "type": "PROP",
+          "label": "UI-CABINET",
+          "x": 535,
+          "y": 370,
+          "width": 46,
+          "height": 22,
+          "range": 44,
+          "asset": "prop.cabinet",
+          "name": "Ngăn dưới"
+        },
+        {
+          "id": "cabinet.upper",
+          "type": "PROP",
+          "label": "UI-CABINET",
+          "x": 535,
+          "y": 420,
+          "width": 46,
+          "height": 20,
+          "range": 44,
+          "name": "Ngăn trên"
+        },
+        {
+          "id": "lastdesk",
+          "type": "PROP",
+          "label": "UI-INTERACT",
+          "x": 435,
+          "y": 355,
+          "width": 58,
+          "height": 20,
+          "range": 44,
+          "name": "Bàn cuối"
+        },
+        {
+          "id": "window",
+          "type": "PROP",
+          "label": "UI-INTERACT",
+          "x": 375,
+          "y": 420,
+          "width": 74,
+          "height": 16,
+          "range": 44,
+          "name": "Cửa sổ"
+        }
+      ],
+      "npcSlots": {
+        "trang": {
+          "x": 170,
+          "y": 200
+        },
+        "duc": {
+          "x": 460,
+          "y": 205
+        },
+        "nam": {
+          "x": 150,
+          "y": 270
+        },
+        "hung": {
+          "x": 370,
+          "y": 270
+        },
+        "nga": {
+          "x": 435,
+          "y": 327
+        }
+      }
+    },
+    {
+      "id": "HALLWAY",
+      "name": "Hành lang tầng ba",
+      "width": 640,
+      "height": 480,
+      "background": "map.story.hallway",
+      "tmx": "map.tmx.hallway",
+      "spawns": {
+        "entry": {
+          "x": 315,
+          "y": 250
+        },
+        "room304": {
+          "x": 315,
+          "y": 250
+        },
+        "hung": {
+          "x": 138,
+          "y": 250
+        },
+        "guard": {
+          "x": 510,
+          "y": 230
+        },
+        "chalk": {
+          "x": 310,
+          "y": 250
+        }
+      },
+      "collisions": [
+        {
+          "x": 0,
+          "y": 0,
+          "width": 640,
+          "height": 8
+        },
+        {
+          "x": 0,
+          "y": 472,
+          "width": 640,
+          "height": 8
+        },
+        {
+          "x": 0,
+          "y": 0,
+          "width": 8,
+          "height": 480
+        },
+        {
+          "x": 632,
+          "y": 0,
+          "width": 8,
+          "height": 480
+        },
+        {
+          "x": 365,
+          "y": 300,
+          "width": 90,
+          "height": 10
+        }
+      ],
+      "objects": [
+        {
+          "id": "door.304",
+          "type": "DOOR",
+          "label": "WORLD-SIGN-304",
+          "x": 300,
+          "y": 300,
+          "width": 60,
+          "height": 24,
+          "range": 44,
+          "target": "ROOM_304",
+          "spawn": "entry",
+          "name": "Cửa 304"
+        },
+        {
+          "id": "door.hung",
+          "type": "DOOR",
+          "label": "WORLD-SIGN-HUNG",
+          "x": 120,
+          "y": 300,
+          "width": 60,
+          "height": 24,
+          "range": 44,
+          "target": "CLASSROOM",
+          "spawn": "entry",
+          "name": "Cửa lớp thầy Hùng"
+        },
+        {
+          "id": "stairs",
+          "type": "DOOR",
+          "label": "WORLD-SIGN-STAIR",
+          "x": 25,
+          "y": 195,
+          "width": 46,
+          "height": 60,
+          "range": 44,
+          "target": "GUARD_ROOM",
+          "spawn": "entry",
+          "name": "Cầu thang"
+        },
+        {
+          "id": "guard.wall",
+          "type": "DOOR",
+          "label": "WORLD-SIGN-GUARD",
+          "x": 560,
+          "y": 220,
+          "width": 46,
+          "height": 50,
+          "range": 44,
+          "target": "GUARD_ROOM",
+          "spawn": "entry",
+          "name": "Cửa bảo vệ"
+        },
+        {
+          "id": "board",
+          "type": "PROP",
+          "label": "UI-BOARD",
+          "x": 365,
+          "y": 300,
+          "width": 90,
+          "height": 24,
+          "range": 44,
+          "name": "Bảng tin"
+        }
+      ],
+      "npcSlots": {
+        "trang": {
+          "x": 170,
+          "y": 200
+        },
+        "duc": {
+          "x": 460,
+          "y": 205
+        },
+        "nam": {
+          "x": 150,
+          "y": 270
+        },
+        "hung": {
+          "x": 370,
+          "y": 270
+        },
+        "nga": {
+          "x": 475,
+          "y": 355
+        }
+      }
+    },
+    {
+      "id": "GUARD_ROOM",
+      "name": "Phòng bảo vệ",
+      "width": 640,
+      "height": 480,
+      "background": "map.story.guard_room",
+      "tmx": "map.tmx.guard_room",
+      "spawns": {
+        "entry": {
+          "x": 314,
+          "y": 350
+        },
+        "gate": {
+          "x": 318,
+          "y": 120
+        },
+        "outside": {
+          "x": 318,
+          "y": 36
+        }
+      },
+      "collisions": [
+        {
+          "x": 0,
+          "y": 0,
+          "width": 640,
+          "height": 8
+        },
+        {
+          "x": 0,
+          "y": 472,
+          "width": 640,
+          "height": 8
+        },
+        {
+          "x": 0,
+          "y": 0,
+          "width": 8,
+          "height": 480
+        },
+        {
+          "x": 632,
+          "y": 0,
+          "width": 8,
+          "height": 480
+        },
+        {
+          "x": 65,
+          "y": 330,
+          "width": 70,
+          "height": 10
+        }
+      ],
+      "objects": [
+        {
+          "id": "door.hall",
+          "type": "DOOR",
+          "label": "WORLD-SIGN-STAIR",
+          "x": 300,
+          "y": 400,
+          "width": 60,
+          "height": 24,
+          "range": 44,
+          "target": "HALLWAY",
+          "spawn": "guard",
+          "name": "Cửa hành lang"
+        },
+        {
+          "id": "records",
+          "type": "PROP",
+          "label": "UI-RECORDS",
+          "x": 65,
+          "y": 330,
+          "width": 70,
+          "height": 32,
+          "range": 44,
+          "asset": "prop.papers",
+          "name": "Giấy tờ sơ tán"
+        },
+        {
+          "id": "gate",
+          "type": "DOOR",
+          "label": "WORLD-SIGN-GATE",
+          "x": 295,
+          "y": 60,
+          "width": 70,
+          "height": 24,
+          "range": 44,
+          "name": "Cổng ra"
+        }
+      ],
+      "npcSlots": {
+        "trang": {
+          "x": 170,
+          "y": 200
+        },
+        "duc": {
+          "x": 460,
+          "y": 205
+        },
+        "nam": {
+          "x": 150,
+          "y": 270
+        },
+        "hung": {
+          "x": 370,
+          "y": 270
+        },
+        "nga": {
+          "x": 475,
+          "y": 355
+        }
+      }
+    },
+    {
+      "id": "CLASSROOM",
+      "name": "Lớp học bên cạnh",
+      "width": 640,
+      "height": 480,
+      "background": "map.story.classroom",
+      "tmx": "map.tmx.classroom",
+      "spawns": {
+        "entry": {
+          "x": 315,
+          "y": 90
+        },
+        "table": {
+          "x": 310,
+          "y": 245
+        }
+      },
+      "collisions": [
+        {
+          "x": 0,
+          "y": 0,
+          "width": 640,
+          "height": 8
+        },
+        {
+          "x": 0,
+          "y": 472,
+          "width": 640,
+          "height": 8
+        },
+        {
+          "x": 0,
+          "y": 0,
+          "width": 8,
+          "height": 480
+        },
+        {
+          "x": 632,
+          "y": 0,
+          "width": 8,
+          "height": 480
+        },
+        {
+          "x": 430,
+          "y": 320,
+          "width": 74,
+          "height": 10
+        }
+      ],
+      "objects": [
+        {
+          "id": "door.hall",
+          "type": "DOOR",
+          "label": "WORLD-SIGN-HUNG",
+          "x": 300,
+          "y": 36,
+          "width": 60,
+          "height": 22,
+          "range": 44,
+          "target": "HALLWAY",
+          "spawn": "hung",
+          "name": "Cửa hành lang"
+        },
+        {
+          "id": "evidence",
+          "type": "PROP",
+          "label": "UI-INTERACT",
+          "x": 430,
+          "y": 320,
+          "width": 74,
+          "height": 30,
+          "range": 44,
+          "name": "Bàn tài liệu"
+        }
+      ],
+      "npcSlots": {
+        "trang": {
+          "x": 170,
+          "y": 200
+        },
+        "duc": {
+          "x": 460,
+          "y": 205
+        },
+        "nam": {
+          "x": 150,
+          "y": 270
+        },
+        "hung": {
+          "x": 370,
+          "y": 270
+        },
+        "nga": {
+          "x": 475,
+          "y": 355
+        }
+      }
+    }
+  ]
+}

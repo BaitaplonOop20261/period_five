@@ -1,0 +1,33 @@
+{
+  "id": "npc_trang_intro",
+  "time": "17:22",
+  "location": "Phòng 305",
+  "background": "maps/hall_background.png",
+  "speakers": {
+    "trang": {
+      "name": "Trang",
+      "portraits": { "normal": "portraits/student_placeholder.png" }
+    }
+  },
+  "lines": [
+    {
+      "id": "greeting",
+      "speakerId": "trang",
+      "expression": "normal",
+      "text": "Chào bạn. Mình là Trang. Cậu vẫn còn ở trường vào giờ này à?",
+      "next": "school"
+    },
+    {
+      "id": "school",
+      "speakerId": "trang",
+      "text": "Hành lang yên tĩnh quá. Mình đang chờ một người bạn rồi mới về.",
+      "next": "farewell"
+    },
+    {
+      "id": "farewell",
+      "speakerId": "trang",
+      "text": "Nếu cần hỏi gì thì cứ lại gần và gọi mình nhé. Hẹn gặp lại cậu!",
+      "next": "END"
+    }
+  ]
+}

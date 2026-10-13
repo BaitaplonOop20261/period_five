@@ -1,0 +1,373 @@
+{
+  "version": 1,
+  "documents": {
+    "DOC-MSG": "document.msg",
+    "DOC-PHOTO": "document.photo",
+    "DOC-REGISTER": "document.register",
+    "DOC-NEWS": "document.news",
+    "DOC-GATE": "document.gate",
+    "DOC-REPORT": "document.report",
+    "DOC-INVENTORY": "document.inventory",
+    "DOC-SIGNED": "document.signed",
+    "DOC-FAMILY": "document.family"
+  },
+  "lineDocuments": {
+    "C0-02-MAIN-T02": "DOC-MSG",
+    "C0-02-MAIN-T02__1": "DOC-MSG",
+    "C0-02-MAIN-T02__2": "DOC-MSG",
+    "C1-02-WITH-T01": "DOC-PHOTO",
+    "C1-02-WITH-T01__1": "DOC-PHOTO",
+    "C1-02-WITH-T01__2": "DOC-PHOTO",
+    "C1-02-ALONE-T01": "DOC-PHOTO",
+    "C1-02-ALONE-T01__1": "DOC-PHOTO",
+    "C1-02-ALONE-T01__2": "DOC-PHOTO",
+    "C1-04-READ-T02": "DOC-REGISTER",
+    "C1-04-READ-T02__1": "DOC-REGISTER",
+    "C1-04-READ-T02__2": "DOC-REGISTER",
+    "C1-04-READ-T02__3": "DOC-REGISTER",
+    "C1-04-READ-T02__4": "DOC-REGISTER",
+    "C2-03-DOC-T01": "DOC-NEWS",
+    "C2-03-DOC-T01__1": "DOC-NEWS",
+    "C2-03-DOC-T01__2": "DOC-NEWS",
+    "C3-05-MAIN-T05": "DOC-GATE",
+    "C3-05-MAIN-T05__1": "DOC-GATE",
+    "C3-05-MAIN-T05__2": "DOC-GATE",
+    "C3-05-MAIN-T05__3": "DOC-GATE",
+    "C3-05-MAIN-T05__4": "DOC-REPORT",
+    "C3-05-MAIN-T05__5": "DOC-REPORT",
+    "C3-05-MAIN-T05__6": "DOC-REPORT",
+    "C3-05-MAIN-T05__7": "DOC-REPORT",
+    "C3-05-MAIN-T05__8": "DOC-REPORT",
+    "C4-01-MAIN-T02": "DOC-FAMILY",
+    "C4-01-COUNT-T01": "DOC-PHOTO",
+    "C4-01-COUNT-T01__1": "DOC-PHOTO",
+    "C4-01-COUNT-T01__2": "DOC-PHOTO",
+    "C4-02-MAIN-T01__1": "DOC-INVENTORY",
+    "C4-02-MAIN-T01__2": "DOC-INVENTORY",
+    "C4-02-MAIN-T01__3": "DOC-INVENTORY",
+    "C4-02-MAIN-T01__4": "DOC-INVENTORY",
+    "C4-02-MAIN-T01__5": "DOC-INVENTORY",
+    "C5-05-FULL-T08": "DOC-SIGNED",
+    "C5-05-FULL-T08__1": "DOC-SIGNED",
+    "C5-05-FULL-T08__2": "DOC-SIGNED",
+    "C5-05-FULL-T08__3": "DOC-SIGNED",
+    "C5-05-FULL-T08__4": "DOC-SIGNED",
+    "C5-05-FULL-T08__5": "DOC-SIGNED",
+    "C5-05-FULL-T08__6": "DOC-SIGNED",
+    "A-02-MAIN-T09": "DOC-PHOTO"
+  },
+  "menus": {
+    "MENU": "background.menu",
+    "A": "background.ending.a",
+    "B": "background.ending.b",
+    "C": "background.ending.c"
+  },
+  "cues": [
+    {
+      "cue": "C1-02-SAVE-E01",
+      "room": null,
+      "actors": [
+        {
+          "id": "linh",
+          "pose": "pose.phone"
+        }
+      ],
+      "effect": "camera"
+    },
+    {
+      "cue": "C1-04-READ-E09",
+      "room": null,
+      "actors": [
+        {
+          "id": "linh",
+          "pose": "pose.phone"
+        }
+      ],
+      "effect": "camera"
+    },
+    {
+      "cue": "C3-05-SAVE-E01",
+      "room": null,
+      "actors": [
+        {
+          "id": "linh",
+          "pose": "pose.phone"
+        }
+      ],
+      "effect": "camera"
+    },
+    {
+      "cue": "C4-01-COUNT-E04",
+      "room": null,
+      "actors": [
+        {
+          "id": "linh",
+          "pose": "pose.phone"
+        }
+      ],
+      "effect": "camera"
+    },
+    {
+      "cue": "C4-02-TAKE-E01",
+      "room": null,
+      "actors": [
+        {
+          "id": "linh",
+          "pose": "pose.phone"
+        }
+      ],
+      "effect": "camera"
+    },
+    {
+      "cue": "C5-05-FULL-E01",
+      "room": null,
+      "actors": [
+        {
+          "id": "linh",
+          "pose": "pose.phone"
+        }
+      ],
+      "effect": "camera"
+    },
+    {
+      "cue": "C5-05-FULL-E11",
+      "room": null,
+      "actors": [
+        {
+          "id": "linh",
+          "pose": "pose.phone"
+        }
+      ],
+      "effect": "camera"
+    },
+    {
+      "cue": "C-02-MAIN-E02",
+      "room": null,
+      "actors": [
+        {
+          "id": "linh",
+          "pose": "pose.phone"
+        }
+      ],
+      "effect": "camera"
+    },
+    {
+      "cue": "C1-04-HAUNT-E03",
+      "room": "ROOM_304",
+      "actors": [],
+      "effect": "chair"
+    },
+    {
+      "cue": "C1-04-HAUNT-E08",
+      "room": "ROOM_304",
+      "actors": [
+        {
+          "id": "nga",
+          "pose": "pose.seated",
+          "anchor": "lastdesk",
+          "dy": 55,
+          "alpha": 0.45
+        }
+      ]
+    },
+    {
+      "cue": "C1-04-HAUNT-E11",
+      "room": "ROOM_304",
+      "actors": [
+        {
+          "id": "nga",
+          "hidden": true
+        },
+        {
+          "id": "linh",
+          "pose": "pose.book"
+        }
+      ]
+    },
+    {
+      "cue": "C4-01-PLACE-E03",
+      "room": "ROOM_304",
+      "actors": [
+        {
+          "id": "nga",
+          "pose": "pose.point",
+          "anchor": "lastdesk",
+          "dy": 55,
+          "alpha": 0.45
+        }
+      ]
+    },
+    {
+      "cue": "C4-05-MAIN-E05",
+      "room": "ROOM_304",
+      "actors": [
+        {
+          "id": "linh",
+          "pose": "pose.phone"
+        }
+      ],
+      "effect": "record"
+    },
+    {
+      "cue": "C4-05-MAIN-E14",
+      "room": "ROOM_304",
+      "actors": [
+        {
+          "id": "nga",
+          "pose": "idle.up",
+          "anchor": "door.hall",
+          "dy": 30,
+          "alpha": 0.4
+        }
+      ],
+      "effect": "chair"
+    },
+    {
+      "cue": "C4-05-END-E01",
+      "room": "ROOM_304",
+      "actors": [
+        {
+          "id": "nga",
+          "hidden": true
+        }
+      ],
+      "clear": true
+    },
+    {
+      "cue": "C5-04-CONFESS-E01",
+      "room": "CLASSROOM",
+      "actors": [
+        {
+          "id": "nga",
+          "pose": "idle.down",
+          "anchor": "npc:hung",
+          "dy": 45,
+          "alpha": 0.4
+        }
+      ]
+    },
+    {
+      "cue": "C5-04-CONFESS-E03",
+      "room": "CLASSROOM",
+      "actors": [
+        {
+          "id": "nga",
+          "hidden": true
+        },
+        {
+          "id": "hung",
+          "pose": "idle.up"
+        }
+      ]
+    },
+    {
+      "cue": "C5-05-FULL-E07",
+      "room": "CLASSROOM",
+      "actors": [
+        {
+          "id": "hung",
+          "pose": "pose.write",
+          "anchor": "evidence",
+          "dx": -34,
+          "dy": -24
+        }
+      ]
+    },
+    {
+      "cue": "C6-01-GATHER-E10",
+      "room": "ROOM_304",
+      "actors": [
+        {
+          "id": "nga",
+          "pose": "pose.seated",
+          "anchor": "lastdesk",
+          "dy": -28,
+          "alpha": 0.6
+        }
+      ]
+    },
+    {
+      "cue": "A-01-MAIN-E03",
+      "room": "ROOM_304",
+      "actors": [
+        {
+          "id": "nga",
+          "pose": "walk.down",
+          "anchor": "lastdesk",
+          "dy": -28,
+          "to": "door.hall",
+          "seconds": 2,
+          "alpha": 0.45
+        }
+      ],
+      "effect": "memory",
+      "asset": "effect.memory"
+    },
+    {
+      "cue": "A-01-MAIN-E05",
+      "room": "ROOM_304",
+      "actors": [
+        {
+          "id": "nga",
+          "pose": "idle.down",
+          "anchor": "door.hall",
+          "dy": 30,
+          "alpha": 0.15
+        }
+      ]
+    },
+    {
+      "cue": "A-01-MAIN-E08",
+      "room": "ROOM_304",
+      "actors": [
+        {
+          "id": "nga",
+          "hidden": true
+        }
+      ],
+      "clear": true
+    },
+    {
+      "cue": "C-02-MAIN-E05",
+      "room": "ROOM_304",
+      "actors": [
+        {
+          "id": "trang",
+          "pose": "idle.up",
+          "anchor": "door.hall",
+          "dy": 30
+        },
+        {
+          "id": "linh",
+          "pose": "idle.down",
+          "anchor": "door.hall",
+          "dy": 80
+        }
+      ]
+    },
+    {
+      "cue": "C-02-MAIN-E09",
+      "room": "ROOM_304",
+      "actors": [
+        {
+          "id": "linh",
+          "pose": "pose.seated",
+          "anchor": "lastdesk",
+          "dy": -28
+        }
+      ]
+    },
+    {
+      "cue": "C-02-MAIN-E11",
+      "room": "ROOM_304",
+      "actors": [
+        {
+          "id": "trang",
+          "pose": "pose.phone"
+        }
+      ],
+      "effect": "phone",
+      "asset": "document.c_phone"
+    }
+  ]
+}
