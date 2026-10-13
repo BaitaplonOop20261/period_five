@@ -9,6 +9,9 @@ public final class GameplayInput {
     private boolean sprinting;
     private boolean interactionRequested;
     private boolean dialogueAdvanceRequested;
+    private boolean dialogueChoiceUpRequested;
+    private boolean dialogueChoiceDownRequested;
+    private boolean dialogueChoiceConfirmRequested;
     private boolean wardrobeCloseRequested;
     private boolean pauseRequested;
 
@@ -21,6 +24,12 @@ public final class GameplayInput {
             || input.isKeyPressed(Input.Keys.CONTROL_RIGHT);
         interactionRequested = input.isKeyJustPressed(Input.Keys.F);
         dialogueAdvanceRequested = interactionRequested || input.isKeyJustPressed(Input.Keys.ENTER);
+        dialogueChoiceUpRequested = input.isKeyJustPressed(Input.Keys.W)
+            || input.isKeyJustPressed(Input.Keys.UP);
+        dialogueChoiceDownRequested = input.isKeyJustPressed(Input.Keys.S)
+            || input.isKeyJustPressed(Input.Keys.DOWN);
+        dialogueChoiceConfirmRequested = interactionRequested
+            || input.isKeyJustPressed(Input.Keys.ENTER);
         wardrobeCloseRequested = interactionRequested || input.isKeyJustPressed(Input.Keys.E);
         pauseRequested = input.isKeyJustPressed(Input.Keys.ESCAPE);
     }
@@ -43,6 +52,18 @@ public final class GameplayInput {
 
     public boolean isDialogueAdvanceRequested() {
         return dialogueAdvanceRequested;
+    }
+
+    public boolean isDialogueChoiceUpRequested() {
+        return dialogueChoiceUpRequested;
+    }
+
+    public boolean isDialogueChoiceDownRequested() {
+        return dialogueChoiceDownRequested;
+    }
+
+    public boolean isDialogueChoiceConfirmRequested() {
+        return dialogueChoiceConfirmRequested;
     }
 
     public boolean isWardrobeCloseRequested() {

@@ -15,6 +15,14 @@ public class DialogueChoice {
     public DialogueChoice() {
     }
 
+    public DialogueChoice(String id, String text, List<DialogueLine> lines, boolean returnToChoices, boolean closeDialogue) {
+        this.id = id;
+        this.text = text;
+        this.lines = lines;
+        this.return_to_choices = returnToChoices;
+        this.close_dialogue = closeDialogue;
+    }
+
     public String getId() {
         return id;
     }

@@ -10,6 +10,7 @@ import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
 import vn.room304.game.dialogue.Dialogue;
+import vn.room304.game.dialogue.DialogueChoice;
 import vn.room304.game.dialogue.DialogueController;
 import vn.room304.game.dialogue.DialogueLine;
 import vn.room304.game.dialogue.DialogueLoader;
@@ -148,6 +149,18 @@ public final class RegressionChecks {
         press(-1);
         input.capture(Gdx.input);
         assert !input.isPauseRequested() && !input.isDialogueAdvanceRequested() && !input.isWardrobeCloseRequested();
+        press(Input.Keys.W);
+        input.capture(Gdx.input);
+        assert input.isDialogueChoiceUpRequested() && !input.isDialogueChoiceDownRequested() && !input.isDialogueChoiceConfirmRequested();
+        press(Input.Keys.S);
+        input.capture(Gdx.input);
+        assert input.isDialogueChoiceDownRequested() && !input.isDialogueChoiceUpRequested() && !input.isDialogueChoiceConfirmRequested();
+        press(Input.Keys.ENTER);
+        input.capture(Gdx.input);
+        assert input.isDialogueChoiceConfirmRequested();
+        press(Input.Keys.F);
+        input.capture(Gdx.input);
+        assert input.isDialogueChoiceConfirmRequested();
     }
 
     private static void checkDialogueProgression() {
@@ -173,6 +186,26 @@ public final class RegressionChecks {
         controller.start(dialogue);
         controller.start(null);
         assert !controller.isActive();
+
+        DialogueChoice choiceA = new DialogueChoice("a", "Choice A", List.of(new DialogueLine("Trang", "A Line", null)), true, false);
+        DialogueChoice choiceB = new DialogueChoice("b", "Choice B", List.of(new DialogueLine("Trang", "B Line", null)), false, true);
+        DialogueChoice exitChoice = new DialogueChoice("exit", "Exit", List.of(new DialogueLine("Trang", "Exit Line", null)), false, true);
+        Dialogue dialogueWithChoices = new Dialogue("choices_test", List.of(choiceA, choiceB), exitChoice);
+        controller.start(dialogueWithChoices);
+        assert controller.isActive() && controller.isChoosing();
+        assert controller.getSelectedChoiceIndex() == 0;
+        assert controller.getAvailableChoices().size() == 3;
+        controller.selectPreviousChoice();
+        assert controller.getSelectedChoiceIndex() == 2 : "Previous from 0 must wrap to 2";
+        controller.selectNextChoice();
+        assert controller.getSelectedChoiceIndex() == 0 : "Next from 2 must wrap to 0";
+        controller.selectNextChoice();
+        assert controller.getSelectedChoiceIndex() == 1;
+        controller.confirmChoice();
+        assert !controller.isChoosing();
+        assert controller.getCurrentLine().equals("B Line");
+        controller.advance();
+        assert !controller.isActive() : "Choice without returnToChoices must close dialogue";
     }
 
     private static void checkDialogueLoading(Path directory) throws Exception {

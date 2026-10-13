@@ -125,10 +125,26 @@ public final class GameplayRegressionChecks {
             "Resuming must restart idle and preserve dialogue");
 
         // Closing dialogue must not move the player or re-trigger an interaction in that frame.
+        if (dialogue.isChoosing()) {
+            check(dialogue.getSelectedChoiceIndex() == 0, "Initial choice index must be 0");
+            renderInput(screen, Input.Keys.S);
+            check(dialogue.getSelectedChoiceIndex() == 1, "S must move choice index down");
+            renderInput(screen, Input.Keys.W);
+            check(dialogue.getSelectedChoiceIndex() == 0, "W must move choice index up");
+            renderInput(screen, Input.Keys.W);
+            check(dialogue.getSelectedChoiceIndex() == 2, "W from top must wrap to exit choice");
+            renderInput(screen, Input.Keys.ENTER);
+            check(!dialogue.isChoosing(), "ENTER must confirm selected choice");
+        }
+
         for (int key : new int[] {Input.Keys.F, Input.Keys.ENTER}) {
             if (!dialogue.isActive()) {
                 renderInput(screen, Input.Keys.F);
                 check(dialogue.isActive(), "NPC dialogue must be reopenable");
+            }
+            if (dialogue.isChoosing()) {
+                renderInput(screen, Input.Keys.W);
+                renderInput(screen, key);
             }
             for (int remaining = 100; dialogue.isActive() && remaining > 0; remaining--) {
                 renderInput(screen, key, Input.Keys.D);
@@ -145,6 +161,10 @@ public final class GameplayRegressionChecks {
             renderInput(screen, Input.Keys.F, Input.Keys.D);
             check(dialogue.isActive() && !player.isMoving(), "Repeated opening with held movement must stay idle");
             check(player.getX() == openingX, "Repeated opening must not leak movement");
+            if (dialogue.isChoosing()) {
+                renderInput(screen, Input.Keys.W, Input.Keys.D);
+                renderInput(screen, Input.Keys.ENTER, Input.Keys.D);
+            }
             for (int remaining = 100; dialogue.isActive() && remaining > 0; remaining--) {
                 renderInput(screen, Input.Keys.F, Input.Keys.D);
                 check(player.getX() == openingX && !player.isMoving(), "Held key must not move on dialogue advance/close");

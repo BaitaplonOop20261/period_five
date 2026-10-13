@@ -47,7 +47,10 @@ public class DialogueView implements Disposable {
     private final List<Table> responseOptionBoxes = new ArrayList<>();
     private final Map<String, TextureRegionDrawable> portraits = new HashMap<>();
     private final Drawable optionBackground;
+    private final Drawable optionSelectedBackground;
+    private final Label.LabelStyle hintStyle;
     private final Label.LabelStyle choiceStyle;
+    private final Label.LabelStyle choiceSelectedStyle;
     private String choiceSignature;
 
     public DialogueView() {
@@ -70,8 +73,9 @@ public class DialogueView implements Disposable {
         // Text styles
         Label.LabelStyle nameStyle = new Label.LabelStyle(font, new Color(1f, 0.86f, 0.48f, 1f));
         Label.LabelStyle lineStyle = new Label.LabelStyle(dialogueFont, new Color(0.98f, 0.91f, 0.75f, 1f));
-        Label.LabelStyle hintStyle = new Label.LabelStyle(font, new Color(0.78f, 0.63f, 0.42f, 1f));
+        hintStyle = new Label.LabelStyle(font, new Color(0.78f, 0.63f, 0.42f, 1f));
         choiceStyle = new Label.LabelStyle(dialogueFont, new Color(0.92f, 0.82f, 0.65f, 1f));
+        choiceSelectedStyle = new Label.LabelStyle(dialogueFont, new Color(1f, 0.96f, 0.82f, 1f));
 
         nameLabel = new Label("", nameStyle);
         lineLabel = new Label("", lineStyle);
@@ -128,6 +132,11 @@ public class DialogueView implements Disposable {
             new Color(0.18f, 0.10f, 0.06f, 0.96f),
             new Color(0.72f, 0.43f, 0.17f, 1f)
         );
+        optionSelectedBackground = createNinePatchDrawable(
+            10, 2,
+            new Color(0.32f, 0.18f, 0.08f, 0.98f),
+            new Color(1f, 0.84f, 0.38f, 1f)
+        );
 
         // Keep the character portrait to the left and dialogue panel at the upper right.
         rootTable = new Table();
@@ -159,6 +168,7 @@ public class DialogueView implements Disposable {
             if (choosing) {
                 updateChoices(dialogueController);
             } else {
+                choiceSignature = null;
                 String speaker = dialogueController.getSpeakerName();
                 boolean hasSpeaker = speaker != null && !speaker.trim().isEmpty();
                 nameLabel.setText(hasSpeaker ? speaker : "");
@@ -166,6 +176,8 @@ public class DialogueView implements Disposable {
                 lineLabel.setText(dialogueController.getCurrentLine());
                 updatePortrait(dialogueController.getSpeakerPortraitTexturePath());
             }
+        } else {
+            choiceSignature = null;
         }
 
         stage.act();
@@ -199,30 +211,53 @@ public class DialogueView implements Disposable {
         List<DialogueChoice> choices = dialogueController.getAvailableChoices();
         StringBuilder signature = new StringBuilder();
         for (DialogueChoice choice : choices) signature.append(choice.getId()).append('|');
-        if (signature.toString().equals(choiceSignature)) return;
+        if (!signature.toString().equals(choiceSignature)) {
+            responseChoices.clearChildren();
+            responseOptionBoxes.clear();
+            choiceSignature = signature.toString();
+            float viewportWidth = stage.getViewport().getWorldWidth();
+            float portraitWidth = Math.min(245f, viewportWidth * 0.27f);
+            float optionWidth = Math.max(380f, viewportWidth - portraitWidth - 104f) * 0.66f;
+            for (int i = 0; i < choices.size(); i++) {
+                final int choiceIndex = i;
+                Table optionBox = new Table();
+                optionBox.setBackground(optionBackground);
+                Label choiceLabel = new Label(choices.get(i).getText(), choiceStyle);
+                choiceLabel.setWrap(true);
+                optionBox.add(choiceLabel).growX().center();
+                optionBox.addListener(new ClickListener() {
+                    @Override
+                    public void clicked(com.badlogic.gdx.scenes.scene2d.InputEvent event,
+                                        float x, float y) {
+                        dialogueController.setSelectedChoiceIndex(choiceIndex);
+                        dialogueController.confirmChoice();
+                    }
 
-        responseChoices.clearChildren();
-        responseOptionBoxes.clear();
-        choiceSignature = signature.toString();
-        float viewportWidth = stage.getViewport().getWorldWidth();
-        float portraitWidth = Math.min(245f, viewportWidth * 0.27f);
-        float optionWidth = Math.max(380f, viewportWidth - portraitWidth - 104f) * 0.66f;
-        for (int i = 0; i < choices.size(); i++) {
-            final int choiceIndex = i;
-            Table optionBox = new Table();
-            optionBox.setBackground(optionBackground);
-            Label choiceLabel = new Label(choices.get(i).getText(), choiceStyle);
-            choiceLabel.setWrap(true);
-            optionBox.add(choiceLabel).growX().center();
-            optionBox.addListener(new ClickListener() {
-                @Override
-                public void clicked(com.badlogic.gdx.scenes.scene2d.InputEvent event,
-                                    float x, float y) {
-                    dialogueController.choose(choiceIndex);
-                }
-            });
-            responseChoices.add(optionBox).width(optionWidth).height(52f).right().row();
-            responseOptionBoxes.add(optionBox);
+                    @Override
+                    public void enter(com.badlogic.gdx.scenes.scene2d.InputEvent event,
+                                      float x, float y, int pointer,
+                                      com.badlogic.gdx.scenes.scene2d.Actor fromActor) {
+                        if (pointer == -1) {
+                            dialogueController.setSelectedChoiceIndex(choiceIndex);
+                        }
+                    }
+                });
+                responseChoices.add(optionBox).width(optionWidth).height(52f).right().row();
+                responseOptionBoxes.add(optionBox);
+            }
+            Table hintRow = new Table();
+            hintRow.add(new Label("W / S : Chon      F / ENTER : Xac nhan", hintStyle)).right().padTop(4f);
+            responseChoices.add(hintRow).right().row();
+        }
+
+        int selectedIndex = dialogueController.getSelectedChoiceIndex();
+        for (int i = 0; i < responseOptionBoxes.size(); i++) {
+            Table box = responseOptionBoxes.get(i);
+            boolean isSelected = (i == selectedIndex);
+            box.setBackground(isSelected ? optionSelectedBackground : optionBackground);
+            if (box.getChildren().size > 0 && box.getChildren().get(0) instanceof Label label) {
+                label.setStyle(isSelected ? choiceSelectedStyle : choiceStyle);
+            }
         }
     }
 

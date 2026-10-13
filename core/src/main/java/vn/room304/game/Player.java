@@ -48,13 +48,15 @@ public class Player implements Disposable {
     private final Animation<TextureRegion> backRunAnimation;
     private final Animation<TextureRegion> sideRunAnimation;
 
+    private final String name;
     private float stateTime = 0f;
     private boolean flipX = false;
 
     /** Tracks which directional animation to use while moving. */
     private Animation<TextureRegion> currentRunAnimation;
 
-    public Player(float x, float y) {
+    public Player(String name, float x, float y) {
+        this.name = name;
         bounds = new Rectangle(x, y, WIDTH, HEIGHT);
         nextBounds = new Rectangle(bounds);
 
@@ -71,6 +73,10 @@ public class Player implements Disposable {
         sideRunAnimation = buildAnimation(sideRunSheet);
 
         currentRunAnimation = downRunAnimation;
+    }
+
+    public Player(float x, float y) {
+        this("Linh", x, y);
     }
 
     /**
@@ -137,6 +143,10 @@ public class Player implements Disposable {
 
     public float getSpriteHeight() {
         return SPRITE_HEIGHT;
+    }
+
+    public String getName() {
+        return name;
     }
 
     public void update(float delta, float horizontal, float vertical, boolean sprinting,

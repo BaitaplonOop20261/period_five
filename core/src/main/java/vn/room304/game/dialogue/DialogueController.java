@@ -10,6 +10,7 @@ public class DialogueController {
     private List<DialogueLine> activeLines;
     private List<DialogueChoice> availableChoices = List.of();
     private int lineIndex;
+    private int selectedChoiceIndex;
     private boolean choosing;
 
     public void start(Dialogue dialogue) {
@@ -27,6 +28,7 @@ public class DialogueController {
             availableChoices = List.of();
         }
         lineIndex = 0;
+        selectedChoiceIndex = 0;
         choosing = dialogue.hasChoices();
     }
 
@@ -41,6 +43,7 @@ public class DialogueController {
             activeChoice = null;
             activeLines = null;
             lineIndex = 0;
+            selectedChoiceIndex = 0;
             choosing = true;
         } else {
             close();
@@ -57,6 +60,35 @@ public class DialogueController {
         choosing = false;
     }
 
+    public int getSelectedChoiceIndex() {
+        return selectedChoiceIndex;
+    }
+
+    public void setSelectedChoiceIndex(int index) {
+        if (!choosing || availableChoices.isEmpty()) {
+            selectedChoiceIndex = 0;
+            return;
+        }
+        if (index >= 0 && index < availableChoices.size()) {
+            this.selectedChoiceIndex = index;
+        }
+    }
+
+    public void selectPreviousChoice() {
+        if (!choosing || availableChoices.isEmpty()) return;
+        selectedChoiceIndex = (selectedChoiceIndex - 1 + availableChoices.size()) % availableChoices.size();
+    }
+
+    public void selectNextChoice() {
+        if (!choosing || availableChoices.isEmpty()) return;
+        selectedChoiceIndex = (selectedChoiceIndex + 1) % availableChoices.size();
+    }
+
+    public void confirmChoice() {
+        if (!choosing || availableChoices.isEmpty()) return;
+        choose(selectedChoiceIndex);
+    }
+
     public List<DialogueChoice> getAvailableChoices() {
         return availableChoices;
     }
@@ -70,14 +102,23 @@ public class DialogueController {
     }
 
     public String getSpeakerName() {
+        if (activeLines == null || lineIndex < 0 || lineIndex >= activeLines.size()) {
+            return "";
+        }
         return activeLines.get(lineIndex).getSpeaker();
     }
 
     public String getSpeakerPortraitTexturePath() {
+        if (activeLines == null || lineIndex < 0 || lineIndex >= activeLines.size()) {
+            return null;
+        }
         return activeLines.get(lineIndex).getPortrait();
     }
 
     public String getCurrentLine() {
+        if (activeLines == null || lineIndex < 0 || lineIndex >= activeLines.size()) {
+            return "";
+        }
         return activeLines.get(lineIndex).getText();
     }
 
@@ -87,6 +128,7 @@ public class DialogueController {
         activeLines = null;
         availableChoices = List.of();
         lineIndex = 0;
+        selectedChoiceIndex = 0;
         choosing = false;
     }
 }

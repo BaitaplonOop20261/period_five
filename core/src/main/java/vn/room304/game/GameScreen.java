@@ -21,6 +21,7 @@ import vn.room304.game.gameplay.GameplayInput;
 import vn.room304.game.gameplay.RoomInteractionSystem;
 import vn.room304.game.gameplay.RoomInteractionSystem.Kind;
 import vn.room304.game.gameplay.RoomInteractionSystem.Target;
+import vn.room304.game.ui.CharacterNameplateRenderer;
 import vn.room304.game.ui.DialogueView;
 import vn.room304.game.ui.PauseMenuView;
 import vn.room304.game.ui.WardrobeView;
@@ -50,6 +51,8 @@ public class GameScreen implements Screen {
     private RoomInteractionSystem roomInteractions;
     private DialogueController dialogueController;
     private DialogueView dialogueView;
+    private CharacterNameplateRenderer nameplateRenderer;
+    private boolean nameplatesVisible = true;
     private WardrobeController wardrobeController;
     private WardrobeView wardrobeView;
     private OrthographicCamera camera;
@@ -84,6 +87,7 @@ public class GameScreen implements Screen {
         player = new Player(WorldMap.EXIT_CENTER_X - Player.WIDTH / 2f, 24f);
         dialogueController = new DialogueController();
         dialogueView = new DialogueView();
+        nameplateRenderer = new CharacterNameplateRenderer();
         roomInteractions = new RoomInteractionSystem(worldMap);
         wardrobeController = new WardrobeController();
         wardrobeView = new WardrobeView(wardrobeController);
@@ -155,7 +159,16 @@ public class GameScreen implements Screen {
         boolean wardrobeCloseRequested = wardrobeView.consumeCloseRequest();
         boolean movementWasAllowed = !dialogueController.isActive() && !wardrobeController.isOpen();
         if (dialogueController.isActive()) {
-            if (input.isDialogueAdvanceRequested()) {
+            if (dialogueController.isChoosing()) {
+                if (input.isDialogueChoiceUpRequested()) {
+                    dialogueController.selectPreviousChoice();
+                } else if (input.isDialogueChoiceDownRequested()) {
+                    dialogueController.selectNextChoice();
+                }
+                if (input.isDialogueChoiceConfirmRequested()) {
+                    dialogueController.confirmChoice();
+                }
+            } else if (input.isDialogueAdvanceRequested()) {
                 dialogueController.advance();
             }
         } else if (wardrobeController.isOpen()) {
@@ -210,12 +223,18 @@ public class GameScreen implements Screen {
         if (scene == Scene.HALLWAY) {
             hallwayMap.renderBackground(spriteBatch);
             player.render(spriteBatch);
+            if (nameplatesVisible) {
+                nameplateRenderer.render(spriteBatch, player);
+            }
             if (!dialogueController.isActive() && hallwayMap.findNearbyInteraction(player.getBounds()) != -1) {
                 renderHallwayInteractionMarker();
             }
         } else if (scene == Scene.BACKYARD) {
             backyardMap.renderBackground(spriteBatch);
             player.render(spriteBatch);
+            if (nameplatesVisible) {
+                nameplateRenderer.render(spriteBatch, player);
+            }
             if (backyardMap.getEntranceBounds().overlaps(player.getBounds())) {
                 renderPassageMarker(backyardMap.getEntranceBounds(),
                     backyardMap.getSpawnY() + Player.SPRITE_HEIGHT + 8f);
@@ -252,6 +271,13 @@ public class GameScreen implements Screen {
             worldMap.renderWardrobe(spriteBatch);
         }
 
+        if (nameplatesVisible) {
+            for (Npc npc : worldMap.getNpcs()) {
+                nameplateRenderer.render(spriteBatch, npc);
+            }
+            nameplateRenderer.render(spriteBatch, player);
+        }
+
         if (!dialogueController.isActive() && !wardrobeController.isOpen()) {
             renderInteractionMarkers();
         }
@@ -280,7 +306,7 @@ public class GameScreen implements Screen {
             Rectangle bounds = target.getBounds();
             spriteBatch.draw(markerFrame,
                 bounds.x + (bounds.width - markerWidth) / 2f,
-                bounds.y + Npc.SPRITE_HEIGHT - 8f,
+                bounds.y + Npc.SPRITE_HEIGHT + 36f,
                 markerWidth, markerHeight);
         }
 
@@ -393,5 +419,16 @@ public class GameScreen implements Screen {
         dialogueView.dispose();
         wardrobeView.dispose();
         pauseMenu.dispose();
+        if (nameplateRenderer != null) {
+            nameplateRenderer.dispose();
+        }
+    }
+
+    public boolean isNameplatesVisible() {
+        return nameplatesVisible;
+    }
+
+    public void setNameplatesVisible(boolean nameplatesVisible) {
+        this.nameplatesVisible = nameplatesVisible;
     }
 }

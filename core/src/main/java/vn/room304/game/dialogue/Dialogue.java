@@ -19,6 +19,12 @@ public class Dialogue {
         this.lines = lines;
     }
 
+    public Dialogue(String id, List<DialogueChoice> choices, DialogueChoice exitChoice) {
+        this.id = id;
+        this.choices = choices;
+        this.exit_choice = exitChoice;
+    }
+
     public String getId() {
         return id;
     }
