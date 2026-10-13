@@ -1,0 +1,65 @@
+[
+  {
+    "name": "window",
+    "width": 74,
+    "height": 16,
+    "family": "window",
+    "prompt": "Use case: stylized-concept. ONE Room304 isolated game prop on TRUE TRANSPARENT RGBA background. Match the previous generated props and supplied classroom: crisp pixel art, restrained dusty beige/gray, worn dark brown wood, olive/charcoal metals, dark pixel outlines, subtle warm upper-left light. Orthographic RPG top-down camera with slight visible front thickness, no isometric rotation, no perspective convergence. Design to read at native small pixel dimensions. No soft blurred edges, no room/floor backdrop except explicitly requested floor threshold, no white matte, no checkerboard pixels, no HUD, labels, watermark, characters or inventory extras. Only narrow transparent margin. NO readable text; paper writing only faint abstract ink marks. Output one static sprite, not sprite sheet. A wide, very shallow horizontal old school WINDOW MODULE. Worn dark wood/gray window frame with two or three tiny panes, visibly pale dusty daylight and a tiny glimpse of an empty school courtyard THROUGH THE GLASS only: muted greenery and a small gray paving patch, not a yard map. Native canvas74x16, ratio74:16. Keep frame low and flat, not a tall portrait window. Full frame inside canvas."
+  },
+  {
+    "name": "board",
+    "width": 90,
+    "height": 24,
+    "family": "board",
+    "prompt": "Use case: stylized-concept. ONE Room304 isolated game prop on TRUE TRANSPARENT RGBA background. Match the previous generated props and supplied classroom: crisp pixel art, restrained dusty beige/gray, worn dark brown wood, olive/charcoal metals, dark pixel outlines, subtle warm upper-left light. Orthographic RPG top-down camera with slight visible front thickness, no isometric rotation, no perspective convergence. Design to read at native small pixel dimensions. No soft blurred edges, no room/floor backdrop except explicitly requested floor threshold, no white matte, no checkerboard pixels, no HUD, labels, watermark, characters or inventory extras. Only narrow transparent margin. NO readable text; paper writing only faint abstract ink marks. Output one static sprite, not sprite sheet. A wide shallow old school notice BOARD, dark olive/charcoal backing with worn brown wooden frame, same style as reference upper wall noticeboard. Two recognizable notices at fixed distinct positions: a cream repair notice on left and a folded school bulletin/internal newsletter pinned on right, abstract gray line marks only. Board rectangle fills native90x24 with narrow alpha margin. No big readable words or paper outside board."
+  },
+  {
+    "name": "guard_wall",
+    "width": 46,
+    "height": 50,
+    "family": "guard_wall",
+    "prompt": "Use case: stylized-concept. ONE Room304 isolated game prop on TRUE TRANSPARENT RGBA background. Match the previous generated props and supplied classroom: crisp pixel art, restrained dusty beige/gray, worn dark brown wood, olive/charcoal metals, dark pixel outlines, subtle warm upper-left light. Orthographic RPG top-down camera with slight visible front thickness, no isometric rotation, no perspective convergence. Design to read at native small pixel dimensions. No soft blurred edges, no room/floor backdrop except explicitly requested floor threshold, no white matte, no checkerboard pixels, no HUD, labels, watermark, characters or inventory extras. Only narrow transparent margin. NO readable text; paper writing only faint abstract ink marks. Output one static sprite, not sprite sheet. A doorway-sized FLAT WALL PATCH BEFORE a hidden security guard door appears. Worn dusty gray-beige plaster wall above a low charcoal/brown wooden skirting strip, faint cracks/stains, matching the reference school walls. ONE slightly portrait rectangle46x50, not cabinet or furniture. No handle, hinges, keyhole, door seam or suggestion of door yet. Patch fills rectangular footprint with alpha outside its edges only. This is base for revealed door, so keep exact rectangular outer silhouette."
+  },
+  {
+    "name": "guard_door",
+    "width": 46,
+    "height": 50,
+    "family": "guard_wall",
+    "prompt": "Edit target: supplied guard_wall sprite; preserve true alpha. Use case: stylized-concept. ONE Room304 isolated game prop on TRUE TRANSPARENT RGBA background. Match the previous generated props and supplied classroom: crisp pixel art, restrained dusty beige/gray, worn dark brown wood, olive/charcoal metals, dark pixel outlines, subtle warm upper-left light. Orthographic RPG top-down camera with slight visible front thickness, no isometric rotation, no perspective convergence. Design to read at native small pixel dimensions. No soft blurred edges, no room/floor backdrop except explicitly requested floor threshold, no white matte, no checkerboard pixels, no HUD, labels, watermark, characters or inventory extras. Only narrow transparent margin. NO readable text; paper writing only faint abstract ink marks. Output one static sprite, not sprite sheet. Preserve exact original source canvas, object bounding box, silhouette, anchor and camera; no zoom or recenter. Change only requested state of same object. Replace ONLY inside this SAME wall patch with a revealed CLOSED security guard room DOOR. A worn dark brown/olive wooden door and thin frame exactly occupying the previous wall patch rectangle, clear small metal handle on right side at native46x50, hinges on left. Keep outer silhouette, canvas, camera, position and bottom skirting/threshold anchor unchanged. No opening, no objects, no large surrounding wall."
+  },
+  {
+    "name": "gate_closed",
+    "width": 70,
+    "height": 24,
+    "family": "gate_closed",
+    "prompt": "Use case: stylized-concept. ONE Room304 isolated game prop on TRUE TRANSPARENT RGBA background. Match the previous generated props and supplied classroom: crisp pixel art, restrained dusty beige/gray, worn dark brown wood, olive/charcoal metals, dark pixel outlines, subtle warm upper-left light. Orthographic RPG top-down camera with slight visible front thickness, no isometric rotation, no perspective convergence. Design to read at native small pixel dimensions. No soft blurred edges, no room/floor backdrop except explicitly requested floor threshold, no white matte, no checkerboard pixels, no HUD, labels, watermark, characters or inventory extras. Only narrow transparent margin. NO readable text; paper writing only faint abstract ink marks. Output one static sprite, not sprite sheet. A CLOSED school exit GATE module, seen from same top-down RPG camera. Wide shallow70x24 canvas: horizontal double-leaf dark olive metal gate with aged straight bars meeting at center, latch at center, narrow stone threshold crossing bottom part with warm wooden interior side and muted gray exterior side clearly distinguishable. Do not render tall elevation of a gate. Keep gate flat and low, only70x24 footprint. One module, no full outside yard or fence extending away. Base for open state."
+  },
+  {
+    "name": "gate_open",
+    "width": 70,
+    "height": 24,
+    "family": "gate_closed",
+    "prompt": "Edit target: supplied gate_closed sprite; preserve true alpha. Use case: stylized-concept. ONE Room304 isolated game prop on TRUE TRANSPARENT RGBA background. Match the previous generated props and supplied classroom: crisp pixel art, restrained dusty beige/gray, worn dark brown wood, olive/charcoal metals, dark pixel outlines, subtle warm upper-left light. Orthographic RPG top-down camera with slight visible front thickness, no isometric rotation, no perspective convergence. Design to read at native small pixel dimensions. No soft blurred edges, no room/floor backdrop except explicitly requested floor threshold, no white matte, no checkerboard pixels, no HUD, labels, watermark, characters or inventory extras. Only narrow transparent margin. NO readable text; paper writing only faint abstract ink marks. Output one static sprite, not sprite sheet. Preserve exact original source canvas, object bounding box, silhouette, anchor and camera; no zoom or recenter. Change only requested state of same object. Open the SAME double-leaf gate by folding both gate leaves to the left/right ends INSIDE original70x24 footprint, leaving center walkway unobstructed. Preserve exact threshold, material, hinges, canvas and point of placement. Center must show clear continuous transition wooden interior to gray exterior, no gate leaf or rail across passage, no floor extending beyond original canvas."
+  },
+  {
+    "name": "evidence",
+    "width": 74,
+    "height": 30,
+    "family": "evidence",
+    "prompt": "Use case: stylized-concept. ONE Room304 isolated game prop on TRUE TRANSPARENT RGBA background. Match the previous generated props and supplied classroom: crisp pixel art, restrained dusty beige/gray, worn dark brown wood, olive/charcoal metals, dark pixel outlines, subtle warm upper-left light. Orthographic RPG top-down camera with slight visible front thickness, no isometric rotation, no perspective convergence. Design to read at native small pixel dimensions. No soft blurred edges, no room/floor backdrop except explicitly requested floor threshold, no white matte, no checkerboard pixels, no HUD, labels, watermark, characters or inventory extras. Only narrow transparent margin. NO readable text; paper writing only faint abstract ink marks. Output one static sprite, not sprite sheet. ONE wooden evidence-comparison DESK, same material, apron, outlines and viewing angle as supplied desk_empty.png and register.png, native74x30. On tabletop: TWO old cream documents laid beside each other for comparison BEFORE signing, gray line-like writing marks and muted red stamp. NO supplementary sheet, NO signature, NO pen suggesting already signed, NO book. Keep main tabletop silhouette broad and shallow, no chair, no long legs. Base for signed state that must preserve both old pages."
+  },
+  {
+    "name": "evidence_signed",
+    "width": 74,
+    "height": 30,
+    "family": "evidence",
+    "prompt": "Edit target: supplied evidence sprite; preserve true alpha. Use case: stylized-concept. ONE Room304 isolated game prop on TRUE TRANSPARENT RGBA background. Match the previous generated props and supplied classroom: crisp pixel art, restrained dusty beige/gray, worn dark brown wood, olive/charcoal metals, dark pixel outlines, subtle warm upper-left light. Orthographic RPG top-down camera with slight visible front thickness, no isometric rotation, no perspective convergence. Design to read at native small pixel dimensions. No soft blurred edges, no room/floor backdrop except explicitly requested floor threshold, no white matte, no checkerboard pixels, no HUD, labels, watermark, characters or inventory extras. Only narrow transparent margin. NO readable text; paper writing only faint abstract ink marks. Output one static sprite, not sprite sheet. Preserve exact original source canvas, object bounding box, silhouette, anchor and camera; no zoom or recenter. Change only requested state of same object. Keep EXACT same desk, wood, apron, placement and BOTH old paper pages unchanged and unscribbled. Add ONE separate supplementary cream page in a previously free patch on SAME tabletop, showing a visible simple dark handwritten signature flourish by schoolteacher Hung, NO readable printed name or invented text. Only this newly-added addendum has signature; do NOT modify original old pages. Native74x30, supplementary sheet and ink flourish recognizable when small."
+  },
+  {
+    "name": "chair",
+    "width": 22,
+    "height": 9,
+    "family": "chair",
+    "prompt": "Use case: stylized-concept. ONE Room304 isolated game prop on TRUE TRANSPARENT RGBA background. Match the previous generated props and supplied classroom: crisp pixel art, restrained dusty beige/gray, worn dark brown wood, olive/charcoal metals, dark pixel outlines, subtle warm upper-left light. Orthographic RPG top-down camera with slight visible front thickness, no isometric rotation, no perspective convergence. Design to read at native small pixel dimensions. No soft blurred edges, no room/floor backdrop except explicitly requested floor threshold, no white matte, no checkerboard pixels, no HUD, labels, watermark, characters or inventory extras. Only narrow transparent margin. NO readable text; paper writing only faint abstract ink marks. Output one static sprite, not sprite sheet. ONE tiny physical chair for the FINAL-ROW STUDENT DESK. Match exactly supplied lastdesk.png dark weathered wood palette, outlines and top-down RPG camera. Native22x9, extremely wide/shallow top-down footprint: compact wooden seat and narrow horizontal backrest, faint dark metal leg hints inside silhouette. Draw as a low top-down seat/backrest module, NOT a tall front-view chair, NOT a desk, no person. Separate standalone transparent sprite so it can be moved."
+  }
+]

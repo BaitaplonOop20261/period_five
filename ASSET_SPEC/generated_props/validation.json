@@ -1,0 +1,114 @@
+[
+  {
+    "file": "photo.png",
+    "width": 54,
+    "height": 34,
+    "alphaCorner": 0,
+    "bounds": "{X=1,Y=1,Width=52,Height=32}"
+  },
+  {
+    "file": "register.png",
+    "width": 80,
+    "height": 34,
+    "alphaCorner": 0,
+    "bounds": "{X=1,Y=1,Width=78,Height=32}"
+  },
+  {
+    "file": "desk_empty.png",
+    "width": 80,
+    "height": 34,
+    "alphaCorner": 0,
+    "bounds": "{X=1,Y=1,Width=78,Height=32}"
+  },
+  {
+    "file": "desk_final.png",
+    "width": 80,
+    "height": 34,
+    "alphaCorner": 0,
+    "bounds": "{X=1,Y=1,Width=78,Height=32}"
+  },
+  {
+    "file": "player.png",
+    "width": 54,
+    "height": 28,
+    "alphaCorner": 0,
+    "bounds": "{X=1,Y=2,Width=52,Height=25}"
+  },
+  {
+    "file": "player_powered.png",
+    "width": 54,
+    "height": 28,
+    "alphaCorner": 0,
+    "bounds": "{X=1,Y=2,Width=52,Height=25}"
+  },
+  {
+    "file": "player_playing.png",
+    "width": 54,
+    "height": 28,
+    "alphaCorner": 0,
+    "bounds": "{X=1,Y=2,Width=52,Height=25}"
+  },
+  {
+    "file": "player_open.png",
+    "width": 54,
+    "height": 28,
+    "alphaCorner": 0,
+    "bounds": "{X=1,Y=1,Width=52,Height=26}"
+  },
+  {
+    "file": "crate.png",
+    "width": 54,
+    "height": 28,
+    "alphaCorner": 0,
+    "bounds": "{X=2,Y=1,Width=50,Height=26}"
+  },
+  {
+    "file": "crate_open.png",
+    "width": 54,
+    "height": 28,
+    "alphaCorner": 0,
+    "bounds": "{X=1,Y=1,Width=52,Height=26}"
+  },
+  {
+    "file": "cabinet.png",
+    "width": 46,
+    "height": 22,
+    "alphaCorner": 0,
+    "bounds": "{X=2,Y=5,Width=42,Height=16}"
+  },
+  {
+    "file": "cabinet_locked.png",
+    "width": 46,
+    "height": 22,
+    "alphaCorner": 0,
+    "bounds": "{X=2,Y=5,Width=42,Height=16}"
+  },
+  {
+    "file": "cabinet_open.png",
+    "width": 46,
+    "height": 22,
+    "alphaCorner": 0,
+    "bounds": "{X=2,Y=1,Width=42,Height=20}"
+  },
+  {
+    "file": "cabinet_upper.png",
+    "width": 46,
+    "height": 20,
+    "alphaCorner": 0,
+    "bounds": "{X=1,Y=5,Width=44,Height=14}"
+  },
+  {
+    "file": "papers.png",
+    "width": 70,
+    "height": 32,
+    "alphaCorner": 0,
+    "bounds": "{X=1,Y=1,Width=68,Height=30}"
+  },
+  {
+    "file": "lastdesk.png",
+    "width": 58,
+    "height": 20,
+    "alphaCorner": 0,
+    "bounds": "{X=1,Y=1,Width=56,Height=18}"
+  }
+]

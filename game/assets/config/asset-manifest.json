@@ -2,6 +2,17 @@
   "version": 1,
   "assets": [
     {
+      "id": "char.trang.idle.down",
+      "path": "sprites/trang/idle_down.png",
+      "type": "texture",
+      "required": false,
+      "filter": "Nearest",
+      "frameWidth": 32,
+      "frameHeight": 32,
+      "frameCount": 6,
+      "frameDuration": 0.15
+    },
+    {
       "id": "map.demo.room",
       "path": "maps/bedroom_background.png",
       "type": "texture",

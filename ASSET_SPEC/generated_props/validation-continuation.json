@@ -1,0 +1,65 @@
+[
+  {
+    "file": "window.png",
+    "width": 74,
+    "height": 16,
+    "alphaCorner": 0,
+    "bounds": "{X=1,Y=1,Width=72,Height=14}"
+  },
+  {
+    "file": "board.png",
+    "width": 90,
+    "height": 24,
+    "alphaCorner": 0,
+    "bounds": "{X=1,Y=1,Width=88,Height=22}"
+  },
+  {
+    "file": "guard_wall.png",
+    "width": 46,
+    "height": 50,
+    "alphaCorner": 0,
+    "bounds": "{X=1,Y=1,Width=44,Height=48}"
+  },
+  {
+    "file": "guard_door.png",
+    "width": 46,
+    "height": 50,
+    "alphaCorner": 0,
+    "bounds": "{X=1,Y=1,Width=44,Height=48}"
+  },
+  {
+    "file": "gate_closed.png",
+    "width": 70,
+    "height": 24,
+    "alphaCorner": 0,
+    "bounds": "{X=1,Y=1,Width=68,Height=22}"
+  },
+  {
+    "file": "gate_open.png",
+    "width": 70,
+    "height": 24,
+    "alphaCorner": 0,
+    "bounds": "{X=1,Y=1,Width=68,Height=22}"
+  },
+  {
+    "file": "evidence.png",
+    "width": 74,
+    "height": 30,
+    "alphaCorner": 0,
+    "bounds": "{X=1,Y=1,Width=72,Height=28}"
+  },
+  {
+    "file": "evidence_signed.png",
+    "width": 74,
+    "height": 30,
+    "alphaCorner": 0,
+    "bounds": "{X=1,Y=1,Width=72,Height=28}"
+  },
+  {
+    "file": "chair.png",
+    "width": 22,
+    "height": 9,
+    "alphaCorner": 0,
+    "bounds": "{X=1,Y=1,Width=20,Height=7}"
+  }
+]

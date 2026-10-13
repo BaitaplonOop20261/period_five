@@ -6,20 +6,7 @@
 - AI mở [FOR_AI_INTEGRATION.md](FOR_AI_INTEGRATION.md): mapping, giới hạn và quy trình import.
 - [01_ASSET_MASTER_LIST.md](01_ASSET_MASTER_LIST.md) là danh mục chuẩn; [07](07_ASSET_PRODUCTION_CHECKLIST.md) theo dõi nghiệm thu.
 
-| Nhóm | Tổng file | Cần làm | P0 / P1 / P2 |
-| --- | --- | --- | --- |
-| Nhân vật | 53 | 53 | 32 / 5 / 16 |
-| Portrait | 12 | 12 | 6 / 0 / 6 |
-| Môi trường | 1 | 1 | 1 / 0 / 0 |
-| Bản đồ kỹ thuật | 5 | 5 | 5 / 0 / 0 |
-| Đồ vật | 25 | 25 | 23 / 2 / 0 |
-| Hiệu ứng | 1 | 1 | 1 / 0 / 0 |
-| Tài liệu | 12 | 12 | 11 / 1 / 0 |
-| UI | 7 | 7 | 0 / 7 / 0 |
-| UI kỹ thuật | 3 | 3 | 0 / 3 / 0 |
-| Minh họa tùy chọn | 4 | 4 | 0 / 0 / 4 |
-| Âm thanh | 37 | 37 | 2 / 35 / 0 |
-| Font có sẵn | 2 | 0 | 2 / 0 / 0 |
+Số lượng từng nhóm và phân bố P0/P1/P2 xem tại [danh mục chuẩn](01_ASSET_MASTER_LIST.md).
 
 **152 đầu ra sản xuất**, gồm 115 PNG và 37 audio. **8 file kỹ thuật** do người dựng map/AI tạo; **2 file font/OFL đã có**. Tổng 162 mục; 160 thiếu. 53 sheet nhân vật / 204 frame (kể cả ảnh tĩnh một frame); trong đó 16 sheet walk NPC / 96 frame là P2 chưa có chuyển động tự động. Các số này tính cả 6 portrait phụ và 4 CG tùy chọn. Không phải toàn bộ đều bắt buộc trước bản art đầu.
 

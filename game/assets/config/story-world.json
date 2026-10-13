@@ -14,12 +14,14 @@
     {
       "id": "trang",
       "name": "Trang",
-      "animations": {},
+      "animations": {
+        "idle.down": "char.trang.idle.down"
+      },
       "canvasWidth": 32,
-      "canvasHeight": 48,
+      "canvasHeight": 32,
       "footWidth": 18,
       "footHeight": 10,
-      "scale": 1,
+      "scale": 1.5,
       "anchorX": 0.5,
       "anchorY": 0
     },
