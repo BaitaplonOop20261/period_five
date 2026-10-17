@@ -14,7 +14,14 @@ import static com.room304.story.GameState.*;
 public final class SceneCatalog {
     public static final class Point { public float x, y; }
     public static class Box { public float x, y, width, height; public Rectangle bounds() { return new Rectangle(x,y,width,height); } }
-    public static final class ObjectDef extends Box { public String id, type, name, label, asset, target, spawn, dialogue, requiredEvent; public float range; public HashMap<String,String> variants = new HashMap<>(); }
+    public static final class ObjectDef extends Box {
+        public String id, type, name, label, asset, target, spawn, dialogue, requiredEvent, inspection;
+        public float range;
+        public Box interaction;
+        public float[] highlightOutline = new float[0];
+        public HashMap<String,String> variants = new HashMap<>(), inspectionVariants = new HashMap<>();
+        public Rectangle interactionBounds() { return interaction==null?bounds():interaction.bounds(); }
+    }
     public static final class CharacterDef {
         public String id, name, dialogue, requiredEvent; public float canvasWidth=32,canvasHeight=48,footWidth=18,footHeight=10,scale=1,anchorX=.5f,anchorY=0; public HashMap<String,String> animations = new HashMap<>();
     }
@@ -64,10 +71,23 @@ public final class SceneCatalog {
                 for (Box b : s.collisions) validateBox(b,s);
                 for (ObjectDef o : s.objects) {
                     validateBox(o,s);
+                    if(o.interaction!=null)validateBox(o.interaction,s);
                     if (o.id == null || !ids.add(o.id) || !Set.of("PROP","DOOR").contains(o.type) || o.label == null || !Float.isFinite(o.range) || o.range < 0)
                         throw new IllegalArgumentException("Invalid/duplicate interaction " + s.id + "/" + o.id);
                     for(String variant:o.variants.keySet()){if(!Set.of("normal","open","closed","locked","empty","powered","playing","carried","final").contains(variant))throw new IllegalArgumentException("Unknown prop variant "+o.id+"/"+variant);texture(o.variants.get(variant),assets);}
                     if (o.asset != null && !assets.entry(o.asset).type().equals("texture")) throw new IllegalArgumentException("Wrong prop asset " + o.id);
+                    if (o.inspection != null) texture(o.inspection,assets);
+                    if (o.highlightOutline.length!=0) {
+                        if(o.highlightOutline.length<6 || o.highlightOutline.length%2!=0)
+                            throw new IllegalArgumentException("Invalid highlight outline " + o.id);
+                        for(float coordinate:o.highlightOutline) if(!Float.isFinite(coordinate)||coordinate<0||coordinate>1)
+                            throw new IllegalArgumentException("Highlight outline outside object " + o.id);
+                    }
+                    for (var variant:o.inspectionVariants.entrySet()) {
+                        if (!Set.of("normal","open","closed","locked","empty","powered","playing","final").contains(variant.getKey()))
+                            throw new IllegalArgumentException("Unknown inspection variant " + o.id + "/" + variant.getKey());
+                        texture(variant.getValue(),assets);
+                    }
                 }
                 for (Point p : s.spawns.values()) if (!catalog.canStand(s,p.x,p.y)) throw new IllegalArgumentException("Blocked/outside spawn " + s.id);
                 for (var slot : s.npcSlots.entrySet()) if (!catalog.npcs.containsKey(slot.getKey()) || !catalog.npcCanStand(s,slot.getKey(),slot.getValue().x,slot.getValue().y)) throw new IllegalArgumentException("Invalid NPC slot " + s.id + "/" + slot.getKey());
@@ -116,7 +136,8 @@ public final class SceneCatalog {
     }
     public void validateGeometry(Scene s) {
         if(!positive(s.width)||!positive(s.height))throw new IllegalArgumentException("Invalid map dimensions "+s.id);
-        for(Box b:s.collisions)validateBox(b,s);for(ObjectDef o:s.objects)validateBox(o,s);
+        for(Box b:s.collisions)validateBox(b,s);
+        for(ObjectDef o:s.objects){validateBox(o,s);if(o.interaction!=null)validateBox(o.interaction,s);}
         for(Point p:s.spawns.values())if(!canStand(s,p.x,p.y))throw new IllegalArgumentException("Blocked/outside spawn "+s.id);
         for(var slot:s.npcSlots.entrySet())if(!npcs.containsKey(slot.getKey())||!npcCanStand(s,slot.getKey(),slot.getValue().x,slot.getValue().y))throw new IllegalArgumentException("Invalid NPC slot "+s.id+"/"+slot.getKey());
     }

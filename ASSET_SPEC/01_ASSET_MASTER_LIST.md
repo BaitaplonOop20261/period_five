@@ -2,6 +2,10 @@
 
 Ngày kiểm kê: 11/10/2026. Đây là nguồn chuẩn của ID, đường dẫn và quy cách cho bộ ASSET_SPEC. Mọi path trong bảng tính từ `game/assets/`. ID mới là ID sản xuất đề xuất, **chưa được thêm vào manifest**. ID/path đã tồn tại được giữ nguyên. Không đổi tên theo tên hiển thị tiếng Việt.
 
+**Đợt nhập thử ngày 13/10/2026:** đã thêm năm ID `char.linh.idle.down`, `char.duc.idle.down`, `char.trang.idle.down`, `char.nam.idle.down`, `char.hung.idle.down` vào manifest và chép ảnh người dùng cung cấp tới các path `idle_down.png` tương ứng. Ảnh thực tế có frame **32×32**: Linh/Đức/Trang có 6 frame, 0,15 s/frame; bà Năm/thầy Hùng là 1 frame tĩnh, 1 s/frame. Đây là ngoại lệ để test, chưa nghiệm thu bộ art sản xuất 32×48/2 frame đề xuất ở bảng dưới. Số lượng và trạng thái MISSING trong danh mục vẫn là checklist sản xuất theo snapshot 11/10, không phải kiểm kê file runtime sau nhập. Chi tiết nguồn, checksum và giới hạn ở [09_IMPORTED_ASSETS_2026-10-13.md](09_IMPORTED_ASSETS_2026-10-13.md).
+
+Nền phòng 304 dùng slot hiện có `map.story.room_304` → `maps/room_304.png`, được imagegen vẽ lại theo ảnh nguồn và xuất PNG RGBA kín 640×480 ở 1×, lọc Nearest. Bố cục tám bàn và geometry đã nhập giữ nguyên. Đây là đường PNG thay thế được người dùng giao thực hiện; chưa bổ sung các TMX/tileset trong kế hoạch sản xuất. Checksum, geometry, prompt và công cụ xuất được ghi tại biên bản 09.
+
 | Nhóm | Tổng file | Cần làm | P0 / P1 / P2 |
 | --- | --- | --- | --- |
 | Nhân vật | 53 | 53 | 32 / 5 / 16 |

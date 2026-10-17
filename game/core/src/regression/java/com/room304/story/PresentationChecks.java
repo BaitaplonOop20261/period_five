@@ -9,6 +9,8 @@ import com.room304.world.*;
 import java.lang.reflect.Proxy;
 import java.nio.file.*;
 import java.util.*;
+import javax.imageio.ImageIO;
+import static com.room304.story.GameState.*;
 
 /** Binding, mixing and ownership checks against the actual runtime adapters. */
 final class PresentationChecks {
@@ -29,6 +31,7 @@ final class PresentationChecks {
         });}
     }
     static void run(Path fixtures,Path assetRoot,AssetCatalog assets,StoryContent content,SceneCatalog world)throws Exception{
+        checkInspections(assetRoot,assets,world);
         Path visualFile=assetRoot.resolve(assets.path("story.visuals"));StoryVisuals v=StoryVisuals.load(new FileHandle(visualFile.toFile()),assets,content,world);
         assert v.document("DOC-SIGNED-07").equals("document.signed");assert v.document("C3-05-MAIN-T05__7").equals("document.report");assert v.cue("C-02-MAIN-E09").actors().get(0).pose().equals("pose.seated");assert v.document("UNKNOWN")==null;
         String raw=Files.readString(visualFile);Path bad=fixtures.resolve("visual-invalid.json");
@@ -60,6 +63,47 @@ final class PresentationChecks {
             Files.writeString(audioConfig,config.replace("\"distance\":10","\"distance\":0"));reject(()->new StoryAudio(new FileHandle(audioConfig.toFile()),catalog,sounds::get,id->loop,settings,content));
         }finally{Files.deleteIfExists(fakeManifest);Files.deleteIfExists(audioConfig);}
         System.out.println("Presentation checks passed: document/pose refs, invalid bindings, concurrent voice/FX, MIX-01, pause/mute/restore, distance footsteps, borrowed ownership.");
+    }
+    private static void checkInspections(Path root,AssetCatalog assets,SceneCatalog world)throws Exception {
+        for(RoomId room:RoomId.values()) for(var object:world.scene(room).objects)
+            if(object.type.equals("PROP")) assert object.inspection!=null : "Missing close-up: "+room+"/"+object.id;
+        int images=0;
+        for(var entry:assets.entries()) if(entry.id().startsWith("inspection.")) {
+            var image=ImageIO.read(root.resolve(entry.path()).toFile());
+            assert entry.required()&&image!=null&&image.getColorModel().hasAlpha() : "Invalid packaged close-up "+entry.id();
+            images++;
+        }
+        assert images==24;
+        GameState state=new GameState();state.enteredRoom(RoomId.ROOM_304);
+        var room=world.scene(RoomId.ROOM_304);
+        assert StoryWorldView.inspectionAsset(room.object("desk"),state).equals("inspection.register");
+        assert StoryWorldView.inspectionAsset(room.object("crate"),state).equals("inspection.crate");
+        state.book=BookLocation.CARRIED;state.cabinetLocked=false;state.events.add(Event.RECORDER_CHECKED);
+        assert StoryWorldView.inspectionAsset(room.object("desk"),state).equals("inspection.desk_empty");
+        assert StoryWorldView.inspectionAsset(room.object("cabinet"),state).equals("inspection.cabinet_open");
+        assert StoryWorldView.inspectionAsset(room.object("player"),state).equals("inspection.player_open");
+        state.tape=TapeLocation.PLAYER;
+        assert StoryWorldView.inspectionAsset(room.object("player"),state).equals("inspection.player_open") : "An inserted tape without batteries must not look powered/playing";
+        state.tape=TapeLocation.CARRIED;
+        state.battery=BatteryLocation.PLAYER;
+        assert StoryWorldView.inspectionAsset(room.object("player"),state).equals("inspection.player_powered");
+        state.tape=TapeLocation.PLAYER;
+        assert StoryWorldView.inspectionAsset(room.object("player"),state).equals("inspection.player_playing");
+        state.items.add(Item.CASSETTE);
+        assert StoryWorldView.inspectionAsset(room.object("crate"),state).equals("inspection.crate_open");
+        state.book=BookLocation.FINAL_TABLE;state.clues.add(Clue.SIGNED_ADDENDUM);
+        assert StoryWorldView.inspectionAsset(room.object("desk"),state).equals("inspection.desk_final");
+        assert StoryWorldView.inspectionAsset(world.scene(RoomId.CLASSROOM).object("evidence"),state).equals("inspection.evidence_signed");
+        var wall=world.scene(RoomId.HALLWAY).object("guard.wall");
+        assert StoryWorldView.inspectionAsset(wall,state).equals("inspection.guard_wall");
+        state.clues.add(Clue.ALTERED_REGISTER);state.events.add(Event.GUARD_DOOR_REVEALED);
+        assert StoryWorldView.inspectionAsset(wall,state).equals("inspection.guard_door");
+        var gate=world.scene(RoomId.GUARD_ROOM).object("gate");
+        assert StoryWorldView.inspectionAsset(gate,state).equals("inspection.gate_closed");
+        state.book=BookLocation.LOCKED_CABINET;state.cabinetLocked=true;
+        assert StoryWorldView.inspectionAsset(gate,state).equals("inspection.gate_open");
+        assert StoryWorldView.inspectionAsset(room.object("cabinet"),state).equals("inspection.cabinet_locked");
+        System.out.println("Inspection bindings passed: all props, 24 real RGBA close-ups, book/cabinet/tape/power/signature/door states.");
     }
     private static void reject(Runnable run){try{run.run();throw new AssertionError("Invalid presentation binding accepted");}catch(IllegalArgumentException expected){assert expected.getMessage()!=null;}}
 }

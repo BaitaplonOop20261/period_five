@@ -8,6 +8,12 @@ Menu tạm dừng có tiếp tục, lưu/tải, hướng dẫn, âm thanh và v�
 
 Art, portrait, TMX và âm thanh tuỳ chọn còn thiếu; runtime dùng hình học/nhân vật đơn giản, hiển thị chữ và bỏ qua clip thiếu để vẫn chơi được. File bắt buộc hoặc asset có sẵn nhưng sai định dạng báo lỗi rõ. Các kết nối trình bày và kiểm tra tự động không thay thế nghiệm thu mỹ thuật/âm thanh với tài nguyên hoàn chỉnh.
 
+Đợt nhập thử 13/10/2026 đã có idle Linh/Đức/Trang và ảnh tĩnh làm idle bà Năm/thầy Hùng, cùng nền phòng 304 bố trí lại tám bàn thường và lối đi. Nền được vẽ lại theo artstyle nguồn, xuất PNG RGBA 640×480 ở 1× và lọc Nearest. Nhân vật dùng frame 32×32 của ảnh đã nhận; hướng khác/walk/pose chưa có dùng idle xuống. Xem [biên bản asset](ASSET_SPEC/09_IMPORTED_ASSETS_2026-10-13.md) cho file nguồn, tên runtime, metadata, bố cục và kết quả kiểm tra.
+
+Ngày 17/10, phòng 304 và lớp bên cạnh đã giảm kích thước world từ 640×480 xuống 320×240 để bàn ghế cân đối với người. Ảnh nền gốc vẫn 640×480; runtime vẽ vào phòng nhỏ hơn với Nearest, giữ nguyên profile nhân vật. Va chạm, spawn, NPC và tầm E đi cùng tỉ lệ mới; xem [ghi chú tỉ lệ phòng](ASSET_SPEC/11_CLASSROOM_SCALE_2026-10-17.md).
+
+Camera dùng chung khung nhìn 320×240 trên mọi map: phòng 304/lớp nhỏ hiện trọn phòng, map rộng cuộn theo Linh và dừng ở mép bản đồ. Độ lớn nhân vật trên màn hình giữ nguyên khi chuyển phòng; HUD và ảnh tương tác giữ vị trí cố định. Sân sau trong bản demo kiểm thử cũng dùng cùng tỉ lệ khung nhìn. Xem [ghi chú camera](ASSET_SPEC/14_FOLLOW_CAMERA_2026-10-17.md).
+
 ## Điều khiển luồng chính
 
 | Thao tác | Phím |
@@ -20,6 +26,10 @@ Art, portrait, TMX và âm thanh tuỳ chọn còn thiếu; runtime dùng hình 
 | Tạm dừng / tiếp tục | Esc |
 
 Thoại, ghi chú, chuyển phòng và pause khóa di chuyển. Phím đang giữ khi đổi ngữ cảnh phải được thả rồi nhấn lại; lần nhấn mở tương tác không đồng thời bỏ qua câu đầu. Tiến trình chỉ cập nhật khi bước truyện hoàn tất; có cassette khác với đã nghe cassette.
+
+Bản đồ dùng dấu chấm than chuyển động ở mục tiêu E gần nhất thay cho nhãn tên đồ vật/nhân vật. Đồ vật đang chọn có viền vàng sáng nhẹ; NPC chỉ có dấu trên đầu. Dấu giữ tỉ lệ nhỏ so với nhân vật và ẩn khi mở thoại, ghi chú, pause hoặc chuyển phòng. Xem [tích hợp dấu tương tác](ASSET_SPEC/12_INTERACTION_CUES_2026-10-17.md).
+
+Khi nhấn **E** vào đồ vật, UI làm tối cảnh và hiện ảnh cận cảnh phía trên lời thoại. Ảnh đổi theo trạng thái tủ, sổ, thùng, máy cassette và hồ sơ. Dùng **Enter / Tiếp tục** để đọc và hoàn tất tương tác; **Esc** tạm dừng rồi tiếp tục tại ảnh đang xem. Bộ ảnh lấy từ `ASSET_SPEC/download`, được đóng gói trong `game/assets/ui/inspection/`; xem [bảng tích hợp](ASSET_SPEC/10_INTERACTION_CLOSEUPS_2026-10-17.md).
 
 <a id="moi-truong-phat-trien-chung"></a>
 ## Môi trường phát triển chung

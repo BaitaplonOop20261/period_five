@@ -1,5 +1,7 @@
 # Room304 — Hướng dẫn AI tích hợp asset
 
+**Bổ sung 13/10/2026:** đợt nhập thử hiện dùng năm idle hướng xuống 32×32 và nền PNG phòng 304 do người dùng giao chỉnh bố cục rồi vẽ lại theo artstyle nguồn. Quy cách thực tế, mapping, checksum và kiểm chứng nằm trong [biên bản 09](09_IMPORTED_ASSETS_2026-10-13.md); các đề xuất sản xuất 11/10 bên dưới vẫn giữ nguyên cho phần chưa có. Linh/Đức/Trang có 6 frame/0,15 giây, bà Năm/Hùng có 1 frame/1 giây; profile canvas 32×32, footprint 18×10 và speed 120 không đổi. Nền phòng là PNG RGBA kín đúng 640×480 ở 1×, lọc Nearest; bố cục tám bàn và geometry đã nhập giữ nguyên. Không tạo thêm TMX/tileset hoặc các asset thiếu. Không kéo dãn sheet 32×32 thành frame 32×48 và không đổi luật truyện để khớp art.
+
 Snapshot ngày11/10/2026, tài liệu-only. **Không có asset/config/code nào được import hoặc sửa trong lần lập đặc tả.** Danh mục chuẩn [01_ASSET_MASTER_LIST.md](01_ASSET_MASTER_LIST.md), bản người sản xuất [FOR_ARTISTS.md](FOR_ARTISTS.md). 162 mục:152 file sản xuất (115PNG+37audio),8 file kỹ thuật,2 font/OFL có sẵn. Frame/FPS/kích thước art cuối đều PROPOSED trừ xác nhận được ghi rõ; kiểm tra phê duyệt của người dùng trước khi coi là hợp đồng cuối.
 
 ## 1. Nguồn và phạm vi

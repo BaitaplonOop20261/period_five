@@ -1,5 +1,7 @@
 # Môi trường, bản đồ và vật thể
 
+**Bổ sung 13/10/2026:** theo yêu cầu người dùng, `maps/room_304.png` đã được vẽ lại theo artstyle ảnh cung cấp và xuất PNG RGBA kín 640×480 ở 1×, lọc Nearest; chưa dựng TMX/tileset thiếu. Bản vẽ lại giữ bố cục và geometry đã nhập. Tọa độ prototype trong bảng 11/10 dưới đây được thay bằng geometry thực tế trong `config/story-world.json` cho phòng này: tám bàn/ghế 60×63 tại x=123/210/371/458, y=104/232; lối giữa 101 px và lối ngang 65 px. Các object giữ ID nhưng bounds đã căn theo ảnh; xem bảng đầy đủ ở [biên bản 09](09_IMPORTED_ASSETS_2026-10-13.md). Không dùng tọa độ prototype bên dưới để ghi đè bản phòng đã import.
+
 ## Phương án sản xuất chính
 
 CONFIRMED: bốn RoomId, TMX orthogonal finite, tile 32×32, renderer unitScale1; mỗi vùng một màn hình. PROPOSED: giữ 20×15 ô =640×480 và một tileset512×256 (16×8 ô, 128 vị trí, không bắt buộc vẽ đầy). Không sản xuất bốn PNG toàn cảnh trùng tilemap. Các slot `map.story.*` vẫn giữ trong manifest làm fallback/đường thay thế; không xóa chúng. Menu/ending art là P2 riêng, không thay map.

@@ -2,17 +2,6 @@
   "version": 1,
   "assets": [
     {
-      "id": "char.trang.idle.down",
-      "path": "sprites/trang/idle_down.png",
-      "type": "texture",
-      "required": false,
-      "filter": "Nearest",
-      "frameWidth": 32,
-      "frameHeight": 32,
-      "frameCount": 6,
-      "frameDuration": 0.15
-    },
-    {
       "id": "map.demo.room",
       "path": "maps/bedroom_background.png",
       "type": "texture",
@@ -141,9 +130,9 @@
     },
     {
       "id": "ui.interaction",
-      "path": "sprites/interaction_mark.png",
+      "path": "ui/interaction_mark.png",
       "type": "texture",
-      "required": false,
+      "required": true,
       "filter": "Nearest",
       "frameWidth": 8,
       "frameHeight": 25,
@@ -413,6 +402,229 @@
       "path": "endings/c.png",
       "type": "texture",
       "required": false
+    },
+    {
+      "id": "char.linh.idle.down",
+      "path": "sprites/linh/idle_down.png",
+      "type": "texture",
+      "required": false,
+      "filter": "Nearest",
+      "frameWidth": 32,
+      "frameHeight": 32,
+      "frameCount": 6,
+      "frameDuration": 0.15
+    },
+    {
+      "id": "char.duc.idle.down",
+      "path": "sprites/duc/idle_down.png",
+      "type": "texture",
+      "required": false,
+      "filter": "Nearest",
+      "frameWidth": 32,
+      "frameHeight": 32,
+      "frameCount": 6,
+      "frameDuration": 0.15
+    },
+    {
+      "id": "char.trang.idle.down",
+      "path": "sprites/trang/idle_down.png",
+      "type": "texture",
+      "required": false,
+      "filter": "Nearest",
+      "frameWidth": 32,
+      "frameHeight": 32,
+      "frameCount": 6,
+      "frameDuration": 0.15
+    },
+    {
+      "id": "char.nam.idle.down",
+      "path": "sprites/nam/idle_down.png",
+      "type": "texture",
+      "required": false,
+      "filter": "Nearest",
+      "frameWidth": 32,
+      "frameHeight": 32,
+      "frameCount": 1,
+      "frameDuration": 1
+    },
+    {
+      "id": "char.hung.idle.down",
+      "path": "sprites/hung/idle_down.png",
+      "type": "texture",
+      "required": false,
+      "filter": "Nearest",
+      "frameWidth": 32,
+      "frameHeight": 32,
+      "frameCount": 1,
+      "frameDuration": 1
+    },
+    {
+      "id": "inspection.board",
+      "path": "ui/inspection/board.png",
+      "type": "texture",
+      "required": true,
+      "filter": "Nearest"
+    },
+    {
+      "id": "inspection.cabinet",
+      "path": "ui/inspection/cabinet.png",
+      "type": "texture",
+      "required": true,
+      "filter": "Nearest"
+    },
+    {
+      "id": "inspection.cabinet_locked",
+      "path": "ui/inspection/cabinet_locked.png",
+      "type": "texture",
+      "required": true,
+      "filter": "Nearest"
+    },
+    {
+      "id": "inspection.cabinet_open",
+      "path": "ui/inspection/cabinet_open.png",
+      "type": "texture",
+      "required": true,
+      "filter": "Nearest"
+    },
+    {
+      "id": "inspection.cabinet_upper",
+      "path": "ui/inspection/cabinet_upper.png",
+      "type": "texture",
+      "required": true,
+      "filter": "Nearest"
+    },
+    {
+      "id": "inspection.crate",
+      "path": "ui/inspection/crate.png",
+      "type": "texture",
+      "required": true,
+      "filter": "Nearest"
+    },
+    {
+      "id": "inspection.crate_open",
+      "path": "ui/inspection/crate_open.png",
+      "type": "texture",
+      "required": true,
+      "filter": "Nearest"
+    },
+    {
+      "id": "inspection.desk_empty",
+      "path": "ui/inspection/desk_empty.png",
+      "type": "texture",
+      "required": true,
+      "filter": "Nearest"
+    },
+    {
+      "id": "inspection.desk_final",
+      "path": "ui/inspection/desk_final.png",
+      "type": "texture",
+      "required": true,
+      "filter": "Nearest"
+    },
+    {
+      "id": "inspection.evidence",
+      "path": "ui/inspection/evidence.png",
+      "type": "texture",
+      "required": true,
+      "filter": "Nearest"
+    },
+    {
+      "id": "inspection.evidence_signed",
+      "path": "ui/inspection/evidence_signed.png",
+      "type": "texture",
+      "required": true,
+      "filter": "Nearest"
+    },
+    {
+      "id": "inspection.gate_closed",
+      "path": "ui/inspection/gate_closed.png",
+      "type": "texture",
+      "required": true,
+      "filter": "Nearest"
+    },
+    {
+      "id": "inspection.gate_open",
+      "path": "ui/inspection/gate_open.png",
+      "type": "texture",
+      "required": true,
+      "filter": "Nearest"
+    },
+    {
+      "id": "inspection.guard_door",
+      "path": "ui/inspection/guard_door.png",
+      "type": "texture",
+      "required": true,
+      "filter": "Nearest"
+    },
+    {
+      "id": "inspection.guard_wall",
+      "path": "ui/inspection/guard_wall.png",
+      "type": "texture",
+      "required": true,
+      "filter": "Nearest"
+    },
+    {
+      "id": "inspection.lastdesk",
+      "path": "ui/inspection/lastdesk.png",
+      "type": "texture",
+      "required": true,
+      "filter": "Nearest"
+    },
+    {
+      "id": "inspection.papers",
+      "path": "ui/inspection/papers.png",
+      "type": "texture",
+      "required": true,
+      "filter": "Nearest"
+    },
+    {
+      "id": "inspection.photo",
+      "path": "ui/inspection/photo.png",
+      "type": "texture",
+      "required": true,
+      "filter": "Nearest"
+    },
+    {
+      "id": "inspection.player",
+      "path": "ui/inspection/player.png",
+      "type": "texture",
+      "required": true,
+      "filter": "Nearest"
+    },
+    {
+      "id": "inspection.player_open",
+      "path": "ui/inspection/player_open.png",
+      "type": "texture",
+      "required": true,
+      "filter": "Nearest"
+    },
+    {
+      "id": "inspection.player_playing",
+      "path": "ui/inspection/player_playing.png",
+      "type": "texture",
+      "required": true,
+      "filter": "Nearest"
+    },
+    {
+      "id": "inspection.player_powered",
+      "path": "ui/inspection/player_powered.png",
+      "type": "texture",
+      "required": true,
+      "filter": "Nearest"
+    },
+    {
+      "id": "inspection.register",
+      "path": "ui/inspection/register.png",
+      "type": "texture",
+      "required": true,
+      "filter": "Nearest"
+    },
+    {
+      "id": "inspection.window",
+      "path": "ui/inspection/window.png",
+      "type": "texture",
+      "required": true,
+      "filter": "Nearest"
     }
   ]
 }

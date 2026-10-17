@@ -1,8 +1,10 @@
 # Room304 — Tiến độ phát triển
 
-Cập nhật 11/10/2026. Phạm vi: game truyện chức năng từ menu tới ending bằng fallback, tài nguyên nghe nhìn hoàn chỉnh bổ sung sau. Gameplay A/B và C cấu hình bật đã được kiểm chứng tự động trong runtime. Không gọi đây là bản nghiệm thu mỹ thuật/audio hoặc bản phát hành Windows.
+Cập nhật 13/10/2026. Phạm vi: game truyện chức năng từ menu tới ending, có năm idle thử và nền phòng 304; tài nguyên nghe nhìn hoàn chỉnh bổ sung sau. Gameplay A/B và C cấu hình bật đã được kiểm chứng tự động trong runtime. Không gọi đây là bản nghiệm thu mỹ thuật/audio hoặc bản phát hành Windows.
 
 Đã đọc CODEX.md, AGENTS/AGENTS.md, AGENTS/SDD.md, toàn bộ kịch bản/flow liên quan, tiến độ và guide cũ; khảo sát source/asset theo dependency. Giữ migration/dirty worktree có sẵn. CODEX.md và tài liệu nguồn trong AGENTS/ không bị sửa; không thêm dependency, không tạo art/audio giả, không commit/push/đổi remote.
+
+Camera cập nhật 17/10: world viewport cố định 320×240, map lớn cuộn theo Linh và khóa ở mép, HUD640×480 cố định. Phòng 304 vẫn hiện trọn phòng; geometry các map rộng giữ nguyên. Sân sau trong demo regression dùng cùng tỉ lệ. Build, legacy desktop và story desktop qua; story có 67 tương tác E, 12.267 frame, đủ A/B/C; kiểm tra camera/HUD, chuyển phòng, pause và resize qua. Xem [ghi chú camera](ASSET_SPEC/14_FOLLOW_CAMERA_2026-10-17.md).
 
 ## Kết quả theo giai đoạn
 
@@ -50,7 +52,7 @@ DONE chỉ trong phạm vi và bằng chứng ghi tại hàng. PARTIAL còn ph�
 - GameState là tiến trình duy nhất; phenomenon/flags/objectives/notes suy ra, không serialize textures/NPC/Player/Screen. Snapshot completed/milestone/npcStage/ownership được kiểm tra nhất quán.
 - SIGN→WARNING là giao dịch liên tục; vật có thể được staging trước nhưng chỉ commit tại mốc đã chọn. Cảnh đang đọc không save hoặc cancel; caller không được tạo callback trùng.
 - C có đủ nội dung, mặc định off. UI không đưa C trước full_ready/warning/final_prepared; hủy về đúng final menu.
-- Runtime pixel1/Fit640×480; geometry và footprint18×10/speed120 là cấu hình kỹ thuật test, không spec final đã duyệt. NPC positions theo stage, scene slots và transient family presence, không clone NPC state.
+- Runtime pixel1/Fit320×240 cho world, HUD640×480 riêng; camera theo Linh và dừng tại mép map. Geometry và footprint18×10/speed120 là cấu hình kỹ thuật test, không spec final đã duyệt. NPC positions theo stage, scene slots và transient family presence, không clone NPC state.
 - Main app không còn demo305/306/backyard. DemoGameScreen chuyển sang regression source; lớp/assets demo cũ giữ để kiểm thử lịch sử. OpeningScreen cũ chưa được app gọi.
 - Config có thể thêm NPC/prop thoại đơn giản bằng dialogue/requiredEvent và placements; action truyện quan trọng hoặc RoomId mới cần Java gates/tests. Pose/anchor/document/props/background/cue art đã có mapping config; hiệu ứng mới ngoài schema có thể cần Java presentation nhỏ, không viết lại logic truyện.
 
@@ -108,3 +110,11 @@ Kiểm chứng cuối lượt bổ sung: lệnh build + desktopRegressionTest + 
 Ghép tên Linh và bảng tên vào màn demo, dùng chiều cao sprite thực tế, đường dẫn font từ catalog và giải phóng tài nguyên tại renderer. Input mẫu thống nhất W/S hoặc phím hướng để chọn, F/Enter để xác nhận. Regression kiểm tra hai nhánh hỏi, quay lại menu, lựa chọn thoát, khóa di chuyển và bật/tắt bảng tên. Các lớp `vn.room304.game` ngoài project không được khôi phục sau migration.
 
 Kiểm chứng trên Windows 11 với Temurin JDK 21.0.12.1 và Gradle Wrapper 9.8.0: `build :lwjgl3:desktopRegressionTest :lwjgl3:storyDesktopTest` trả exit 0. Core đạt 99/99 khối; desktop A/B/C, lưu/đọc, 58 tương tác E và 14.300 frame qua. `node game/tools/check-story-source.mjs` vẫn đạt 538 chuỗi, 385 nhịp, 364 đơn vị thoại và 99 khối. Đã xem ảnh `game/lwjgl3/build/dialogue-checks/dialogue-choices.png`: đủ ba nút, chữ tiếng Việt trong canvas. Review độc lập không tìm thấy lỗi cần sửa trong phần ghép renderer/input/Player/màn demo. Chưa xác minh Oracle JDK 21.0.11 hoặc bộ art/audio cuối.
+
+## Nhập asset thử và bố cục phòng 304 (13/10/2026)
+
+Đã đọc toàn bộ Markdown trong ASSET_SPEC, kiểm sáu PNG nguồn và nhập đúng những ảnh đã nhận. Linh/Đức/Trang có sáu frame idle 32×32, 0,15 giây/frame; bà Năm/Hùng có ảnh tĩnh 32×32 dùng idle một frame, 1 giây/frame. Tên runtime chuẩn `sprites/<id>/idle_down.png`, profile/manifest và Nearest đã nối; vùng chân 18×10 và tốc độ 120 giữ nguyên. Nguồn trong `ASSET_SPEC/added_asset/` giữ nguyên byte; hướng khác/walk/pose và Nga chưa có vẫn dùng fallback, không tạo thêm asset thiếu.
+
+Phòng PNG 640×480 nguồn được chỉnh bằng imagegen theo yêu cầu: bỏ khung đen lớn, tám bàn thường chia hai dãy đôi/hai hàng; lối giữa 101 px, lối ngang 65 px. Theo yêu cầu tiếp theo, nền đã được vẽ lại theo artstyle nguồn và xuất PNG RGBA kín đúng 640×480 ở 1×, lọc Nearest. Bố cục, geometry, điểm tương tác và vị trí NPC đã nhập giữ nguyên; ID, điều kiện và chuỗi truyện, phiên bản snapshot giữ nguyên. Nền kín chuyển ánh lạnh trong 300 ms, tên nhân vật vẫn hiển thị với sprite thật. Metadata/checksum/prompt/công cụ xuất/bảng bounds và giới hạn ở [biên bản nhập](ASSET_SPEC/09_IMPORTED_ASSETS_2026-10-13.md).
+
+Build và core regression qua; desktop demo của đợt nhập đầu qua. Bản nền 640×480 cuối đã chạy lại build và desktop truyện: năm sheet đúng frame/filter/profile, khóa kích thước nền 640×480 cùng Nearest, 58 tương tác E bằng walking/collision, 11.774 frame, A/B/C, pause/notes/menu/replay và disk save/load. Toàn bộ 307.200 pixel nền có alpha 255; đã xem bản 1× và 2× Nearest, sai lệch vị trí đồ vật 0–2 px so với geometry đã nhập. Pixel nền (330,190) đổi RGB `[103,70,46]` → `[77,61,46]` sau 0,4 giây mà progress không đổi. Đã xem hai PNG trung tính/lạnh của năm nhân vật trong phòng; kiểm tra khớp nguồn sau tích hợp vẫn đạt 538 chuỗi, 385 nhịp, 364 đơn vị thoại và 99 khối. Dùng Temurin 21.0.12.1 trên Windows 11, chưa nghiệm thu Oracle 21.0.11 hoặc art/audio cuối. Các checkbox sản xuất trong ASSET_SPEC giữ mở vì bộ nhân vật thử và các asset thiếu chưa đạt quy cách sản xuất đầy đủ.

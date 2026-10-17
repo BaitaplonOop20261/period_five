@@ -24,6 +24,7 @@ import java.text.Normalizer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 
 /** One reusable Visual Novel presentation. All business commands return to GameScreen. */
 public final class DialogueUI implements Disposable {
@@ -33,6 +34,9 @@ public final class DialogueUI implements Disposable {
     private final Stage stage;
     private final Table root = new Table();
     private final Image background = new Image();
+    private final Image dim;
+    private final Image inspection = new Image();
+    private final Label inspectionTitle;
     private final Image portrait = new Image();
     private final Label name;
     private final Label text;
@@ -53,6 +57,7 @@ public final class DialogueUI implements Disposable {
     private final List<TextButton> choiceButtons = new ArrayList<>();
     private int selectedChoice;
     private long revision = -1;
+    private String inspectionReference;
 
     public DialogueUI(DialogueLayout layout) {
         this(null, layout);
@@ -72,11 +77,24 @@ public final class DialogueUI implements Disposable {
         backgroundClip.setBounds(0, 0, layout.width, layout.height);
         backgroundClip.setTouchable(Touchable.disabled);
         root.addActor(backgroundClip);
-        Image dim = new Image(assets.pixel);
+        dim = new Image(assets.pixel);
         dim.setColor(0.02f, 0.025f, 0.04f, layout.dimAlpha);
         dim.setBounds(0, 0, layout.width, layout.height);
         dim.setTouchable(Touchable.disabled);
         root.addActor(dim);
+        inspection.setScaling(Scaling.fit);
+        inspection.setName("inspection-art");
+        inspection.setTouchable(Touchable.disabled);
+        inspection.setVisible(false);
+        root.addActor(inspection);
+        inspectionTitle = new Label("", new Label.LabelStyle(assets.font, new Color(.86f,.83f,.72f,1)));
+        inspectionTitle.setFontScale(.7f);
+        inspectionTitle.setAlignment(Align.center);
+        inspectionTitle.setEllipsis(true);
+        inspectionTitle.setBounds(24, layout.height-64, layout.width-48, 24);
+        inspectionTitle.setTouchable(Touchable.disabled);
+        inspectionTitle.setVisible(false);
+        root.addActor(inspectionTitle);
         portrait.setScaling(Scaling.fit);
         portrait.setTouchable(Touchable.disabled);
         root.addActor(portrait);
@@ -121,6 +139,9 @@ public final class DialogueUI implements Disposable {
     /** Synchronize only in update; textures and labels are untouched in draw(). */
     public void present(DialogueController controller, String worldLocation) {present(controller,worldLocation,null);}
     public void present(DialogueController controller, String worldLocation,String documentBackground) {
+        present(controller,worldLocation,documentBackground,null,null);
+    }
+    public void present(DialogueController controller, String worldLocation,String documentBackground,String inspectionAsset,String objectName) {
         if (!controller.isActive()) { hide(); return; }
         if (controller.getLine().getText().isBlank()) { hide(); return; }
         root.setVisible(true);
@@ -129,6 +150,15 @@ public final class DialogueUI implements Disposable {
             conversation = controller.getDialogue();
             line = null;
         }
+        if(!Objects.equals(inspectionReference,inspectionAsset)) {
+            inspectionReference=inspectionAsset;
+            inspection.setDrawable(assets.texture(inspectionAsset));
+        }
+        boolean inspecting=inspection.getDrawable()!=null;
+        dim.setColor(.02f,.025f,.04f,inspecting?.78f:layout.dimAlpha);
+        inspectionTitle.setText(inspecting?escape(objectName==null?"Đồ vật":objectName):"");
+        inspectionTitle.setVisible(inspecting);
+        layoutInspection();
         if (line == controller.getLine() && revision == controller.getRevision()) return;
         revision = controller.getRevision();
         stage.cancelTouchFocus();
@@ -139,15 +169,15 @@ public final class DialogueUI implements Disposable {
         TextureRegionDrawable backgroundTexture = assets.texture(path==null?documentBackground:path);
         background.setScaling(documentBackground!=null?Scaling.fit:Scaling.fill);
         background.setDrawable(backgroundTexture);
-        background.setVisible(backgroundTexture != null);
+        background.setVisible(!inspecting && backgroundTexture != null);
         DialogueSpeaker speaker = conversation.getSpeaker(line.getSpeakerId());
         String portraitPath = controller.getSpeakerPortraitTexturePath();
         TextureRegionDrawable portraitTexture = assets.texture(portraitPath);
         boolean usePlaceholder = portraitTexture == null && (speaker != null || portraitPath != null);
         if (usePlaceholder) portraitTexture = assets.texture(layout.fallbackPortrait);
         portrait.setDrawable(portraitTexture);
-        portrait.setVisible(portraitTexture != null);
-        placeholder.setVisible(!layout.fallbackPortrait.isBlank() && (usePlaceholder || assets.sameTextureReference(layout.fallbackPortrait, portraitPath)));
+        portrait.setVisible(!inspecting && portraitTexture != null);
+        placeholder.setVisible(!inspecting && !layout.fallbackPortrait.isBlank() && (usePlaceholder || assets.sameTextureReference(layout.fallbackPortrait, portraitPath)));
         float height = speaker == null ? layout.portraitHeight : speaker.getHeight(layout);
         float maxWidth = speaker == null ? layout.portraitMaxWidth : speaker.getMaxWidth(layout);
         float center = speaker == null ? layout.portraitCenterX : speaker.getCenterX(layout);
@@ -219,10 +249,20 @@ public final class DialogueUI implements Disposable {
         boolean selecting = complete && pageIndex == pages.size() - 1 && !line.getChoices().isEmpty();
         choices.setVisible(selecting);
         choicePane.setVisible(selecting);
+        layoutInspection();
         hud.showProgress(complete, selecting);
         hint.setText(selecting ? "Lên / xuống  ·  Chọn     Enter  ·  Xác nhận" : complete
             ? "Enter  ·  Tiếp tục" + (pages.size() > 1 ? "   " + (pageIndex + 1) + "/" + pages.size() : "")
             : "Enter  ·  Hiện toàn bộ câu");
+    }
+
+    private void layoutInspection() {
+        float bottom=layout.textBottom+textHeight()+layout.nameGap+assets.font.getLineHeight()+12;
+        if(choicePane.isVisible()) bottom=Math.max(bottom,choicePane.getTop()+12);
+        float height=layout.height-72-bottom;
+        inspection.setBounds(24,bottom,layout.width-48,Math.max(0,height));
+        inspection.setVisible(inspection.getDrawable()!=null && height>=40);
+        inspectionTitle.setVisible(inspection.isVisible());
     }
 
     /** True only when presentation is finished and the controller may advance. */
@@ -293,7 +333,11 @@ public final class DialogueUI implements Disposable {
     public String consumeChoiceRequest() { String request = choiceRequest; choiceRequest = null; return request; }
     public void clearCommands() { hud.clearRequests(); choiceRequest = null; stage.cancelTouchFocus(); }
 
-    private void detachSceneTextures() { background.setDrawable(null); portrait.setDrawable(null); }
+    public String inspectionAsset() { return inspectionReference; }
+    private void detachSceneTextures() {
+        background.setDrawable(null);portrait.setDrawable(null);inspection.setDrawable(null);
+        inspection.setVisible(false);inspectionTitle.setVisible(false);inspectionReference=null;
+    }
     private void hide() {
         if (conversation == null) return;
         root.setVisible(false);

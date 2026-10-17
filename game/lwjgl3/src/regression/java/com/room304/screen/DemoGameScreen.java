@@ -10,7 +10,6 @@ import com.room304.world.WorldMap;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.Screen;
-import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
@@ -21,6 +20,7 @@ import com.badlogic.gdx.utils.viewport.Viewport;
 import java.util.List;
 import com.room304.dialogue.DialogueController;
 import com.room304.world.BackyardMap;
+import com.room304.world.FollowCamera;
 import com.room304.world.RoomInteractionSystem;
 import com.room304.world.RoomInteractionSystem.Kind;
 import com.room304.world.RoomInteractionSystem.Target;
@@ -31,10 +31,10 @@ import com.room304.world.wardrobe.WardrobeController;
 
 public class DemoGameScreen implements Screen {
 
-    // Fixed 16:9 canvas; window size changes only its uniform display scale.
+    // Fixed 4:3 view, matching the 320x240 story camera at the demo's x6 art scale.
     private static final float VIRTUAL_WIDTH = 960f;
-    private static final float VIRTUAL_HEIGHT = VIRTUAL_WIDTH * 9f / 16f;
-    // World art uses x6 scaling. Zoom 2 shows 1920x1080 world units.
+    private static final float VIRTUAL_HEIGHT = VIRTUAL_WIDTH * 3f / 4f;
+    // World art uses x6 scaling. Zoom 2 shows 1920x1440 world units.
     private static final float CAMERA_ZOOM = 2f;
     private static final float BACKGROUND_GRAY = 0.15f;
     private static final float FADE_SECONDS = 1f;
@@ -59,7 +59,7 @@ public class DemoGameScreen implements Screen {
     private boolean nameplatesVisible = true;
     private WardrobeController wardrobeController;
     private WardrobeView wardrobeView;
-    private OrthographicCamera camera;
+    private FollowCamera camera;
     private Viewport viewport;
     private Animation<TextureRegion> interactionMarkAnimation;
     private float interactionMarkStateTime;
@@ -102,7 +102,7 @@ public class DemoGameScreen implements Screen {
         wardrobeView = new WardrobeView(wardrobeController);
         pauseMenu = new PauseMenuView(() -> setPaused(false), onReturnToMenu);
         interactionMarkAnimation = assets.animation("ui.interaction");
-        camera = new OrthographicCamera();
+        camera = new FollowCamera();
         camera.zoom = CAMERA_ZOOM;
         viewport = new FitViewport(VIRTUAL_WIDTH, VIRTUAL_HEIGHT, camera);
     }
@@ -222,13 +222,10 @@ public class DemoGameScreen implements Screen {
     }
 
     private void renderWorld() {
-        // Follow the player's sprite center in every scene, including map edges.
-        camera.position.set(
-            player.getX() + player.getBounds().width / 2f,
-            player.getY() + player.getSpriteHeight() / 2f,
-            0
-        );
         viewport.apply();
+        float mapWidth=switch(scene){case ROOM->WorldMap.WIDTH;case HALLWAY->hallwayMap.getWidth();case BACKYARD->backyardMap.getWidth();};
+        float mapHeight=switch(scene){case ROOM->WorldMap.HEIGHT;case HALLWAY->hallwayMap.getHeight();case BACKYARD->backyardMap.getHeight();};
+        camera.follow(player.getX()+player.getBounds().width/2f,player.getY()+player.getSpriteHeight()/2f,mapWidth,mapHeight);
 
         // 1. Render World layers (Background -> Furniture -> Y-Sorted NPCs & Player)
         spriteBatch.setProjectionMatrix(camera.combined);

@@ -19,6 +19,9 @@ import com.room304.world.Player;
 import com.room304.Room304Game;
 import com.room304.world.WorldMap;
 import com.room304.world.Wall;
+import com.room304.world.FollowCamera;
+import com.room304.world.HallwayMap;
+import com.room304.world.BackyardMap;
 import com.room304.dialogue.DialogueController;
 import com.room304.dialogue.DialogueLoader;
 import com.room304.dialogue.Dialogue;
@@ -139,6 +142,7 @@ public final class GameplayRegressionChecks {
         checkPlayerMovement(world);
         checkManagedAssetsAndSweptCollision();
         checkApplicationAssetLifecycle();
+        checkBackyardCamera();
         screen.show();
         checkDistanceSelection(world);
         checkMultipleNpcsAndWardrobe();
@@ -586,6 +590,36 @@ public final class GameplayRegressionChecks {
         } finally {
             fixture.dispose();
         }
+    }
+
+    private static void checkBackyardCamera() throws ReflectiveOperationException {
+        DemoGameScreen fixture=new DemoGameScreen(()->{});
+        try {
+            fixture.show();fixture.resize(960,540);fixture.render(1.01f);fixture.render(0);
+            renderInput(fixture,Input.Keys.F);
+            check(scene(fixture).equals("HALLWAY"),"Walk to the yard through the hallway");
+            Player player=field(fixture,"player",Player.class);
+            HallwayMap hall=field(fixture,"hallwayMap",HallwayMap.class);
+            for(int i=0;i<700&&!hall.getBackyardExitBounds().overlaps(player.getBounds());i++)renderInput(fixture,-1,Input.Keys.A);
+            renderInput(fixture,Input.Keys.F);
+            check(scene(fixture).equals("BACKYARD"),"Enter the actual backyard through its passage");
+            BackyardMap yard=field(fixture,"backyardMap",BackyardMap.class);
+            FollowCamera camera=field(fixture,"camera",FollowCamera.class);
+            float halfWidth=camera.viewportWidth*camera.zoom/2,halfHeight=camera.viewportHeight*camera.zoom/2;
+            check(halfWidth*2/Player.SPRITE_SCALE==320&&halfHeight*2/Player.SPRITE_SCALE==240,"Yard uses the same 320x240 view at the demo art scale");
+            float start=camera.position.x;
+            for(int i=0;i<80;i++)renderInput(fixture,-1,Input.Keys.A);
+            check(camera.position.x<start,"Yard camera follows actual walking");
+            capture("camera-yard-follow.png");
+            for(int i=0;i<700&&player.getX()>24.01f;i++)renderInput(fixture,-1,Input.Keys.A);
+            check(camera.position.x==halfWidth,"Yard camera stops at the left edge");
+            for(int i=0;i<700&&player.getX()+Player.WIDTH<yard.getWidth()-24.01f;i++)renderInput(fixture,-1,Input.Keys.D);
+            check(camera.position.x==yard.getWidth()-halfWidth,"Yard camera stops at the right edge");
+            for(int i=0;i<300&&player.getY()>18.01f;i++)renderInput(fixture,-1,Input.Keys.S);
+            check(camera.position.y==(yard.getHeight()<=halfHeight*2?yard.getHeight()/2:halfHeight),"Yard camera stops at the bottom edge");
+            capture("camera-yard-right-bottom.png");
+            System.out.println("Backyard camera passed: actual passage and walking, same 320x240 scale, follow and map edge clamps.");
+        } finally {fixture.dispose();}
     }
 
     private static void renderInput(DemoGameScreen screen, int justPressed, int... held) {

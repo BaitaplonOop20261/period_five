@@ -1,5 +1,14 @@
 # Phụ lục bàn giao kỹ thuật
 
+## Bổ sung đợt nhập thử — 13/10/2026
+
+[Biên bản 09](09_IMPORTED_ASSETS_2026-10-13.md) cập nhật file, checksum và bằng chứng kiểm tra của đợt nhập thực tế; phần kiểm kê 11/10 bên dưới giữ lại làm lịch sử đặc tả. Giữ nguyên sáu nguồn PNG trong `added_asset/`, chỉ đổi tên/đường dẫn bản runtime.
+
+- Linh, Đức và Trang: sheet 192×32, sáu frame 32×32, 0,15 giây/frame. Bà Năm và Hùng: ảnh 32×32, một frame/1 giây dùng idle tĩnh để test. Canvas của bộ thử là 32×32; đây là ngoại lệ so với bộ sản xuất 32×48/hai frame, chưa nghiệm thu đủ animation.
+- Phòng 304: imagegen vẽ lại theo artstyle ảnh nguồn; bản runtime là PNG RGBA kín 640×480, xuất 1× và lọc Nearest. Bố cục tám bàn và geometry đã nhập giữ nguyên. Bản cuối, checksum, prompt và công cụ xuất đã ghi tại 09. Dùng slot `map.story.room_304` với geometry JSON; chưa sản xuất các TMX/tileset còn thiếu.
+- Bounds va chạm/tương tác, spawn và NPC slot của phòng được căn theo ảnh chỉnh sửa; footprint nhân vật 18×10, tốc độ 120 và luật truyện giữ nguyên. Ảnh kín cần kiểm khả năng nhìn rõ đối tượng, lối đi và hiệu ứng lạnh trong runtime.
+- Build/core/desktop qua, gồm năm sheet thật, 58 tương tác E, A/B/C và save/load; đã xem screenshot và kiểm RGB nền lạnh. Bằng chứng và giới hạn ghi tại 09. Không đóng gate/checklist sản xuất hoặc các nhóm asset thiếu; không suy nghiệm thu art cuối từ bộ thử.
+
 ## Biên bản kiểm kê
 
 Ngày 11/10/2026. Đã đối chiếu CODEX, AGENTS/AGENTS.md, SDD, các phần phạm vi/flow/nhịp hình–âm/chuỗi tài liệu/danh mục asset/phụ lục C của kịch bản 1.0, sơ đồ PDF năm trang qua trích xuất văn bản, tiến độ và hướng dẫn root. Đã đọc manifest, world, visuals, audio, layout, content và các source trực tiếp nạp/vẽ tài nguyên. Không kiểm hình trang PDF và không tạo PNG; sơ đồ chỉ dùng đối chiếu nội dung.

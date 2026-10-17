@@ -1,0 +1,32 @@
+# Room304 room edit prompts
+
+Mode: built-in imagegen, edit.
+Input 1: ASSET_SPEC/added_asset/room_304.png (preserved source).
+Refinement input: generated room background in game/assets/maps/room_304.png.
+Final output: game/assets/maps/room_304.png.
+
+## Initial edit
+
+Use case: precise-object-edit.
+Asset type: game room background PNG, for the supplied Java/libGDX pixel adventure Room304.
+Image 1 is the EDIT TARGET, not merely a loose reference. Rearrange this existing empty Vietnamese school classroom, preserving its restrained brown wood, worn furniture, dark green chalkboard, and crisp pixel-art style.
+Primary change: replace the very dense five-column/four-row student desk grid with only EIGHT ordinary desk-and-chair sets, in two paired banks with two rows and generous walkways. Expand the room interior to fill the full 4:3 canvas. Remove the original large surrounding black margin. No characters, interface, labels, symbols, text or new separate assets.
+Use the ORIGINAL target image's 640x480 composition as the coordinate design space, with PNG origin at upper left. Desired final aspect 4:3 and target canvas 640x480 (or an exact integer multiple). The playable floor and slim perimeter are from x8 to632 and y8 to472. Doorway in lower wall centered x300..360, approximately y422..444, accessible from the central aisle. Keep a broad central aisle x228..376 and clear paths around the banks.
+EIGHT ordinary desk+chair groups must each fit in a 52x38 rectangle, at upper-left image positions: (104,330), (176,330), (376,330), (448,330), (104,210), (176,210), (376,210), (448,210). All furniture parts/chairs stay within these rectangles; no other student desks in their rows. Paired banks are separated by the central aisle; do not clutter walkways.
+Reserve these special locations, aligning actual visible furniture to the listed rectangles:
+- Teacher's wooden desk: x240..320, y106..140; bare tabletop so the game can overlay the register at runtime.
+- Small framed picture on the left: x45..99, y106..140; no readable writing, only an indistinct faded picture, not a detailed new class photograph.
+- Empty side table for the cassette device: x510..564, y182..210; no tape/book/electronics baked onto its top.
+- Plain closed wooden equipment box: x510..564, y262..290.
+- Cabinet along upper-right wall: x535..581, y40..110, with clear upper and lower compartments; closed, no locked-state symbol.
+- One separate special desk by the window: x435..493, y105..125; its chair directly below near x451..473, y146..155. This desk is independent of the eight ordinary desks. Bare desk, no characters.
+- Horizontal window segment on the upper-right wall: x375..449, y44..60.
+Retain chalkboard centered on the upper wall and the existing nostalgic classroom materials. Rearrange the supplied furniture rather than making an unrelated room. Keep lighting subtle and neutral enough for runtime cold tint, readable floor and clean silhouettes. No open notebook, moving objects, ghosts, people, extra doors, additional rooms, watermark, UI, or baked game-state content. Flat orthographic/top-down game-room view with only the original slight furniture elevation. Final opaque background.
+
+## Refinement
+
+Use case: precise-object-edit. Image 1 is the edit target: preserve this room, style, camera, size, all walls/props/windows/chalkboard/lighting and every desk's individual design. Change ONLY the row spacing of the EIGHT ordinary desk-chair groups and one special chair.
+The target is 1448x1086, 4:3. Move the upper row of FOUR ordinary desk-chair sets (currently near x278,478,840,1038 and y490..637) UP by70 pixels. Move the lower row of FOUR ordinary desk-chair sets (currently near the same four x positions and y690..835) DOWN by70 pixels. Keep each group's x, size, design and its chair attached unchanged. This makes a clear horizontal cross aisle about200pixels high between rows, at least64pixels at the game's640x480 display. Continue the wood floor cleanly where furniture moved; keep central vertical aisle and the perimeter path clear. Do not add or delete ordinary desks; exactly8ordinary sets remain.
+Remove ONLY the chair immediately below the separate special desk at upper-right (the one near x1035..1150,y210..330), preserving that special desk itself. The game renders its chair separately later. Keep the side table at far right, equipment box, cabinet, blackboard and teacher desk unchanged.
+Replace the human face inside the small wall picture with an indistinct faded grey photo, keeping its frame. Do not draw identifiable faces or text.
+No characters, captions, GUI, watermark, new furniture, new doors or changed camera. Preserve opaque 4:3 canvas and crisp original pixel-art style.

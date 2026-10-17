@@ -2,6 +2,8 @@
 
 **Quy chuẩn bắt buộc khi xuất file**
 
+**Ghi chú cập nhật 13/10/2026:** các bảng quy cách/checklist trong phiếu này giữ snapshot sản xuất 11/10/2026. Game đã nhập thử ảnh người dùng cung cấp cho Linh, Đức, Trang, bà Năm và thầy Hùng vào đúng path `sprites/<id>/idle_down.png`. Ba học sinh có 6 frame 32×32, 0,15 s/frame; hai người lớn có 1 frame 32×32 tĩnh, 1 s/frame. Đây là ngoại lệ để test và giữ pixel gốc, chưa phải nghiệm thu art 32×48/2 frame đề xuất. Không đánh dấu [x] các dòng sản xuất tương ứng; các asset còn thiếu vẫn giữ trong checklist và chưa bổ sung. File nguồn được giữ tại `ASSET_SPEC/added_asset/`; [biên bản nhập thử](09_IMPORTED_ASSETS_2026-10-13.md) ghi tên mới, metadata và checksum.
+
 CONFIRMED = đã xác nhận từ thiết kế/bản đang chạy. **PROPOSED = đề xuất cần duyệt trước khi sản xuất hàng loạt**; chưa phải quyết định đã duyệt. UNDECIDED = chưa chốt. Kích thước trong các bảng sản xuất dưới đây là PROPOSED; không tự đổi giữa chừng.
 
 | Hạng mục | Quy chuẩn |

@@ -7,8 +7,10 @@
     "footWidth": 18,
     "footHeight": 10,
     "canvasWidth": 32,
-    "canvasHeight": 48,
-    "animations": {}
+    "canvasHeight": 32,
+    "animations": {
+      "idle.down": "char.linh.idle.down"
+    }
   },
   "npcs": [
     {
@@ -21,16 +23,18 @@
       "canvasHeight": 32,
       "footWidth": 18,
       "footHeight": 10,
-      "scale": 1.5,
+      "scale": 1,
       "anchorX": 0.5,
       "anchorY": 0
     },
     {
       "id": "duc",
       "name": "Đức",
-      "animations": {},
+      "animations": {
+        "idle.down": "char.duc.idle.down"
+      },
       "canvasWidth": 32,
-      "canvasHeight": 48,
+      "canvasHeight": 32,
       "footWidth": 18,
       "footHeight": 10,
       "scale": 1,
@@ -40,9 +44,11 @@
     {
       "id": "nam",
       "name": "Bà Năm",
-      "animations": {},
+      "animations": {
+        "idle.down": "char.nam.idle.down"
+      },
       "canvasWidth": 32,
-      "canvasHeight": 48,
+      "canvasHeight": 32,
       "footWidth": 18,
       "footHeight": 10,
       "scale": 1,
@@ -52,9 +58,11 @@
     {
       "id": "hung",
       "name": "Thầy Hùng",
-      "animations": {},
+      "animations": {
+        "idle.down": "char.hung.idle.down"
+      },
       "canvasWidth": 32,
-      "canvasHeight": 48,
+      "canvasHeight": 32,
       "footWidth": 18,
       "footHeight": 10,
       "scale": 1,
@@ -139,8 +147,8 @@
       {
         "id": "duc",
         "room": "ROOM_304",
-        "x": 435,
-        "y": 327
+        "x": 213.0,
+        "y": 149.5
       },
       {
         "id": "nam",
@@ -266,100 +274,136 @@
     {
       "id": "ROOM_304",
       "name": "Phòng 304",
-      "width": 640,
-      "height": 480,
+      "width": 320.0,
+      "height": 240.0,
       "background": "map.story.room_304",
       "tmx": "map.tmx.room_304",
       "spawns": {
         "entry": {
-          "x": 315,
-          "y": 90
+          "x": 153.0,
+          "y": 42.5
         },
         "desk": {
-          "x": 278,
-          "y": 298
+          "x": 140,
+          "y": 149
         },
         "cabinet": {
-          "x": 550,
-          "y": 327
+          "x": 270.5,
+          "y": 161.0
         },
         "family": {
-          "x": 458,
-          "y": 317
+          "x": 224.5,
+          "y": 156.0
         }
       },
       "collisions": [
         {
-          "x": 0,
-          "y": 0,
-          "width": 640,
-          "height": 8
+          "x": 0.0,
+          "y": 0.0,
+          "width": 320.0,
+          "height": 7.0
         },
         {
-          "x": 0,
-          "y": 472,
-          "width": 640,
-          "height": 8
+          "x": 0.0,
+          "y": 192,
+          "width": 320.0,
+          "height": 48
         },
         {
-          "x": 0,
-          "y": 0,
-          "width": 8,
-          "height": 480
+          "x": 0.0,
+          "y": 0.0,
+          "width": 7.0,
+          "height": 240.0
         },
         {
-          "x": 632,
-          "y": 0,
-          "width": 8,
-          "height": 480
+          "x": 313.0,
+          "y": 0.0,
+          "width": 7.0,
+          "height": 240.0
         },
         {
-          "x": 45,
-          "y": 340,
-          "width": 54,
-          "height": 10
+          "x": 14.0,
+          "y": 178.0,
+          "width": 17.0,
+          "height": 22.0
         },
         {
-          "x": 240,
-          "y": 340,
-          "width": 80,
-          "height": 10
+          "x": 79.0,
+          "y": 160.0,
+          "width": 141.0,
+          "height": 40
         },
         {
-          "x": 510,
-          "y": 270,
-          "width": 54,
-          "height": 10
+          "x": 287.0,
+          "y": 131.0,
+          "width": 22.0,
+          "height": 25.0
         },
         {
-          "x": 510,
-          "y": 190,
-          "width": 54,
-          "height": 10
+          "x": 287.0,
+          "y": 98.0,
+          "width": 22.0,
+          "height": 23.5
         },
         {
-          "x": 535,
-          "y": 370,
-          "width": 46,
-          "height": 10
+          "x": 278.5,
+          "y": 174.5,
+          "width": 31.0,
+          "height": 65.5
         },
         {
-          "x": 535,
-          "y": 420,
-          "width": 46,
-          "height": 10
+          "x": 227.5,
+          "y": 166.0,
+          "width": 27.5,
+          "height": 34
         },
         {
-          "x": 435,
-          "y": 355,
-          "width": 58,
-          "height": 10
+          "x": 61.5,
+          "y": 52.0,
+          "width": 30.0,
+          "height": 31.5
         },
         {
-          "x": 375,
-          "y": 420,
-          "width": 74,
-          "height": 10
+          "x": 105.0,
+          "y": 52.0,
+          "width": 30.0,
+          "height": 31.5
+        },
+        {
+          "x": 185.5,
+          "y": 52.0,
+          "width": 30.0,
+          "height": 31.5
+        },
+        {
+          "x": 229.0,
+          "y": 52.0,
+          "width": 30.0,
+          "height": 31.5
+        },
+        {
+          "x": 61.5,
+          "y": 116.0,
+          "width": 30.0,
+          "height": 31.5
+        },
+        {
+          "x": 105.0,
+          "y": 116.0,
+          "width": 30.0,
+          "height": 31.5
+        },
+        {
+          "x": 185.5,
+          "y": 116.0,
+          "width": 30.0,
+          "height": 31.5
+        },
+        {
+          "x": 229.0,
+          "y": 116.0,
+          "width": 30.0,
+          "height": 31.5
         }
       ],
       "objects": [
@@ -367,129 +411,175 @@
           "id": "door.hall",
           "type": "DOOR",
           "label": "WORLD-SIGN-304",
-          "x": 300,
-          "y": 36,
-          "width": 60,
-          "height": 22,
-          "range": 44,
+          "x": 150.0,
+          "y": 18.0,
+          "width": 30.0,
+          "height": 11.0,
+          "range": 22.0,
           "target": "HALLWAY",
           "spawn": "room304",
           "name": "Cửa hành lang"
         },
         {
           "id": "photo",
+          "inspection": "inspection.photo",
           "type": "PROP",
           "label": "UI-PHOTO",
-          "x": 45,
-          "y": 340,
-          "width": 54,
-          "height": 34,
-          "range": 44,
+          "x": 53.0,
+          "y": 206.5,
+          "width": 12.5,
+          "height": 17.0,
+          "range": 22.0,
           "asset": "prop.photo",
           "name": "Ảnh lớp"
         },
         {
           "id": "desk",
+          "highlightOutline": [0, 1, 1, 1, 1, 0.44, 0.96, 0.44, 0.96, 0, 0.04, 0, 0.04, 0.44, 0, 0.44],
+          "inspection": "inspection.register",
+          "inspectionVariants": {
+            "empty": "inspection.desk_empty",
+            "final": "inspection.desk_final"
+          },
           "type": "PROP",
           "label": "UI-REGISTER",
-          "x": 240,
-          "y": 340,
-          "width": 80,
-          "height": 34,
-          "range": 44,
+          "x": 97.5,
+          "y": 162.0,
+          "width": 50.5,
+          "height": 31.0,
+          "range": 22.0,
           "asset": "prop.register",
           "name": "Bàn giáo viên"
         },
         {
           "id": "player",
+          "highlightOutline": [0, 1, 1, 1, 1, 0.45, 0.92, 0.45, 0.92, 0, 0.78, 0, 0.78, 0.42, 0.22, 0.42, 0.22, 0, 0.08, 0, 0.08, 0.45, 0, 0.45],
+          "inspection": "inspection.player",
+          "inspectionVariants": {
+            "open": "inspection.player_open",
+            "playing": "inspection.player_playing",
+            "powered": "inspection.player_powered"
+          },
           "type": "PROP",
           "label": "UI-PLAYER",
-          "x": 510,
-          "y": 270,
-          "width": 54,
-          "height": 28,
-          "range": 44,
+          "x": 287.0,
+          "y": 131.0,
+          "width": 22.0,
+          "height": 25.0,
+          "range": 22.0,
           "asset": "prop.player",
           "name": "Máy cassette"
         },
         {
           "id": "crate",
+          "highlightOutline": [0, 1, 1, 1, 1, 0.45, 0.92, 0.45, 0.92, 0, 0.78, 0, 0.78, 0.42, 0.22, 0.42, 0.22, 0, 0.08, 0, 0.08, 0.45, 0, 0.45],
+          "inspection": "inspection.crate",
+          "inspectionVariants": {
+            "open": "inspection.crate_open"
+          },
           "type": "PROP",
           "label": "UI-CRATE",
-          "x": 510,
-          "y": 190,
-          "width": 54,
-          "height": 28,
-          "range": 44,
+          "x": 287.0,
+          "y": 98.0,
+          "width": 22.0,
+          "height": 23.5,
+          "range": 22.0,
           "asset": "prop.crate",
           "name": "Thùng thiết bị"
         },
         {
           "id": "cabinet",
+          "inspection": "inspection.cabinet",
+          "inspectionVariants": {
+            "locked": "inspection.cabinet_locked",
+            "open": "inspection.cabinet_open"
+          },
           "type": "PROP",
           "label": "UI-CABINET",
-          "x": 535,
-          "y": 370,
-          "width": 46,
-          "height": 22,
-          "range": 44,
+          "x": 278.5,
+          "y": 174.5,
+          "width": 31.0,
+          "height": 20.0,
+          "range": 22.0,
           "asset": "prop.cabinet",
-          "name": "Ngăn dưới"
+          "name": "Ngăn dưới",
+          "interaction": {
+            "x": 278.5,
+            "y": 174.5,
+            "width": 31,
+            "height": 4
+          }
         },
         {
           "id": "cabinet.upper",
+          "inspection": "inspection.cabinet_upper",
           "type": "PROP",
           "label": "UI-CABINET",
-          "x": 535,
-          "y": 420,
-          "width": 46,
-          "height": 20,
-          "range": 44,
-          "name": "Ngăn trên"
+          "x": 278.5,
+          "y": 194.5,
+          "width": 31.0,
+          "height": 29.0,
+          "range": 22.0,
+          "name": "Ngăn trên",
+          "interaction": {
+            "x": 276,
+            "y": 183,
+            "width": 33.5,
+            "height": 11.5
+          }
         },
         {
           "id": "lastdesk",
+          "highlightOutline": [0, 1, 1, 1, 1, 0.45, 0.92, 0.45, 0.92, 0, 0.78, 0, 0.78, 0.42, 0.22, 0.42, 0.22, 0, 0.08, 0, 0.08, 0.45, 0, 0.45],
+          "inspection": "inspection.lastdesk",
           "type": "PROP",
           "label": "UI-INTERACT",
-          "x": 435,
-          "y": 355,
-          "width": 58,
-          "height": 20,
-          "range": 44,
+          "x": 227.5,
+          "y": 166.0,
+          "width": 27.5,
+          "height": 28.5,
+          "range": 22.0,
           "name": "Bàn cuối"
         },
         {
           "id": "window",
+          "inspection": "inspection.window",
           "type": "PROP",
           "label": "UI-INTERACT",
-          "x": 375,
-          "y": 420,
-          "width": 74,
-          "height": 16,
-          "range": 44,
-          "name": "Cửa sổ"
+          "x": 223.5,
+          "y": 205.5,
+          "width": 50.0,
+          "height": 16.0,
+          "range": 22.0,
+          "name": "Cửa sổ",
+          "interaction": {
+            "x": 249,
+            "y": 175,
+            "width": 8,
+            "height": 17
+          }
         }
       ],
       "npcSlots": {
         "trang": {
-          "x": 170,
-          "y": 200
+          "x": 80.5,
+          "y": 97.5
         },
         "duc": {
-          "x": 460,
-          "y": 205
+          "x": 225.5,
+          "y": 100.0
         },
         "nam": {
-          "x": 150,
-          "y": 270
+          "x": 45.5,
+          "y": 152.5
         },
         "hung": {
-          "x": 370,
-          "y": 270
+          "x": 160.5,
+          "y": 132.5
         },
         "nga": {
-          "x": 435,
-          "y": 327
+          "x": 223.0,
+          "y": 149.5
         }
       }
     },
@@ -596,6 +686,10 @@
         },
         {
           "id": "guard.wall",
+          "inspection": "inspection.guard_wall",
+          "inspectionVariants": {
+            "open": "inspection.guard_door"
+          },
           "type": "DOOR",
           "label": "WORLD-SIGN-GUARD",
           "x": 560,
@@ -609,6 +703,7 @@
         },
         {
           "id": "board",
+          "inspection": "inspection.board",
           "type": "PROP",
           "label": "UI-BOARD",
           "x": 365,
@@ -711,6 +806,7 @@
         },
         {
           "id": "records",
+          "inspection": "inspection.papers",
           "type": "PROP",
           "label": "UI-RECORDS",
           "x": 65,
@@ -723,6 +819,10 @@
         },
         {
           "id": "gate",
+          "inspection": "inspection.gate_closed",
+          "inspectionVariants": {
+            "open": "inspection.gate_open"
+          },
           "type": "DOOR",
           "label": "WORLD-SIGN-GATE",
           "x": 295,
@@ -759,50 +859,50 @@
     {
       "id": "CLASSROOM",
       "name": "Lớp học bên cạnh",
-      "width": 640,
-      "height": 480,
+      "width": 320.0,
+      "height": 240.0,
       "background": "map.story.classroom",
       "tmx": "map.tmx.classroom",
       "spawns": {
         "entry": {
-          "x": 315,
-          "y": 90
+          "x": 153.0,
+          "y": 42.5
         },
         "table": {
-          "x": 310,
-          "y": 245
+          "x": 150.5,
+          "y": 120.0
         }
       },
       "collisions": [
         {
-          "x": 0,
-          "y": 0,
-          "width": 640,
-          "height": 8
+          "x": 0.0,
+          "y": 0.0,
+          "width": 320.0,
+          "height": 4.0
         },
         {
-          "x": 0,
-          "y": 472,
-          "width": 640,
-          "height": 8
+          "x": 0.0,
+          "y": 236.0,
+          "width": 320.0,
+          "height": 4.0
         },
         {
-          "x": 0,
-          "y": 0,
-          "width": 8,
-          "height": 480
+          "x": 0.0,
+          "y": 0.0,
+          "width": 4.0,
+          "height": 240.0
         },
         {
-          "x": 632,
-          "y": 0,
-          "width": 8,
-          "height": 480
+          "x": 316.0,
+          "y": 0.0,
+          "width": 4.0,
+          "height": 240.0
         },
         {
-          "x": 430,
-          "y": 320,
-          "width": 74,
-          "height": 10
+          "x": 215.0,
+          "y": 160.0,
+          "width": 37.0,
+          "height": 5.0
         }
       ],
       "objects": [
@@ -810,47 +910,51 @@
           "id": "door.hall",
           "type": "DOOR",
           "label": "WORLD-SIGN-HUNG",
-          "x": 300,
-          "y": 36,
-          "width": 60,
-          "height": 22,
-          "range": 44,
+          "x": 150.0,
+          "y": 18.0,
+          "width": 30.0,
+          "height": 11.0,
+          "range": 22.0,
           "target": "HALLWAY",
           "spawn": "hung",
           "name": "Cửa hành lang"
         },
         {
           "id": "evidence",
+          "inspection": "inspection.evidence",
+          "inspectionVariants": {
+            "final": "inspection.evidence_signed"
+          },
           "type": "PROP",
           "label": "UI-INTERACT",
-          "x": 430,
-          "y": 320,
-          "width": 74,
-          "height": 30,
-          "range": 44,
+          "x": 215.0,
+          "y": 160.0,
+          "width": 37.0,
+          "height": 15.0,
+          "range": 22.0,
           "name": "Bàn tài liệu"
         }
       ],
       "npcSlots": {
         "trang": {
-          "x": 170,
-          "y": 200
+          "x": 80.5,
+          "y": 97.5
         },
         "duc": {
-          "x": 460,
-          "y": 205
+          "x": 225.5,
+          "y": 100.0
         },
         "nam": {
-          "x": 150,
-          "y": 270
+          "x": 70.5,
+          "y": 132.5
         },
         "hung": {
-          "x": 370,
-          "y": 270
+          "x": 180.5,
+          "y": 132.5
         },
         "nga": {
-          "x": 475,
-          "y": 355
+          "x": 233.0,
+          "y": 175.0
         }
       }
     }

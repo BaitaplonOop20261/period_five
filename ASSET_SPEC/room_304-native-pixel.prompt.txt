@@ -1,0 +1,23 @@
+# Room304 native pixel regeneration
+
+Mode: built-in imagegen edit/style-transfer, followed by technical 1x nearest-neighbor export.
+Layout reference: game/assets/maps/room_304.png (1448x1086 version archived as generated/room_304-layout-1448-reference.png).
+Style reference: added_asset/room_304.png.
+Final export: game/assets/maps/room_304.png, PNG RGBA640x480.
+Export helper: game/tools/export-room-map.ps1 (nearest-neighbor, no smoothing).
+
+Use case: style-transfer and identity-preserving redraw of an existing pixel-art game map.
+Image 1 is the layout/appearance EDIT TARGET: the current ROOM304 background. Image 2 is the user's original 640x480 pixel-art style reference ONLY; do NOT restore its twenty desks or black exterior margins.
+Regenerate Image 1 as a PRODUCTION 1x PIXEL-ART GAME MAP. The final design is EXACTLY640x480 pixels, 4:3, 1 pixel=1 game world unit, a20x15 grid of32px tiles. Keep the current nostalgic classroom art style: muted brown worn wood, desaturated green chalkboard/cabinets, warm restrained side-window daylight, dark pixel outlines, old wooden desks and black metal chairs. Use hand-placed-looking pixel clusters and stepped pixel edges, clean1px silhouettes, about24–32 main colors with a few controlled shades. Pixel game art, not a painted high-resolution illustration. Remove soft photographic grain, continuous gradients, antialiased edges, blurry bloom, high-res microtexture and brush strokes. Keep the same orthographic top-down camera with the original slight furniture elevation.
+CRITICAL preserve Image1's composition, camera, furniture count, relative positions and scale precisely. Do NOT redesign the room, shift furniture, add characters/text/UI, change doors, or add assets. Keep floor/walls filling the canvas with no black outside margin.
+Pixel-coordinate layout in the640x480 design, origin upper-left:
+- exactly8 ordinary desk+chair groups, each60x63, at(123,313),(210,313),(371,313),(458,313),(123,185),(210,185),(371,185),(458,185). All pieces of each group stay inside its box. Clear center aisle101px; clear horizontal aisle65px.
+- teacher desk within(195,94,101,62), sitting on the existing front raised wooden platform near(158,120,282,40).
+- faded indistinct wall picture within(106,33,25,34), no recognizable face or text.
+- tall right book cabinet within(557,33,62,98), left green storage in its same original corner.
+- separate special desk within(455,91,55,57), keep its chair area beneath clear for runtime effects.
+- upper-right window within(447,37,100,32).
+- empty cassette support table within(574,168,44,50); plain closed equipment box within(574,237,44,47).
+- entrance stays centered on bottom wall, aroundx300..360; keep the broad approach clear.
+Retain chalkboard, worn brown plank floor, plants and subtle window light. Table tops bare; no notebook/tape/cassette device or stateful gameplay objects baked into the background. No people, ghosts, portraits with distinct faces, lettering, numbers, GUI, watermarks or border/legend.
+Technical target: opaque PNG RGBA640x480 atnative1x. Every visible art pixel should read as a deliberate nativepixel. If image service emits a larger raster, represent the EXACT same640x480 pixel grid as a clean integer nearest-neighbor enlargement, preferably1280x960 with each logical pixel a2x2 square; no extra subpixel detail. The exported game file will be normalized to640x480 with nearest sampling only.

@@ -5,6 +5,15 @@
 - Artist mở [FOR_ARTISTS.md](FOR_ARTISTS.md): tất cả file cần vẽ/thu và thông số.
 - AI mở [FOR_AI_INTEGRATION.md](FOR_AI_INTEGRATION.md): mapping, giới hạn và quy trình import.
 - [01_ASSET_MASTER_LIST.md](01_ASSET_MASTER_LIST.md) là danh mục chuẩn; [07](07_ASSET_PRODUCTION_CHECKLIST.md) theo dõi nghiệm thu.
+- [Đợt nhập thử 13/10/2026](09_IMPORTED_ASSETS_2026-10-13.md) ghi file thật, quy cách ngoại lệ, checksum và kết quả kiểm tra của các ảnh đã nhận.
+
+## Cập nhật nhập thử — 13/10/2026
+
+Đã nhận năm ảnh nhân vật và ảnh phòng 304 trong `added_asset/`; giữ nguyên toàn bộ file nguồn. Linh, Đức và Trang dùng sheet 192×32, sáu frame 32×32, 0,15 giây/frame. Bà Năm và thầy Hùng dùng ảnh 32×32, một frame/1 giây để test idle. Đây là bộ thử hướng xuống, khác quy cách sản xuất 32×48/hai frame đề xuất bên dưới; các hạng mục sản xuất còn thiếu và gate nghiệm thu vẫn mở.
+
+Phòng 304 dùng nền PNG RGBA kín 640×480, xuất 1× và lọc Nearest, được imagegen vẽ lại theo artstyle ảnh nguồn. Bố cục tám bàn và geometry của lần nhập trước giữ nguyên. Checksum bản cuối, prompt và công cụ xuất ghi tại biên bản 09; giữ chân 18×10 và tốc độ 120. Không sản xuất các TMX/tileset hoặc asset khác còn thiếu trong đợt này. Build/core/desktop đã qua, đã xem ảnh 1×/2× Nearest và kiểm ánh lạnh trên PNG; bằng chứng ở 09 không thay nghiệm thu bộ art đầy đủ.
+
+Các số lượng sau là **snapshot kế hoạch sản xuất ngày 11/10/2026**, không phải kiểm kê trạng thái file sau đợt nhập thử.
 
 Số lượng từng nhóm và phân bố P0/P1/P2 xem tại [danh mục chuẩn](01_ASSET_MASTER_LIST.md).
 
