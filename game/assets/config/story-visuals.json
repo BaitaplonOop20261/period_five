@@ -281,7 +281,7 @@
           "id": "nga",
           "pose": "pose.seated",
           "anchor": "lastdesk",
-          "dy": -28,
+          "dy": 18,
           "alpha": 0.6
         }
       ]
@@ -294,7 +294,7 @@
           "id": "nga",
           "pose": "walk.down",
           "anchor": "lastdesk",
-          "dy": -28,
+          "dy": 18,
           "to": "door.hall",
           "seconds": 2,
           "alpha": 0.45
@@ -353,7 +353,7 @@
           "id": "linh",
           "pose": "pose.seated",
           "anchor": "lastdesk",
-          "dy": -28
+          "dy": 18
         }
       ]
     },
@@ -369,5 +369,12 @@
       "effect": "phone",
       "asset": "document.c_phone"
     }
-  ]
+  ],
+  "blockImages": {
+    "C1-02-WITH": "document.photo",
+    "C1-02-ALONE": "document.photo",
+    "RE-PHOTO": "document.photo",
+    "RE-WINDOW-NORMAL": "document.window",
+    "RE-WINDOW-HAUNT": "document.window"
+  }
 }

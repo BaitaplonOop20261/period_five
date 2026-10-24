@@ -45,7 +45,7 @@ public final class StoryWorldView implements Disposable {
     public StoryWorldView(GameAssets assets,SceneCatalog catalog,StoryContent content,BitmapFont font) {
         this.assets=assets;this.catalog=catalog;this.content=content;this.font=font;
         try{visuals=StoryVisuals.load(Gdx.files.internal(assets.catalog().path("story.visuals")),assets.catalog(),content,catalog);
-        for(var a:catalog.player().animations.entrySet()){Animation<TextureRegion> animation=assets.animation(a.getValue());if(animation!=null)animations.put("linh/"+a.getKey(),animation);}
+        for(var a:catalog.player().animations.entrySet()){Animation<TextureRegion> animation=assets.animation(a.getValue(),catalog.player().mirrorWalkLeft && a.getKey().equals("walk.left"));if(animation!=null)animations.put("linh/"+a.getKey(),animation);}
         for(String npc:catalog.npcIds()) for(var a:catalog.npc(npc).animations.entrySet()) {
             Animation<TextureRegion> animation=assets.animation(a.getValue());if(animation!=null) animations.put(npc+"/"+a.getKey(),animation);
         }}catch(RuntimeException e){dispose();throw e;}
@@ -67,6 +67,10 @@ public final class StoryWorldView implements Disposable {
             Texture background=assets.texture(candidate.background);
             textures.put(candidate.background,background);
             for(String assetId:candidate.backgrounds.values())texture(assetId);
+            if(candidate.backgroundRegion!=null){
+                var region=candidate.backgroundRegion;List<String> backgrounds=new ArrayList<>(candidate.backgrounds.values());backgrounds.add(candidate.background);
+                for(String assetId:backgrounds){Texture image=textures.get(assetId);if(image!=null && ((long)region.x+region.width>image.getWidth() || (long)region.y+region.height>image.getHeight()))throw new IllegalArgumentException("Background region outside image: "+assetId);}
+            }
             for(var o:candidate.objects)for(String assetId:o.variants.values())texture(assetId);
             for(SceneCatalog.ObjectDef o:candidate.objects) if(o.asset!=null && !textures.containsKey(o.asset)) textures.put(o.asset,assets.texture(o.asset));
         } catch(RuntimeException e) { if(nextRenderer!=null) nextRenderer.dispose();if(nextMap!=null && !mapCache.containsValue(nextMap)) nextMap.dispose();throw new IllegalArgumentException("Invalid scene asset " + id + " / " + path + ": " + e.getMessage(),e); }
@@ -119,7 +123,7 @@ public final class StoryWorldView implements Disposable {
     public boolean canStand(float x,float y) {return canStand(scene,x,y);}
     public void update(float delta,StorySession session,Player player) {
         time+=delta;updateVisuals(session);List<RoomInteractionSystem.Target> targets=new ArrayList<>();
-        for(SceneCatalog.ObjectDef o:scene.objects) if(o.requiredEvent==null||session.state().reached(Event.valueOf(o.requiredEvent))) targets.add(RoomInteractionSystem.Target.logical(o.id,o.type.equals("DOOR")?RoomInteractionSystem.Kind.DOOR:RoomInteractionSystem.Kind.PROP,o.bounds(),feet->inRange(feet,o.bounds(),o.range,player.facing())));
+        for(SceneCatalog.ObjectDef o:scene.objects) if(o.requiredEvent==null||session.state().reached(Event.valueOf(o.requiredEvent))) targets.add(RoomInteractionSystem.Target.logical(o.id,o.type.equals("DOOR")?RoomInteractionSystem.Kind.DOOR:RoomInteractionSystem.Kind.PROP,o.interactionBounds(),feet->(o.usableFrom==null||o.usableFrom.bounds().contains(feet))&&inRange(feet,o.interactionBounds(),o.range,player.facing())));
         for(String id:session.visibleNpcs()) if(!id.equals("nga") && (catalog.npc(id).requiredEvent==null||session.state().reached(Event.valueOf(catalog.npc(id).requiredEvent)))) {
             SceneCatalog.Point p=catalog.npcPosition(session.state(),id);Rectangle feet=new Rectangle(p.x,p.y,catalog.npc(id).footWidth,catalog.npc(id).footHeight);
             targets.add(RoomInteractionSystem.Target.logical(id,RoomInteractionSystem.Kind.NPC,feet,b->inRange(b,feet,42,player.facing())));
@@ -146,19 +150,38 @@ public final class StoryWorldView implements Disposable {
         if(session.state().reached(Event.CHALK_MARK) && session.state().room()==RoomId.HALLWAY){shapes.setColor(Color.WHITE);shapes.rect(306,286,28,3);}
         shapes.end();
         if(renderer!=null){renderer.setView(camera);renderer.render();}
-        batch.begin();Texture bg=textures.get(scene.backgrounds.getOrDefault(session.state().phenomenon().name(),scene.background));if(renderer==null && bg!=null) batch.draw(bg,0,0,scene.width,scene.height);
-        for(SceneCatalog.ObjectDef o:scene.objects){Texture t=textures.get(o.variants.getOrDefault(propState(o.id,session.state()),o.asset));if(t!=null) batch.draw(t,o.x,o.y,o.width,o.height);}
+        batch.begin();Texture bg=textures.get(scene.backgrounds.getOrDefault(session.state().phenomenon().name(),scene.background));
+        if(renderer==null && bg!=null){
+            var region=scene.backgroundRegion;
+            if(region==null)batch.draw(bg,0,0,scene.width,scene.height);
+            else batch.draw(bg,0,0,scene.width,scene.height,region.x,region.y,region.width,region.height,false,false);
+        }
+        // Keep placeholders for missing items, without covering furniture painted into the map.
+        if(renderer==null && bg!=null){
+            batch.end();shapes.begin(ShapeRenderer.ShapeType.Filled);
+            for(SceneCatalog.ObjectDef o:scene.objects)if(!o.inBackground && textures.get(o.variants.getOrDefault(propState(o.id,session.state()),o.asset))==null){shapes.setColor(o.type.equals("DOOR")?.28f:.30f,.28f,.22f,1);shapes.rect(o.x,o.y,o.width,o.height);}
+            shapes.end();batch.begin();
+        }
+        record DepthDraw(float y,Runnable draw) {}
+        List<DepthDraw> depthDraws=new ArrayList<>();
+        for(SceneCatalog.ObjectDef o:scene.objects){Texture t=textures.get(o.variants.getOrDefault(propState(o.id,session.state()),o.asset));if(t!=null){if(o.depthSortY==null)batch.draw(t,o.x,o.y,o.width,o.height);else depthDraws.add(new DepthDraw(o.depthSortY,()->batch.draw(t,o.x,o.y,o.width,o.height)));}}
         List<String> actors=new ArrayList<>(session.visibleNpcs());actors.add("linh");for(String id:poses.keySet())if(!actors.contains(id))actors.add(id);actors.removeIf(id->poses.containsKey(id)&&poses.get(id).hidden());actors.sort(Comparator.comparingDouble(id->-actorPosition(id,session,player).y));
         for(String actor:actors) {
-            drawActor(actor,session,player);
+            depthDraws.add(new DepthDraw(actorPosition(actor,session,player).y,()->drawActor(actor,session,player)));
         }
+        depthDraws.sort(Comparator.comparingDouble(draw->-draw.y()));
+        for(DepthDraw draw:depthDraws)draw.draw().run();
         drawEffects(session);
         font.setColor(Color.LIGHT_GRAY);font.getData().setScale(.68f);
-        for(SceneCatalog.ObjectDef o:scene.objects) {
-            String label=o.name==null?o.id:o.name;if(o.id.equals("guard.wall") && (!session.state().reached(Event.GUARD_DOOR_REVEALED)||session.state().phenomenon()!=Phenomenon.ACTIVE)) label="";
-            GlyphLayout measured=new GlyphLayout(font,label);font.draw(batch,label,Math.max(8,Math.min(o.x-12,scene.width-8-measured.width)),Math.min(scene.height-60,o.y+o.height+18));
+        String selected=target();
+        if(selected!=null && session.exploring() && selector.getActiveTarget().getKind()!=RoomInteractionSystem.Kind.NPC) {
+            SceneCatalog.ObjectDef object=scene.objects.stream().filter(o->o.id.equals(selected)).findFirst().orElse(null);
+            Rectangle b=object==null?selector.getActiveTarget().getBounds():object.bounds();
+            String label=object==null?catalog.npc(selected).name:(object.name==null?object.id:object.name);
+            if(selected.equals("guard.wall") && (!session.state().reached(Event.GUARD_DOOR_REVEALED)||session.state().phenomenon()!=Phenomenon.ACTIVE))label="Bức tường";
+            GlyphLayout measured=new GlyphLayout(font,label);font.setColor(Color.YELLOW);
+            font.draw(batch,label,Math.max(8,Math.min(b.x+(b.width-measured.width)/2,scene.width-8-measured.width)),Math.min(scene.height-60,b.y+b.height+18));
         }
-        String selected=target();if(selected!=null && session.exploring()){Rectangle b=selector.getActiveTarget().getBounds();font.setColor(Color.YELLOW);font.draw(batch,"E",b.x+b.width/2,b.y+b.height+32);}
         if(!session.overlay().equals("NONE")){font.setColor(session.overlay().equals("CLEAR_LINH")?Color.WHITE:Color.GRAY);font.draw(batch,session.overlay().equals("CLEAR_LINH")?"33. Linh":"Linh",260,390);}
         if(session.exploring()){font.setColor(Color.WHITE);font.getData().setScale(1);font.draw(batch,scene.name,16,scene.height-16);font.getData().setScale(.8f);font.draw(batch,session.objective(),16,scene.height-43);font.getData().setScale(.65f);font.draw(batch,"WASD / phím hướng · E tương tác · N ghi chú · Esc tạm dừng",16,24);}font.getData().setScale(1);batch.end();
     }
@@ -198,14 +221,14 @@ public final class StoryWorldView implements Disposable {
     }
     private void drawActor(String id,StorySession session,Player player){
         boolean bookPose=id.equals("linh")&&!poses.containsKey(id)&&!player.isMoving()&&session.state().book()==BookLocation.CARRIED&&animations.containsKey("linh/pose.book");
-        if(id.equals("linh")&&!poses.containsKey(id)&&player.hasSprite()&&!bookPose){player.render(batch);return;}
+        if(id.equals("linh")&&!poses.containsKey(id)&&player.hasSprite()&&!bookPose){player.render(batch);drawActorName("Linh",player.getX()+player.getBounds().width/2,player.getY()+player.getSpriteHeight()*(1-catalog.player().anchorY));return;}
         SceneCatalog.Point p=actorPosition(id,session,player);StoryVisuals.Actor a=poses.get(id);
         String state=a==null?(id.equals("linh")?bookPose?"pose.book":(player.isMoving()?"walk.":"idle.")+player.facing():"idle."+npcFacing(id,session,player)):a.pose();
-        float width,height,fw,ax,ay;String name;if(id.equals("linh")){var n=catalog.player();width=n.canvasWidth*n.scale;height=n.canvasHeight*n.scale;fw=n.footWidth;ax=n.anchorX;ay=n.anchorY;name="Linh";}else{var n=catalog.npc(id);width=n.canvasWidth*n.scale;height=n.canvasHeight*n.scale;fw=n.footWidth;ax=n.anchorX;ay=n.anchorY;name=id.equals("nga")?"":n.name;}
+        float width,height,fw,ax,ay;String name;if(id.equals("linh")){var n=catalog.player();width=n.canvasWidth*n.scale;height=n.canvasHeight*n.scale;fw=n.footWidth;ax=n.anchorX;ay=n.anchorY;name="Linh";}else{var n=catalog.npc(id);width=n.canvasWidth*n.scale;height=n.canvasHeight*n.scale;fw=n.footWidth;ax=n.anchorX;ay=n.anchorY;name=n.name;}
         float alpha=a==null?(id.equals("nga")?.5f:1):a.alpha();Animation<TextureRegion> anim=animations.get(id+"/"+state);
         String facing=state.substring(state.lastIndexOf('.')+1);if(!Set.of("up","down","left","right").contains(facing))facing="down";
         if(anim==null)anim=animations.get(id+"/idle."+facing);if(anim==null)anim=animations.get(id+"/idle.down");
-        if(anim!=null){batch.setColor(1,1,1,alpha);batch.draw(anim.getKeyFrame(a==null?time:time-poseTimes.get(id),!state.startsWith("pose.")),p.x+fw/2-width*ax,p.y-height*ay,width,height);batch.setColor(Color.WHITE);}
+        if(anim!=null){batch.setColor(1,1,1,alpha);batch.draw(anim.getKeyFrame(a==null?time:time-poseTimes.get(id),!state.startsWith("pose.")),p.x+fw/2-width*ax,p.y-height*ay,width,height);batch.setColor(Color.WHITE);drawActorName(name,p.x+fw/2+width*(.5f-ax),p.y+height*(1-ay));}
         else{Color color=id.equals("linh")?new Color(.38f,.72f,.83f,alpha):id.equals("nga")?new Color(.6f,.7f,.8f,alpha):new Color(.74f,.60f,.38f,alpha);if(state.equals("pose.seated"))height*=.65f;drawBody(p.x+fw/2-width*ax,p.y-height*ay,width,height,name,color,facing);}
     }
     private String npcFacing(String id,StorySession session,Player player){
@@ -218,13 +241,20 @@ public final class StoryWorldView implements Disposable {
         if("memory".equals(effect)){SceneCatalog.ObjectDef door=scene.object("door.hall"),desk=scene.object("lastdesk");Texture art=textures.get(effectAsset);for(int i=0;i<3;i++){float t=Math.min(1,Math.max(0,(elapsed-i*.2f)/2));float x=MathUtils.lerp(desk.x-i*42,door.x+i*12,t),y=MathUtils.lerp(desk.y-28,door.y+32,t);if(art!=null){batch.setColor(1,1,1,.25f*(1-t));batch.draw(art,x,y,art.getWidth(),art.getHeight());batch.setColor(Color.WHITE);}else drawBody(x,y,24,40,"",new Color(.6f,.7f,.8f,.25f*(1-t)),"down");}}
         if("phone".equals(effect)){Texture art=textures.get(effectAsset);if(art!=null)batch.draw(art,230,175,180,245);}
         if("camera".equals(effect)&&elapsed<.45f){Texture art=textures.get(effectAsset);if(art!=null)batch.draw(art,470,scene.height-120,art.getWidth(),art.getHeight());font.setColor(Color.WHITE);font.getData().setScale(.8f);font.draw(batch,"Đã chụp",470,scene.height-95);font.getData().setScale(1);}
-        if(scene.id.equals("ROOM_304")&&(chairShift||session.state().knows(Clue.ALTERED_REGISTER))){var d=scene.object("lastdesk");batch.end();shapes.begin(ShapeRenderer.ShapeType.Filled);shapes.setColor(.45f,.4f,.3f,1);Texture chair=textures.get(chairAsset);if(chair==null)shapes.rect(d.x+16,d.y-30,22,9);shapes.end();batch.begin();if(chair!=null)batch.draw(chair,d.x+16,d.y-30,chair.getWidth(),chair.getHeight());}
+        if(scene.id.equals("ROOM_304")&&(chairShift||session.state().knows(Clue.ALTERED_REGISTER))){var d=scene.object("lastdesk");batch.end();shapes.begin(ShapeRenderer.ShapeType.Filled);shapes.setColor(.45f,.4f,.3f,1);Texture chair=textures.get(chairAsset);if(chair==null&&!scene.object("lastdesk").inBackground)shapes.rect(d.x+16,d.y-30,22,9);shapes.end();batch.begin();if(chair!=null)batch.draw(chair,d.x+16,d.y-30,chair.getWidth(),chair.getHeight());}
     }
     private void drawBody(float x,float y,float width,float height,String name,Color color,String facing) {
         // Geometry only: no generated substitute game artwork.
         batch.end();Gdx.gl.glEnable(GL20.GL_BLEND);Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA,GL20.GL_ONE_MINUS_SRC_ALPHA);shapes.begin(ShapeRenderer.ShapeType.Filled);shapes.setColor(color);shapes.rect(x,y,width,height);
         shapes.setColor(1,1,1,color.a);float cx=x+width/2,cy=y+height/2;switch(facing){case "up"->shapes.rect(cx-2,y+height-5,4,4);case "down"->shapes.rect(cx-2,y+1,4,4);case "left"->shapes.rect(x-6,cy,4,4);default->shapes.rect(x+width-10,cy,4,4);}shapes.end();batch.begin();
-        font.setColor(Color.WHITE);font.getData().setScale(.7f);font.draw(batch,name,x-12,y+height+14);font.getData().setScale(1);
+        drawActorName(name,x+width/2,y+height);
+    }
+    private void drawActorName(String name,float centerX,float topY) {
+        if(name.isEmpty())return;
+        font.setColor(Color.WHITE);font.getData().setScale(.7f);
+        GlyphLayout measured=new GlyphLayout(font,name);
+        font.draw(batch,name,centerX-measured.width/2,topY+14);
+        font.getData().setScale(1);
     }
     public void resize(int width,int height){if(width>0&&height>0) viewport.update(width,height,true);}
     @Override public void dispose(){if(renderer!=null)renderer.dispose();for(TiledMap cached:mapCache.values())cached.dispose();mapCache.clear();batch.dispose();shapes.dispose();}

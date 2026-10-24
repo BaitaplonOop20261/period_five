@@ -31,7 +31,7 @@ public final class StoryDesktopChecks {
         Lwjgl3ApplicationConfiguration cfg=new Lwjgl3ApplicationConfiguration();cfg.setTitle("Room304 story runtime checks");cfg.setWindowedMode(960,540);cfg.setInitialVisible(false);
         new Lwjgl3Application(new ApplicationAdapter(){@Override public void create(){Gdx.app.postRunnable(()->{try{checkAll();}catch(Throwable e){failure=e;}finally{Gdx.app.exit();}});}},cfg);
         if(failure!=null)throw new AssertionError("Story desktop checks failed",failure);
-        System.out.println("Story desktop checks passed: A/B/C, "+interactions+" E interactions reached by walking, "+frames+" rendered frames, menu/replay, pause, notes, disk save/load, 16:9 and 4:3.");
+        System.out.println("Story desktop checks passed: A/B/C, "+interactions+" E/Enter interactions reached by walking, "+frames+" rendered frames, menu/replay, pause, notes, disk save/load, 16:9 and 4:3.");
     }
     private static void check(boolean condition,String message){if(!condition)throw new AssertionError(message);}
     private static void frame(int...held){keys=new HashSet<>();for(int key:held)keys.add(key);screen.render(1f/60);frames++;observeVisuals();}
@@ -44,23 +44,27 @@ public final class StoryDesktopChecks {
         if("A-01-MAIN-E03".equals(id)){check(screen.world().pose("nga").equals("walk.down"),"Memory departure pose");visualChecks.add("memory");}
         if("C-02-MAIN-E09".equals(id)){check(screen.world().pose("linh").equals("pose.seated"),"C seated pose");var p=screen.world().actorPosition("linh",screen.session(),screen.player());check(Math.abs(p.x-screen.player().getX())>1||Math.abs(p.y-screen.player().getY())>1,"C visual placement must not mutate Player physics");visualChecks.add("seated");}
     }
-    private static void drain(){for(int i=0;i<5000;i++){if(!screen.session().dialogue().isActive()){for(int k=0;k<25;k++)frame();return;}if(!screen.session().dialogue().getLine().getChoices().isEmpty()){for(int k=0;k<3;k++)tick();screen.dialogueUI().continueText();frame();return;}tick();press(Input.Keys.ENTER);}throw new AssertionError("Dialogue stalled "+screen.session().block());}
+    private static void drain(){for(int i=0;i<5000;i++){if(!screen.session().dialogue().isActive()){for(int k=0;k<25;k++)frame();return;}if(!screen.session().dialogue().getLine().getChoices().isEmpty()){for(int k=0;k<3;k++)tick();screen.dialogueUI().continueText();frame();return;}tick();if(screen.session().dialogue().isActive())press(Input.Keys.ENTER);}throw new AssertionError("Dialogue stalled "+screen.session().block());}
     private static void choice(String id){drain();var options=screen.session().dialogue().getLine().getChoices();int index=-1;for(int i=0;i<options.size();i++)if(options.get(i).getId().equals(id))index=i;check(index>=0,"Choice missing "+id+" / "+screen.session().block());while(!id.equals(screen.dialogueUI().selectedChoiceId()))press(Input.Keys.DOWN);press(Input.Keys.ENTER);drain();}
     private static void walk(String id) {
         Player player=screen.player();SceneCatalog.Scene scene=screen.world().scene();Rectangle target;
-        if(screen.session().visibleNpcs().contains(id)){SceneCatalog.Point p=world.npcPosition(screen.session().state(),id);target=new Rectangle(p.x,p.y,world.player().footWidth,world.player().footHeight);}else target=scene.object(id).bounds();
-        float sx=player.getX(),sy=player.getY();List<Wall> walls=screen.world().walls(screen.session());
+        if(screen.session().visibleNpcs().contains(id)){SceneCatalog.Point p=world.npcPosition(screen.session().state(),id);target=new Rectangle(p.x,p.y,world.player().footWidth,world.player().footHeight);}else target=scene.object(id).interactionBounds();
+        float sx=player.getX(),sy=player.getY();List<Wall> walls=screen.world().walls(screen.session());boolean approachFromLeft=Set.of("cabinet.upper","player","crate").contains(id),approachFromRight=Set.of("window","desk").contains(id)&&scene.id.equals("ROOM_304"),approachFromAbove=id.equals("door.hall")&&target.y<32;
         record Cell(int x,int y){}ArrayDeque<Cell> queue=new ArrayDeque<>();Map<Cell,Cell> previous=new HashMap<>();Cell start=new Cell(0,0),goal=null;queue.add(start);previous.put(start,null);
         while(!queue.isEmpty()) {
             Cell c=queue.remove();float x=sx+c.x*10,y=sy+c.y*10;Rectangle feet=new Rectangle(x,y,world.player().footWidth,world.player().footHeight);
-            if(feet.y+feet.height<=target.y-2 && target.y-feet.y-feet.height<=22 && Math.abs(feet.x+feet.width/2-target.x-target.width/2)<=12){goal=c;break;}
+            boolean below=feet.y+feet.height<=target.y-2 && target.y-feet.y-feet.height<=22 && Math.abs(feet.x+feet.width/2-target.x-target.width/2)<=12;
+            boolean left=feet.x+feet.width<=target.x-2 && target.x-feet.x-feet.width<=22 && Math.abs(feet.y+feet.height/2-target.y-target.height/2)<=12;
+            boolean above=feet.y>=target.y+target.height+2 && feet.y-target.y-target.height<=22 && feet.x+feet.width>target.x && feet.x<target.x+target.width;
+            boolean right=feet.x>=target.x+target.width+2 && feet.x-target.x-target.width<=22 && Math.abs(feet.y+feet.height/2-target.y-target.height/2)<=12;
+            if(approachFromLeft?left:approachFromRight?right:approachFromAbove?above:below){goal=c;break;}
             for(int[] offset:new int[][]{{0,1},{1,0},{0,-1},{-1,0}}){Cell n=new Cell(c.x+offset[0],c.y+offset[1]);if(previous.containsKey(n))continue;float nx=sx+n.x*10,ny=sy+n.y*10;Rectangle nf=new Rectangle(nx,ny,feet.width,feet.height);if(!screen.world().canStand(nx,ny)||walls.stream().anyMatch(w->w.getBounds().overlaps(nf)))continue;previous.put(n,c);queue.add(n);}
         }
         check(goal!=null,"No reachable interaction cell "+scene.id+"/"+id);List<Cell> path=new ArrayList<>();for(Cell c=goal;previous.get(c)!=null;c=previous.get(c))path.add(c);Collections.reverse(path);
         for(Cell cell:path){float x=sx+cell.x*10,y=sy+cell.y*10;for(int i=0;i<12;i++){float dx=x-player.getX(),dy=y-player.getY();if(Math.abs(dx)<1&&Math.abs(dy)<1)break;int key=Math.abs(dx)>1?(dx>0?Input.Keys.D:Input.Keys.A):(dy>0?Input.Keys.W:Input.Keys.S);frame(key);}check(Math.abs(player.getX()-x)<1&&Math.abs(player.getY()-y)<1,"Walking blocked "+id);}
-        frame(Input.Keys.W);frame();check(id.equals(screen.world().target()),"Wrong E target "+id+" / "+screen.world().target());
+        frame(approachFromLeft?Input.Keys.D:approachFromRight?Input.Keys.A:approachFromAbove?Input.Keys.S:Input.Keys.W);frame();check(id.equals(screen.world().target()),"Wrong E target "+id+" / "+screen.world().target());
     }
-    private static void interact(String id){check(screen.session().exploring(),"Interaction outside exploration "+id);walk(id);press(Input.Keys.E);interactions++;drain();}
+    private static void interact(String id){check(screen.session().exploring(),"Interaction outside exploration "+id);walk(id);press(interactions%2==0?Input.Keys.ENTER:Input.Keys.E);interactions++;drain();}
     private static void begin(boolean skip,SaveStore.Loaded saved){if(screen!=null)screen.dispose();screen=new GameScreen(assets,content,world,save,new AudioSettings(),skip,saved,()->{},()->{},e->{});screen.resize(960,540);screen.show();drain();}
     private static void decision(){interact("desk");interact("door.hall");interact("stairs");interact("duc");choice("C2-02-CHOICE03");interact("guard.wall");interact("cabinet");}
     private static void investigate(){decision();choice("C3-04-CHOICE02");choice("C3-04-CHOICE03");}
@@ -86,10 +90,56 @@ public final class StoryDesktopChecks {
     private static void checkAll() throws Exception {
         original=Gdx.input;scripted=(Input)Proxy.newProxyInstance(Input.class.getClassLoader(),new Class<?>[]{Input.class},(proxy,method,args)->{if(method.getName().equals("isKeyPressed")||method.getName().equals("isKeyJustPressed"))return keys.contains((Integer)args[0]);return method.invoke(original,args);});Gdx.input=scripted;
         assets=new GameAssets();assets.validateRequired();AssetCatalog manifest=assets.catalog();content=StoryContent.load(Gdx.files.internal(manifest.path("story.content")));world=SceneCatalog.load(Gdx.files.internal(manifest.path("story.world")),manifest);
-        Path folder=Files.createTempDirectory(Path.of("../lwjgl3/build"),"story-save-");save=new SaveStore(folder.resolve("slot.json"));
+        Path folder=Files.createTempDirectory("room304-story-save-");save=new SaveStore(folder.resolve("slot.json"));
         try {
             Room304Game app=new Room304Game();try{app.create();check(app.getScreen() instanceof MenuScreen,"Menu startup");keys=Set.of(Input.Keys.ENTER);app.render();check(app.getScreen() instanceof GameScreen,"New game routing");GameScreen current=(GameScreen)app.getScreen();String first=current.session().dialogue().getLine().getId();app.render();app.render();check(first.equals(current.session().dialogue().getLine().getId()),"Held menu Enter must not advance opening");keys=Set.of();app.requestMenu();app.render();check(app.getScreen() instanceof MenuScreen,"Return menu routing");}finally{app.dispose();}
-            begin(false,null);snapshot("explore-16x9");float x=screen.player().getX();press(Input.Keys.ESCAPE);frame(Input.Keys.D);check(screen.isPaused()&&screen.player().getX()==x,"Pause movement lock");press(Input.Keys.ESCAPE);for(int i=0;i<3;i++)frame();
+            var side=assets.animation("char.linh.walk.side");
+            var mirrored=assets.animation("char.linh.walk.side",true);
+            check(!side.getKeyFrame(0).isFlipX() && mirrored.getKeyFrame(0).isFlipX(),"Opposite walking directions must mirror independently");
+            check(!assets.animation("char.linh.walk.side").getKeyFrame(0).isFlipX(),"Mirroring must not mutate shared sprite frames");
+            begin(false,null);snapshot("explore-16x9");
+            screen.player().setPosition(112,368);frame();snapshot("desk-behind");
+            screen.player().setPosition(112,318);frame();snapshot("desk-front");
+            begin(false,null);
+            walk("window");press(Input.Keys.E);frame();
+            check("document.window".equals(screen.world().visuals().document(screen.session().dialogue().getLine().getId(),screen.session().block())),"Window interaction detail image");
+            snapshot("window-detail");drain();
+            walk("photo");press(Input.Keys.E);frame();
+            check("document.photo".equals(screen.world().visuals().document(screen.session().dialogue().getLine().getId(),screen.session().block())),"Photo interaction detail image");
+            snapshot("photo-detail");
+            begin(false,null);
+            screen.player().setPosition(115,310);screen.player().restoreFacing("up");frame();
+            check(!"desk".equals(screen.world().target()),"Teacher desk must not be usable from below the podium");
+            for(var object:screen.world().scene().objects)walk(object.id);
+            walk("window");snapshot("room304-window");walk("cabinet.upper");snapshot("room304-cabinet");
+            Gdx.graphics.setWindowedMode(800,600);Gdx.input=scripted;screen.resize(800,600);frame();snapshot("room304-4x3");
+            Gdx.graphics.setWindowedMode(960,540);Gdx.input=scripted;begin(false,null);
+            var room=screen.world().scene();var tables=room.collisions.subList(room.collisions.size()-20,room.collisions.size());
+            for(var table:tables){Player probe=new Player(assets,table.x+(table.width-world.player().footWidth)/2,table.y-world.player().footHeight-2,world.player());try{for(int i=0;i<8;i++)probe.update(.25f,0,1,false,screen.world().walls(screen.session()),null,List.of(),room.width,room.height);check(probe.getBounds().y+probe.getBounds().height<=table.y,"Player crossed classroom table "+table.x+"/"+table.y);}finally{probe.dispose();}}
+            // North boundaries align the bottom of the feet with the painted trim.
+            Player wallProbe=new Player(assets,280,320,world.player());
+            try {
+                for(int i=0;i<8;i++)wallProbe.update(.25f,0,1,true,screen.world().walls(screen.session()),null,List.of(),room.width,room.height);
+                check(wallProbe.getY()<=384 && wallProbe.getY()>=379,"Linh must stop at the red boundary below the board");
+                wallProbe.setPosition(520,320);
+                for(int i=0;i<8;i++)wallProbe.update(.25f,0,1,true,screen.world().walls(screen.session()),null,List.of(),room.width,room.height);
+                check(wallProbe.getY()<=377 && wallProbe.getY()>=372,"Linh must stop at the lower red boundary beside the podium");
+                wallProbe.setPosition(40,310);
+                for(int i=0;i<8;i++)wallProbe.update(.25f,0,1,true,screen.world().walls(screen.session()),null,List.of(),room.width,room.height);
+                check(wallProbe.getY()<=340 && wallProbe.getY()>=335,"Linh crossed the added west boundary");
+                wallProbe.setPosition(580,330);
+                for(int i=0;i<8;i++)wallProbe.update(.25f,0,1,true,screen.world().walls(screen.session()),null,List.of(),room.width,room.height);
+                check(wallProbe.getY()<=364 && wallProbe.getY()>=359,"Linh crossed the cupboard boundary");
+                wallProbe.setPosition(40,180);
+                for(int i=0;i<8;i++)wallProbe.update(.25f,-1,0,true,screen.world().walls(screen.session()),null,List.of(),room.width,room.height);
+                check(wallProbe.getX()>=24,"Linh crosses west wall");
+                wallProbe.setPosition(590,180);
+                for(int i=0;i<8;i++)wallProbe.update(.25f,1,0,true,screen.world().walls(screen.session()),null,List.of(),room.width,room.height);
+                check(wallProbe.getX()+world.player().footWidth<=628,"Linh crosses east wall");
+            } finally {wallProbe.dispose();}
+            System.out.println("Room304 layout checks passed: all nine props/door reached by walking, all 20 student tables and room walls block movement, 16:9 and 4:3.");
+            float x=screen.player().getX();press(Input.Keys.ESCAPE);frame(Input.Keys.D);check(screen.isPaused()&&screen.player().getX()==x,"Pause movement lock");press(Input.Keys.ESCAPE);for(int i=0;i<3;i++)frame();
+            walk("trang");frame(Input.Keys.ENTER);check(screen.session().dialogue().isActive(),"Enter opens NPC dialogue");var firstNpcLine=screen.session().dialogue().getLine();for(int i=0;i<3;i++)frame(Input.Keys.ENTER);check(firstNpcLine==screen.session().dialogue().getLine(),"Held interaction Enter must not skip first NPC line");frame();drain();
             press(Input.Keys.N);check(screen.session().isNotes(),"N opens notes");press(Input.Keys.N);check(screen.session().exploring(),"N closes notes");
             press(Input.Keys.ESCAPE);press(Input.Keys.DOWN);press(Input.Keys.ENTER);check(save.exists(),"Pause Save command writes file");press(Input.Keys.ENTER);check(!screen.isPaused(),"Resume after saving");
             save.save(screen.session(),screen.player().getX(),screen.player().getY(),screen.player().facing(),world);SaveStore.Loaded loaded=save.load(world);begin(false,loaded);check(screen.session().state().reached(Event.INITIAL_SCENE_DONE),"Load initial exploration");
@@ -108,6 +158,9 @@ public final class StoryDesktopChecks {
             try{main.show();main.resize(800,600);main.render(0);menuPress(main,Input.Keys.DOWN);menuPress(main,Input.Keys.ENTER);check(continued.get(),"Continue menu command");}finally{main.dispose();}
             check(visualChecks.containsAll(Set.of("haunt","record","memory","seated")),"Missing runtime visual coverage: "+visualChecks);System.out.println("Runtime visual bindings passed: real animation profiles, haunt/record/memory/C seated, unchanged physics.");
             Files.deleteIfExists(cFile);
-        }finally{if(screen!=null)screen.dispose();assets.dispose();Gdx.input=original;Files.deleteIfExists(save.path());Files.deleteIfExists(folder.resolve("c-world.json"));Files.deleteIfExists(folder.resolve("geometry.tmx"));Files.deleteIfExists(folder);}
+        }finally{if(screen!=null)screen.dispose();assets.dispose();Gdx.input=original;Files.deleteIfExists(save.path());Files.deleteIfExists(folder.resolve("c-world.json"));Files.deleteIfExists(folder.resolve("geometry.tmx"));
+            // OneDrive can mark a newly created fixture directory read-only on Windows.
+            var dos=Files.getFileAttributeView(folder,java.nio.file.attribute.DosFileAttributeView.class);if(dos!=null)dos.setReadOnly(false);
+            Files.deleteIfExists(folder);}
     }
 }

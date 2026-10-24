@@ -1,2 +1,3 @@
 Lệnh chạy: .\game\gradlew.bat -p game :lwjgl3:run
 Drive asset: https://drive.google.com/drive/folders/1Eu25f__8cTXv3Oe7dJRohk87n0UF6ihY?usp=sharing
+.\game\gradlew.bat -p game :lwjgl3:run

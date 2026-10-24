@@ -54,7 +54,8 @@ public final class GameAssets implements Disposable {
         return manager.get(e.path(), type);
     }
     /** Explicit grid metadata; row-major, top row first. No inference of future frame layout. */
-    public Animation<TextureRegion> animation(String id) {
+    public Animation<TextureRegion> animation(String id) { return animation(id,false); }
+    public Animation<TextureRegion> animation(String id,boolean mirrorX) {
         AssetCatalog.Entry e = catalog.entry(id);
         Texture sheet = texture(id);
         if (sheet == null) return null;
@@ -64,6 +65,7 @@ public final class GameAssets implements Disposable {
         TextureRegion[][] grid = TextureRegion.split(sheet, e.frameWidth(), e.frameHeight());
         TextureRegion[] frames = new TextureRegion[e.frameCount()];
         for (int i = 0; i < frames.length; i++) frames[i] = grid[i / grid[0].length][i % grid[0].length];
+        if(mirrorX)for(TextureRegion frame:frames)frame.flip(true,false);
         Animation<TextureRegion> animation = new Animation<>(e.frameDuration(), frames);
         animation.setPlayMode(Animation.PlayMode.LOOP);
         return animation;

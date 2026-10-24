@@ -12,10 +12,16 @@ public final class StoryVisuals {
     public record Actor(String id,String pose,String anchor,float dx,float dy,float alpha,String to,float seconds,boolean hidden) {}
     public record Cue(List<Actor> actors,String effect,String asset,boolean clear) {}
     private final Map<String,Cue> cues=new HashMap<>();
+    private final Map<String,String> blockImages=new HashMap<>();
     private final Map<String,String> documents=new LinkedHashMap<>(),lineDocuments=new HashMap<>(),menus=new HashMap<>();
     public static StoryVisuals load(FileHandle file,AssetCatalog assets,StoryContent content,SceneCatalog world){
         try{
             StoryVisuals result=new StoryVisuals();JsonValue root=new JsonReader().parse(file);
+            if(root.has("blockImages"))for(JsonValue v:root.get("blockImages")){
+                texture(v.asString(),assets);
+                if(!content.blockIds().contains(v.name))content.text(v.name);
+                result.blockImages.put(v.name,v.asString());
+            }
             if(root.getInt("version")!=1)throw new IllegalArgumentException("Unsupported visual config");
             for(JsonValue v:root.get("documents")){texture(v.asString(),assets);content.text(v.name+"-01");result.documents.put(v.name,v.asString());}
             for(JsonValue v:root.get("lineDocuments")){if(!content.hasLine(v.name)||!result.documents.containsKey(v.asString()))throw new IllegalArgumentException("Invalid document binding "+v.name);result.lineDocuments.put(v.name,v.asString());}
@@ -48,6 +54,10 @@ public final class StoryVisuals {
     private static void texture(String id,AssetCatalog assets){if(!assets.entry(id).type().equals("texture"))throw new IllegalArgumentException("Expected visual texture "+id);}
     public Cue cue(String id){return cues.get(id);}
     public String menu(String id){return menus.get(id);}
+    public String document(String lineId,String blockId){
+        String image=document(lineId);
+        return image!=null?image:blockImages.get(blockId);
+    }
     public String document(String lineId){
         String doc=lineDocuments.get(lineId);if(doc!=null)return documents.get(doc);
         if(lineId!=null)for(var entry:documents.entrySet())if(lineId.startsWith(entry.getKey()+"-"))return entry.getValue();

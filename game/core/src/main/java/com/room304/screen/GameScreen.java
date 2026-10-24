@@ -62,7 +62,7 @@ public final class GameScreen extends ScreenAdapter {
         if(!next.equals(mode)){mode=next;input.modeChanged();dialogueUI.clearCommands();panel.clearCommands();}
         InputProcessor processor=paused?panel.stage():session.dialogue().isActive()&&fadeRemaining==0?dialogueUI.getStage():null;
         if(Gdx.input.getInputProcessor()!=processor) Gdx.input.setInputProcessor(processor);
-        dialogueUI.present(session.dialogue(),world.scene().name,session.dialogue().isActive()?world.visuals().document(session.dialogue().getLine().getId()):null);
+        dialogueUI.present(session.dialogue(),world.scene().name,session.dialogue().isActive()?world.visuals().document(session.dialogue().getLine().getId(),session.block()):null);
     }
     @Override public void show(){sync();}
     @Override public void render(float delta) {
@@ -90,7 +90,7 @@ public final class GameScreen extends ScreenAdapter {
                 boolean confirm=input.pressed(Input.Keys.ENTER)||dialogueUI.getHud().consumeContinueRequest();
                 if(choice==null && confirm && dialogueUI.isChoosing()) choice=dialogueUI.selectedChoiceId();
                 if(choice!=null) session.choose(choice);else if(confirm && dialogueUI.continueText()) session.advance();
-            } else if(exploration && input.pressed(Input.Keys.E)) {world.update(0,session,player);String target=world.target();if(target!=null) session.interact(target);}
+            } else if(exploration && (input.pressed(Input.Keys.E)||input.pressed(Input.Keys.ENTER))) {world.update(0,session,player);String target=world.target();if(target!=null) session.interact(target);}
         }
         boolean move=exploration && session.exploring() && fadeRemaining==0 && revision==session.dialogue().getRevision() && !input.pressed(Input.Keys.N);
         float beforeX=player.getX(),beforeY=player.getY();

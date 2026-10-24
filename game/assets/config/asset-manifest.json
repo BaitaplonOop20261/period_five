@@ -413,6 +413,101 @@
       "path": "endings/c.png",
       "type": "texture",
       "required": false
+    },
+    {
+      "id": "char.hung.idle.down",
+      "path": "sprites/hung/idle_down.png",
+      "type": "texture",
+      "required": true,
+      "filter": "Nearest",
+      "frameWidth": 32,
+      "frameHeight": 32,
+      "frameCount": 6,
+      "frameDuration": 0.15
+    },
+    {
+      "id": "char.linh.walk.side",
+      "path": "sprites/linh/walk_side.png",
+      "type": "texture",
+      "required": true,
+      "filter": "Nearest",
+      "frameWidth": 32,
+      "frameHeight": 32,
+      "frameCount": 7,
+      "frameDuration": 0.15
+    },
+    {
+      "id": "char.duc.idle.down",
+      "path": "sprites/duc/idle_down.png",
+      "type": "texture",
+      "required": true,
+      "filter": "Nearest",
+      "frameWidth": 32,
+      "frameHeight": 32,
+      "frameCount": 6,
+      "frameDuration": 0.15
+    },
+    {
+      "id": "char.nam.idle.down",
+      "path": "sprites/nam/idle_down.png",
+      "type": "texture",
+      "required": true,
+      "filter": "Nearest",
+      "frameWidth": 32,
+      "frameHeight": 32,
+      "frameCount": 6,
+      "frameDuration": 0.15
+    },
+    {
+      "id": "char.nga.idle.down",
+      "path": "sprites/nga/idle_down.png",
+      "type": "texture",
+      "required": true,
+      "filter": "Nearest",
+      "frameWidth": 32,
+      "frameHeight": 32,
+      "frameCount": 1,
+      "frameDuration": 0.15
+    },
+    {
+      "id": "char.linh.idle.down",
+      "path": "sprites/linh/idle_down.png",
+      "type": "texture",
+      "required": true,
+      "filter": "Nearest",
+      "frameWidth": 32,
+      "frameHeight": 32,
+      "frameCount": 6,
+      "frameDuration": 0.15
+    },
+    {
+      "id": "char.linh.walk.up",
+      "path": "sprites/linh/walk_up.png",
+      "type": "texture",
+      "required": true,
+      "filter": "Nearest",
+      "frameWidth": 32,
+      "frameHeight": 32,
+      "frameCount": 6,
+      "frameDuration": 0.15
+    },
+    {
+      "id": "char.linh.walk.down",
+      "path": "sprites/linh/walk_down.png",
+      "type": "texture",
+      "required": true,
+      "filter": "Nearest",
+      "frameWidth": 32,
+      "frameHeight": 32,
+      "frameCount": 6,
+      "frameDuration": 0.15
+    },
+    {
+      "id": "document.window",
+      "path": "documents/window.png",
+      "type": "texture",
+      "required": true,
+      "filter": "Nearest"
     }
   ]
 }

@@ -14,17 +14,21 @@ import static com.room304.story.GameState.*;
 public final class SceneCatalog {
     public static final class Point { public float x, y; }
     public static class Box { public float x, y, width, height; public Rectangle bounds() { return new Rectangle(x,y,width,height); } }
-    public static final class ObjectDef extends Box { public String id, type, name, label, asset, target, spawn, dialogue, requiredEvent; public float range; public HashMap<String,String> variants = new HashMap<>(); }
+    public static final class ObjectDef extends Box { public String id, type, name, label, asset, target, spawn, dialogue, requiredEvent; public float range; public boolean inBackground; public Float depthSortY; public Box interactionArea, usableFrom; public Rectangle interactionBounds() { return interactionArea == null ? bounds() : interactionArea.bounds(); } public HashMap<String,String> variants = new HashMap<>(); }
     public static final class CharacterDef {
         public String id, name, dialogue, requiredEvent; public float canvasWidth=32,canvasHeight=48,footWidth=18,footHeight=10,scale=1,anchorX=.5f,anchorY=0; public HashMap<String,String> animations = new HashMap<>();
     }
     public static final class PlayerDef {
+        public boolean mirrorWalkLeft;
         public float speed, scale, footWidth, footHeight, canvasWidth, canvasHeight; public float anchorX=.5f,anchorY=0;
         public HashMap<String,String> animations = new HashMap<>();
     }
     public static final class Placement { public String id, room, event; public Float x,y; }
+    /** Source pixels measured from the top-left of a background image. */
+    public static final class ImageRegion { public int x,y,width,height; }
     public static final class Scene {
         public String id, name, background, tmx; public float width, height; public HashMap<String,String> backgrounds = new HashMap<>();
+        public ImageRegion backgroundRegion;
         public HashMap<String,Point> spawns, npcSlots;
         public ArrayList<Box> collisions; public ArrayList<ObjectDef> objects;
         public ObjectDef object(String id) { return objects.stream().filter(o -> o.id.equals(id)).findFirst().orElseThrow(() -> new IllegalArgumentException("Missing interaction " + this.id + "/" + id)); }
@@ -59,11 +63,13 @@ public final class SceneCatalog {
                 if (!positive(s.width) || !positive(s.height) || catalog.scenes.putIfAbsent(RoomId.valueOf(s.id),s) != null)
                     throw new IllegalArgumentException("Invalid/duplicate scene " + s.id);
                 if (!assets.entry(s.background).type().equals("texture") || !assets.entry(s.tmx).type().equals("file")) throw new IllegalArgumentException("Wrong scene asset type " + s.id);
+                if(s.backgroundRegion!=null && (s.backgroundRegion.x<0 || s.backgroundRegion.y<0 || s.backgroundRegion.width<=0 || s.backgroundRegion.height<=0))throw new IllegalArgumentException("Invalid background region " + s.id);
                 for(var bg:s.backgrounds.entrySet()){Phenomenon.valueOf(bg.getKey());texture(bg.getValue(),assets);}
                 Set<String> ids = new HashSet<>();
                 for (Box b : s.collisions) validateBox(b,s);
                 for (ObjectDef o : s.objects) {
                     validateBox(o,s);
+                    if(o.depthSortY!=null && (!Float.isFinite(o.depthSortY)||o.depthSortY<0||o.depthSortY>s.height))throw new IllegalArgumentException("Invalid prop depth "+o.id);if(o.interactionArea!=null)validateBox(o.interactionArea,s);if(o.usableFrom!=null)validateBox(o.usableFrom,s);
                     if (o.id == null || !ids.add(o.id) || !Set.of("PROP","DOOR").contains(o.type) || o.label == null || !Float.isFinite(o.range) || o.range < 0)
                         throw new IllegalArgumentException("Invalid/duplicate interaction " + s.id + "/" + o.id);
                     for(String variant:o.variants.keySet()){if(!Set.of("normal","open","closed","locked","empty","powered","playing","carried","final").contains(variant))throw new IllegalArgumentException("Unknown prop variant "+o.id+"/"+variant);texture(o.variants.get(variant),assets);}
@@ -116,7 +122,7 @@ public final class SceneCatalog {
     }
     public void validateGeometry(Scene s) {
         if(!positive(s.width)||!positive(s.height))throw new IllegalArgumentException("Invalid map dimensions "+s.id);
-        for(Box b:s.collisions)validateBox(b,s);for(ObjectDef o:s.objects)validateBox(o,s);
+        for(Box b:s.collisions)validateBox(b,s);for(ObjectDef o:s.objects){validateBox(o,s);if(o.depthSortY!=null && (!Float.isFinite(o.depthSortY)||o.depthSortY<0||o.depthSortY>s.height))throw new IllegalArgumentException("Invalid prop depth "+o.id);if(o.interactionArea!=null)validateBox(o.interactionArea,s);if(o.usableFrom!=null)validateBox(o.usableFrom,s);}
         for(Point p:s.spawns.values())if(!canStand(s,p.x,p.y))throw new IllegalArgumentException("Blocked/outside spawn "+s.id);
         for(var slot:s.npcSlots.entrySet())if(!npcs.containsKey(slot.getKey())||!npcCanStand(s,slot.getKey(),slot.getValue().x,slot.getValue().y))throw new IllegalArgumentException("Invalid NPC slot "+s.id+"/"+slot.getKey());
     }

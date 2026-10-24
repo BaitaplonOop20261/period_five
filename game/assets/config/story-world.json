@@ -3,12 +3,19 @@
   "enableC": false,
   "player": {
     "speed": 120,
-    "scale": 1,
+    "scale": 1.5,
     "footWidth": 18,
     "footHeight": 10,
     "canvasWidth": 32,
-    "canvasHeight": 48,
-    "animations": {}
+    "canvasHeight": 32,
+    "animations": {
+      "idle.down": "char.linh.idle.down",
+      "walk.down": "char.linh.walk.down",
+      "walk.up": "char.linh.walk.up",
+      "walk.left": "char.linh.walk.side",
+      "walk.right": "char.linh.walk.side"
+    },
+    "mirrorWalkLeft": true
   },
   "npcs": [
     {
@@ -28,48 +35,56 @@
     {
       "id": "duc",
       "name": "Đức",
-      "animations": {},
+      "animations": {
+        "idle.down": "char.duc.idle.down"
+      },
       "canvasWidth": 32,
-      "canvasHeight": 48,
+      "canvasHeight": 32,
       "footWidth": 18,
       "footHeight": 10,
-      "scale": 1,
+      "scale": 1.5,
       "anchorX": 0.5,
       "anchorY": 0
     },
     {
       "id": "nam",
       "name": "Bà Năm",
-      "animations": {},
+      "animations": {
+        "idle.down": "char.nam.idle.down"
+      },
       "canvasWidth": 32,
-      "canvasHeight": 48,
+      "canvasHeight": 32,
       "footWidth": 18,
       "footHeight": 10,
-      "scale": 1,
+      "scale": 1.5,
       "anchorX": 0.5,
       "anchorY": 0
     },
     {
       "id": "hung",
       "name": "Thầy Hùng",
-      "animations": {},
+      "animations": {
+        "idle.down": "char.hung.idle.down"
+      },
       "canvasWidth": 32,
-      "canvasHeight": 48,
+      "canvasHeight": 32,
       "footWidth": 18,
       "footHeight": 10,
-      "scale": 1,
+      "scale": 1.5,
       "anchorX": 0.5,
       "anchorY": 0
     },
     {
       "id": "nga",
       "name": "Nga",
-      "animations": {},
+      "animations": {
+        "idle.down": "char.nga.idle.down"
+      },
       "canvasWidth": 32,
-      "canvasHeight": 48,
+      "canvasHeight": 32,
       "footWidth": 18,
       "footHeight": 10,
-      "scale": 1,
+      "scale": 1.5,
       "anchorX": 0.5,
       "anchorY": 0
     }
@@ -139,8 +154,8 @@
       {
         "id": "duc",
         "room": "ROOM_304",
-        "x": 435,
-        "y": 327
+        "x": 488,
+        "y": 330
       },
       {
         "id": "nam",
@@ -276,12 +291,12 @@
           "y": 90
         },
         "desk": {
-          "x": 278,
-          "y": 298
+          "x": 115,
+          "y": 300
         },
         "cabinet": {
-          "x": 550,
-          "y": 327
+          "x": 530,
+          "y": 315
         },
         "family": {
           "x": 458,
@@ -297,33 +312,27 @@
         },
         {
           "x": 0,
-          "y": 472,
+          "y": 394,
           "width": 640,
-          "height": 8
+          "height": 86
         },
         {
           "x": 0,
           "y": 0,
-          "width": 8,
+          "width": 24,
           "height": 480
         },
         {
-          "x": 632,
+          "x": 628,
           "y": 0,
-          "width": 8,
+          "width": 12,
           "height": 480
         },
         {
-          "x": 45,
-          "y": 340,
-          "width": 54,
-          "height": 10
-        },
-        {
-          "x": 240,
-          "y": 340,
-          "width": 80,
-          "height": 10
+          "x": 70,
+          "y": 338,
+          "width": 104,
+          "height": 24
         },
         {
           "x": 510,
@@ -338,28 +347,142 @@
           "height": 10
         },
         {
-          "x": 535,
-          "y": 370,
+          "x": 560,
+          "y": 374,
+          "width": 61,
+          "height": 106
+        },
+        {
+          "x": 458,
+          "y": 387,
+          "width": 182,
+          "height": 7
+        },
+        {
+          "x": 24,
+          "y": 350,
           "width": 46,
-          "height": 10
+          "height": 130
         },
         {
-          "x": 535,
-          "y": 420,
-          "width": 46,
-          "height": 10
+          "x": 107,
+          "y": 239,
+          "width": 60,
+          "height": 56
         },
         {
-          "x": 435,
-          "y": 355,
-          "width": 58,
-          "height": 10
+          "x": 210,
+          "y": 239,
+          "width": 60,
+          "height": 56
         },
         {
-          "x": 375,
-          "y": 420,
-          "width": 74,
-          "height": 10
+          "x": 311,
+          "y": 239,
+          "width": 60,
+          "height": 56
+        },
+        {
+          "x": 414,
+          "y": 239,
+          "width": 60,
+          "height": 56
+        },
+        {
+          "x": 516,
+          "y": 239,
+          "width": 60,
+          "height": 56
+        },
+        {
+          "x": 107,
+          "y": 171,
+          "width": 60,
+          "height": 54
+        },
+        {
+          "x": 210,
+          "y": 171,
+          "width": 60,
+          "height": 54
+        },
+        {
+          "x": 311,
+          "y": 171,
+          "width": 60,
+          "height": 54
+        },
+        {
+          "x": 414,
+          "y": 171,
+          "width": 60,
+          "height": 54
+        },
+        {
+          "x": 516,
+          "y": 171,
+          "width": 60,
+          "height": 54
+        },
+        {
+          "x": 107,
+          "y": 101,
+          "width": 60,
+          "height": 55
+        },
+        {
+          "x": 210,
+          "y": 101,
+          "width": 60,
+          "height": 55
+        },
+        {
+          "x": 311,
+          "y": 101,
+          "width": 60,
+          "height": 55
+        },
+        {
+          "x": 414,
+          "y": 101,
+          "width": 60,
+          "height": 55
+        },
+        {
+          "x": 516,
+          "y": 101,
+          "width": 60,
+          "height": 55
+        },
+        {
+          "x": 107,
+          "y": 30,
+          "width": 60,
+          "height": 55
+        },
+        {
+          "x": 210,
+          "y": 30,
+          "width": 60,
+          "height": 55
+        },
+        {
+          "x": 311,
+          "y": 30,
+          "width": 60,
+          "height": 55
+        },
+        {
+          "x": 414,
+          "y": 30,
+          "width": 60,
+          "height": 55
+        },
+        {
+          "x": 516,
+          "y": 30,
+          "width": 60,
+          "height": 55
         }
       ],
       "objects": [
@@ -367,38 +490,53 @@
           "id": "door.hall",
           "type": "DOOR",
           "label": "WORLD-SIGN-304",
-          "x": 300,
-          "y": 36,
-          "width": 60,
-          "height": 22,
+          "x": 273,
+          "y": 8,
+          "width": 124,
+          "height": 25,
           "range": 44,
           "target": "HALLWAY",
           "spawn": "room304",
-          "name": "Cửa hành lang"
+          "name": "Cửa hành lang",
+          "inBackground": true
         },
         {
           "id": "photo",
           "type": "PROP",
           "label": "UI-PHOTO",
-          "x": 45,
-          "y": 340,
-          "width": 54,
-          "height": 34,
+          "x": 100,
+          "y": 422,
+          "width": 44,
+          "height": 38,
           "range": 44,
           "asset": "prop.photo",
-          "name": "Ảnh lớp"
+          "name": "Ảnh lớp",
+          "interactionArea": {
+            "x": 100,
+            "y": 398,
+            "width": 44,
+            "height": 16
+          }
         },
         {
           "id": "desk",
           "type": "PROP",
           "label": "UI-REGISTER",
-          "x": 240,
-          "y": 340,
-          "width": 80,
-          "height": 34,
+          "x": 70,
+          "y": 338,
+          "width": 104,
+          "height": 42,
           "range": 44,
           "asset": "prop.register",
-          "name": "Bàn giáo viên"
+          "name": "Bàn giáo viên",
+          "inBackground": false,
+          "usableFrom": {
+            "x": 70,
+            "y": 330,
+            "width": 388,
+            "height": 64
+          },
+          "depthSortY": 362
         },
         {
           "id": "player",
@@ -428,69 +566,91 @@
           "id": "cabinet",
           "type": "PROP",
           "label": "UI-CABINET",
-          "x": 535,
-          "y": 370,
-          "width": 46,
-          "height": 22,
+          "x": 560,
+          "y": 317,
+          "width": 61,
+          "height": 62,
           "range": 44,
           "asset": "prop.cabinet",
-          "name": "Ngăn dưới"
+          "name": "Ngăn dưới",
+          "inBackground": true,
+          "interactionArea": {
+            "x": 560,
+            "y": 354,
+            "width": 61,
+            "height": 12
+          }
         },
         {
           "id": "cabinet.upper",
           "type": "PROP",
           "label": "UI-CABINET",
-          "x": 535,
-          "y": 420,
-          "width": 46,
-          "height": 20,
+          "x": 560,
+          "y": 379,
+          "width": 61,
+          "height": 62,
           "range": 44,
-          "name": "Ngăn trên"
+          "name": "Ngăn trên",
+          "inBackground": true,
+          "interactionArea": {
+            "x": 540,
+            "y": 377,
+            "width": 20,
+            "height": 10
+          }
         },
         {
           "id": "lastdesk",
           "type": "PROP",
           "label": "UI-INTERACT",
-          "x": 435,
-          "y": 355,
-          "width": 58,
-          "height": 20,
+          "x": 107,
+          "y": 30,
+          "width": 60,
+          "height": 55,
           "range": 44,
-          "name": "Bàn cuối"
+          "name": "Bàn cuối",
+          "inBackground": true
         },
         {
           "id": "window",
           "type": "PROP",
           "label": "UI-INTERACT",
-          "x": 375,
-          "y": 420,
-          "width": 74,
-          "height": 16,
+          "x": 8,
+          "y": 55,
+          "width": 10,
+          "height": 112,
           "range": 44,
-          "name": "Cửa sổ"
+          "name": "Cửa sổ",
+          "inBackground": true
         }
       ],
       "npcSlots": {
         "trang": {
-          "x": 170,
+          "x": 175,
           "y": 200
         },
         "duc": {
-          "x": 460,
-          "y": 205
+          "x": 488,
+          "y": 330
         },
         "nam": {
-          "x": 150,
+          "x": 180,
           "y": 270
         },
         "hung": {
-          "x": 370,
+          "x": 385,
           "y": 270
         },
         "nga": {
           "x": 435,
           "y": 327
         }
+      },
+      "backgroundRegion": {
+        "x": 192,
+        "y": 106,
+        "width": 1070,
+        "height": 871
       }
     },
     {

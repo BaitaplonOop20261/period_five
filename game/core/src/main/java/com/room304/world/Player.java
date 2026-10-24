@@ -87,7 +87,7 @@ public class Player implements Disposable {
         canvasWidth = profile.canvasWidth * profile.scale; canvasHeight = profile.canvasHeight * profile.scale;
         idleAnimation = downRunAnimation = backRunAnimation = sideRunAnimation = currentRunAnimation = null;
         for (var entry : profile.animations.entrySet()) {
-            Animation<TextureRegion> animation = assets.animation(entry.getValue());
+            Animation<TextureRegion> animation = assets.animation(entry.getValue(),profile.mirrorWalkLeft && entry.getKey().equals("walk.left"));
             if (animation != null) configured.put(entry.getKey(),animation);
         }
     }
