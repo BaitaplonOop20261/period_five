@@ -2,6 +2,8 @@
 
 Danh mục dưới đây sinh cùng dữ liệu với master; mọi số frame/FPS là PROPOSED. Frame32×48/scale1 có căn cứ profile hiện tại, chưa có sprite final. Tất cả 53 file còn thiếu. Tổng204 frame; 49 chuỗi nhiều frame +4 pose/idle tĩnh. PNG Nearest, một hàng, không padding/trim. Đường dẫn dưới game/assets/.
 
+**Ngoại lệ nhập thử 13/10/2026:** câu mô tả/checklist trên là snapshot sản xuất 11/10/2026. Năm file `sprites/{linh,duc,trang,nam,hung}/idle_down.png` hiện đã có để test, nhưng chưa đạt quy cách art sản xuất đề xuất. Linh/Đức/Trang dùng sheet 192×32, 6 frame 32×32, duration 0,15 s/frame (khoảng 6,67 FPS, loop 0,9 s); bà Năm/thầy Hùng dùng PNG 32×32 một frame, duration 1 s/frame và hiển thị tĩnh. Không tạo thêm hướng, walk hoặc pose. Profile của năm nhân vật dùng canvas 32×32, scale 1, giữ footprint 18×10 và anchor (0,5; 0); chỉ bind `idle.down`, các trạng thái chưa có dùng fallback `idle.down` của runtime. Checklist 32×48/2 frame bên dưới tiếp tục giữ nguyên cho bộ sản xuất. Xem [biên bản nhập thử](09_IMPORTED_ASSETS_2026-10-13.md) để đối chiếu file nguồn và checksum.
+
 ## Linh
 
 | ID | Path | Key profile | Frame count | FPS / duration s | Sheet px | Ưu tiên / hành động |

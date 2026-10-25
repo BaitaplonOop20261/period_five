@@ -1,5 +1,7 @@
 # Resolution và tiêu chuẩn hình ảnh
 
+**Cập nhật nhập thử 13/10/2026:** năm idle nhận thực tế dùng frame/canvas 32×32; ba sheet học sinh có 6 frame, hai người lớn là ảnh tĩnh. Đây vẫn là ngoại lệ của bộ nhân vật. Nền phòng 304 đã được vẽ lại theo artstyle nguồn và xuất PNG RGBA kín đúng 640×480 ở 1×, lọc Nearest; bố cục và geometry giữ nguyên. Các đề xuất sản xuất trong bảng dưới giữ cho bộ art tiếp theo; không kéo dãn nhân vật để khớp đề xuất 32×48. Chi tiết ở [biên bản 09](09_IMPORTED_ASSETS_2026-10-13.md).
+
 Nguồn kỹ thuật: `game/core/src/main/java/com/room304/world/StoryWorldView.java`, `world/Player.java`, `world/SceneCatalog.java`, `dialogue/DialogueUI.java`, `dialogue/DialogueAssets.java`, `screen/UiPanel.java`; các đường dẫn package ngắn tính từ `game/core/src/main/java/com/room304/`. Nguồn cấu hình: `game/assets/config/story-world.json`, `game/assets/story/ui-layout.json`.
 
 | Hạng mục | Quy chuẩn |

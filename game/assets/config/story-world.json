@@ -516,7 +516,8 @@
             "y": 398,
             "width": 44,
             "height": 16
-          }
+          },
+          "inspection": "inspection.photo"
         },
         {
           "id": "desk",
@@ -536,7 +537,12 @@
             "width": 388,
             "height": 64
           },
-          "depthSortY": 362
+          "depthSortY": 362,
+          "inspection": "inspection.register",
+          "inspectionVariants": {
+            "empty": "inspection.desk_empty",
+            "final": "inspection.desk_final"
+          }
         },
         {
           "id": "player",
@@ -548,7 +554,13 @@
           "height": 28,
           "range": 44,
           "asset": "prop.player",
-          "name": "Máy cassette"
+          "name": "Máy cassette",
+          "inspection": "inspection.player",
+          "inspectionVariants": {
+            "open": "inspection.player_open",
+            "playing": "inspection.player_playing",
+            "powered": "inspection.player_powered"
+          }
         },
         {
           "id": "crate",
@@ -560,7 +572,11 @@
           "height": 28,
           "range": 44,
           "asset": "prop.crate",
-          "name": "Thùng thiết bị"
+          "name": "Thùng thiết bị",
+          "inspection": "inspection.crate",
+          "inspectionVariants": {
+            "open": "inspection.crate_open"
+          }
         },
         {
           "id": "cabinet",
@@ -579,6 +595,11 @@
             "y": 354,
             "width": 61,
             "height": 12
+          },
+          "inspection": "inspection.cabinet",
+          "inspectionVariants": {
+            "locked": "inspection.cabinet_locked",
+            "open": "inspection.cabinet_open"
           }
         },
         {
@@ -597,7 +618,8 @@
             "y": 377,
             "width": 20,
             "height": 10
-          }
+          },
+          "inspection": "inspection.cabinet_upper"
         },
         {
           "id": "lastdesk",
@@ -609,7 +631,8 @@
           "height": 55,
           "range": 44,
           "name": "Bàn cuối",
-          "inBackground": true
+          "inBackground": true,
+          "inspection": "inspection.lastdesk"
         },
         {
           "id": "window",
@@ -621,7 +644,8 @@
           "height": 112,
           "range": 44,
           "name": "Cửa sổ",
-          "inBackground": true
+          "inBackground": true,
+          "inspection": "inspection.window"
         }
       ],
       "npcSlots": {
@@ -765,7 +789,11 @@
           "range": 44,
           "target": "GUARD_ROOM",
           "spawn": "entry",
-          "name": "Cửa bảo vệ"
+          "name": "Cửa bảo vệ",
+          "inspection": "inspection.guard_wall",
+          "inspectionVariants": {
+            "open": "inspection.guard_door"
+          }
         },
         {
           "id": "board",
@@ -776,7 +804,8 @@
           "width": 90,
           "height": 24,
           "range": 44,
-          "name": "Bảng tin"
+          "name": "Bảng tin",
+          "inspection": "inspection.board"
         }
       ],
       "npcSlots": {
@@ -879,7 +908,8 @@
           "height": 32,
           "range": 44,
           "asset": "prop.papers",
-          "name": "Giấy tờ sơ tán"
+          "name": "Giấy tờ sơ tán",
+          "inspection": "inspection.papers"
         },
         {
           "id": "gate",
@@ -890,7 +920,11 @@
           "width": 70,
           "height": 24,
           "range": 44,
-          "name": "Cổng ra"
+          "name": "Cổng ra",
+          "inspection": "inspection.gate_closed",
+          "inspectionVariants": {
+            "open": "inspection.gate_open"
+          }
         }
       ],
       "npcSlots": {
@@ -988,7 +1022,11 @@
           "width": 74,
           "height": 30,
           "range": 44,
-          "name": "Bàn tài liệu"
+          "name": "Bàn tài liệu",
+          "inspection": "inspection.evidence",
+          "inspectionVariants": {
+            "final": "inspection.evidence_signed"
+          }
         }
       ],
       "npcSlots": {

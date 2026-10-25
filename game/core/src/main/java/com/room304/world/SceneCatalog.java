@@ -14,7 +14,7 @@ import static com.room304.story.GameState.*;
 public final class SceneCatalog {
     public static final class Point { public float x, y; }
     public static class Box { public float x, y, width, height; public Rectangle bounds() { return new Rectangle(x,y,width,height); } }
-    public static final class ObjectDef extends Box { public String id, type, name, label, asset, target, spawn, dialogue, requiredEvent; public float range; public boolean inBackground; public Float depthSortY; public Box interactionArea, usableFrom; public Rectangle interactionBounds() { return interactionArea == null ? bounds() : interactionArea.bounds(); } public HashMap<String,String> variants = new HashMap<>(); }
+    public static final class ObjectDef extends Box { public String id, type, name, label, asset, target, spawn, dialogue, requiredEvent; public float range; public String inspection; public HashMap<String,String> inspectionVariants=new HashMap<>(); public boolean inBackground; public Float depthSortY; public Box interactionArea, usableFrom; public Rectangle interactionBounds() { return interactionArea == null ? bounds() : interactionArea.bounds(); } public HashMap<String,String> variants = new HashMap<>(); }
     public static final class CharacterDef {
         public String id, name, dialogue, requiredEvent; public float canvasWidth=32,canvasHeight=48,footWidth=18,footHeight=10,scale=1,anchorX=.5f,anchorY=0; public HashMap<String,String> animations = new HashMap<>();
     }
@@ -28,7 +28,7 @@ public final class SceneCatalog {
     public static final class ImageRegion { public int x,y,width,height; }
     public static final class Scene {
         public String id, name, background, tmx; public float width, height; public HashMap<String,String> backgrounds = new HashMap<>();
-        public ImageRegion backgroundRegion;
+        public ImageRegion backgroundRegion; public boolean followCamera;
         public HashMap<String,Point> spawns, npcSlots;
         public ArrayList<Box> collisions; public ArrayList<ObjectDef> objects;
         public ObjectDef object(String id) { return objects.stream().filter(o -> o.id.equals(id)).findFirst().orElseThrow(() -> new IllegalArgumentException("Missing interaction " + this.id + "/" + id)); }
@@ -69,6 +69,7 @@ public final class SceneCatalog {
                 for (Box b : s.collisions) validateBox(b,s);
                 for (ObjectDef o : s.objects) {
                     validateBox(o,s);
+                    if(o.inspection!=null)texture(o.inspection,assets);for(var variant:o.inspectionVariants.entrySet()){if(!Set.of("normal","open","closed","locked","empty","powered","playing","final").contains(variant.getKey()))throw new IllegalArgumentException("Unknown inspection variant "+o.id);texture(variant.getValue(),assets);}
                     if(o.depthSortY!=null && (!Float.isFinite(o.depthSortY)||o.depthSortY<0||o.depthSortY>s.height))throw new IllegalArgumentException("Invalid prop depth "+o.id);if(o.interactionArea!=null)validateBox(o.interactionArea,s);if(o.usableFrom!=null)validateBox(o.usableFrom,s);
                     if (o.id == null || !ids.add(o.id) || !Set.of("PROP","DOOR").contains(o.type) || o.label == null || !Float.isFinite(o.range) || o.range < 0)
                         throw new IllegalArgumentException("Invalid/duplicate interaction " + s.id + "/" + o.id);

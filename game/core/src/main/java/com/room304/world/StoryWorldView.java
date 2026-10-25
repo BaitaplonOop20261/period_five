@@ -26,7 +26,8 @@ public final class StoryWorldView implements Disposable {
     private final BitmapFont font; // borrowed from the screen's UI panel
     private final SpriteBatch batch=new SpriteBatch();
     private final ShapeRenderer shapes=new ShapeRenderer();
-    private final OrthographicCamera camera=new OrthographicCamera();
+    private final FollowCamera camera=new FollowCamera();
+    private final FitViewport hudViewport=new FitViewport(640,480);
     private final FitViewport viewport=new FitViewport(640,480,camera);
     private final RoomInteractionSystem selector=new RoomInteractionSystem(List.of());
     private final Map<String,Animation<TextureRegion>> animations=new HashMap<>();
@@ -142,7 +143,7 @@ public final class StoryWorldView implements Disposable {
         return result;
     }
     public void render(StorySession session,Player player) {
-        viewport.apply();camera.update();shapes.setProjectionMatrix(camera.combined);batch.setProjectionMatrix(camera.combined);
+        viewport.setWorldSize(scene.followCamera?320:scene.width,scene.followCamera?240:scene.height);viewport.apply();if(scene.followCamera)camera.follow(player.getX()+player.getBounds().width/2,player.getY()+player.getSpriteHeight()/2,scene.width,scene.height);else{camera.position.set(scene.width/2,scene.height/2,0);camera.update();}shapes.setProjectionMatrix(camera.combined);batch.setProjectionMatrix(camera.combined);
         boolean cold=session.state().phenomenon()==Phenomenon.ACTIVE || (session.block()!=null && session.block().startsWith("C1-04-HAUNT"));
         shapes.begin(ShapeRenderer.ShapeType.Filled);shapes.setColor(cold?new Color(.08f,.12f,.16f,1):new Color(.18f,.17f,.13f,1));shapes.rect(0,0,scene.width,scene.height);
         shapes.setColor(.09f,.09f,.10f,1);for(SceneCatalog.Box b:scene.collisions) shapes.rect(b.x,b.y,b.width,b.height);
@@ -182,6 +183,7 @@ public final class StoryWorldView implements Disposable {
             GlyphLayout measured=new GlyphLayout(font,label);font.setColor(Color.YELLOW);
             font.draw(batch,label,Math.max(8,Math.min(b.x+(b.width-measured.width)/2,scene.width-8-measured.width)),Math.min(scene.height-60,b.y+b.height+18));
         }
+        batch.end();hudViewport.apply();batch.setProjectionMatrix(hudViewport.getCamera().combined);batch.begin();
         if(!session.overlay().equals("NONE")){font.setColor(session.overlay().equals("CLEAR_LINH")?Color.WHITE:Color.GRAY);font.draw(batch,session.overlay().equals("CLEAR_LINH")?"33. Linh":"Linh",260,390);}
         if(session.exploring()){font.setColor(Color.WHITE);font.getData().setScale(1);font.draw(batch,scene.name,16,scene.height-16);font.getData().setScale(.8f);font.draw(batch,session.objective(),16,scene.height-43);font.getData().setScale(.65f);font.draw(batch,"WASD / phím hướng · E tương tác · N ghi chú · Esc tạm dừng",16,24);}font.getData().setScale(1);batch.end();
     }
@@ -207,6 +209,17 @@ public final class StoryWorldView implements Disposable {
             case "evidence"->state.knows(Clue.SIGNED_ADDENDUM)?"final":"normal";
             default->"normal";
         };
+    }
+    public static String inspectionAsset(SceneCatalog.ObjectDef object,GameState state) {
+        String variant=propState(object.id,state);
+        if(object.id.equals("cabinet")&&!state.cabinetLocked()) variant="open";
+        if(object.id.equals("player")) {
+            if(state.batteryLocation()==BatteryLocation.PLAYER) variant=state.tapeLocation()==TapeLocation.PLAYER?"playing":"powered";
+            else variant=state.tapeLocation()==TapeLocation.PLAYER||state.reached(Event.RECORDER_CHECKED)?"open":"empty";
+        }
+        if(object.id.equals("guard.wall")) variant=state.reached(Event.GUARD_DOOR_REVEALED)&&state.phenomenon()==Phenomenon.ACTIVE?"open":"closed";
+        if(object.id.equals("gate")) variant=state.phenomenon()==Phenomenon.ACTIVE?"closed":"open";
+        return object.inspectionVariants.getOrDefault(variant,object.inspection);
     }
     private SceneCatalog.Point anchor(String id,float footWidth){
         if(id.startsWith("npc:"))return scene.npcSlots.get(id.substring(4));
@@ -256,6 +269,6 @@ public final class StoryWorldView implements Disposable {
         font.draw(batch,name,centerX-measured.width/2,topY+14);
         font.getData().setScale(1);
     }
-    public void resize(int width,int height){if(width>0&&height>0) viewport.update(width,height,true);}
+    public void resize(int width,int height){if(width>0&&height>0){viewport.update(width,height,true);hudViewport.update(width,height,true);}}
     @Override public void dispose(){if(renderer!=null)renderer.dispose();for(TiledMap cached:mapCache.values())cached.dispose();mapCache.clear();batch.dispose();shapes.dispose();}
 }

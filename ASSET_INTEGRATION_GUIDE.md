@@ -1,6 +1,18 @@
 # Room304 — Tích hợp asset và bàn giao runtime
 
-Cập nhật 11/10/2026. Đọc CODEX.md, AGENTS/AGENTS.md, AGENTS/SDD.md và AGENTS/kich-ban-va-flow-can-phong-304.md trước khi sửa. Kịch bản 1.0 là nguồn chữ/nhịp/nhánh. Tài liệu này mô tả code hiện tại, không thay nguồn thiết kế.
+Cập nhật 17/10/2026. Đọc CODEX.md, AGENTS/AGENTS.md, AGENTS/SDD.md và AGENTS/kich-ban-va-flow-can-phong-304.md trước khi sửa. Kịch bản 1.0 là nguồn chữ/nhịp/nhánh. Tài liệu này mô tả code hiện tại, không thay nguồn thiết kế.
+
+**Ảnh tương tác 17/10:** 24 PNG gốc từ `ASSET_SPEC/download` đã được chép nguyên vào `game/assets/ui/inspection/`. Manifest khai báo `inspection.*` là texture required, lọc Nearest. Mỗi object trong `story-world.json` có `inspection` và có thể có `inspectionVariants`, độc lập với `asset`/`variants` dùng để vẽ trên bản đồ. `GameScreen` giữ object được chọn bằng E trong chuỗi tương tác; `StoryWorldView.inspectionAsset` chọn ảnh theo tiến độ; `DialogueUI` vẽ lớp tối 78%, ảnh Scaling.fit và lời thoại/lựa chọn. Không dùng kích thước ảnh cận cảnh làm hitbox. Xem [bảng file, hành vi và kiểm thử](ASSET_SPEC/10_INTERACTION_CLOSEUPS_2026-10-17.md).
+
+**Tỉ lệ phòng học 17/10:** `ROOM_304` và `CLASSROOM` hiện có world 320×240, geometry/đồ vật giảm 50% mỗi chiều. Texture phòng 304 vẫn 640×480; renderer dùng Nearest để vẽ vào bounds mới. Profile sprite/footprint/tốc độ nhân vật giữ nguyên. Nhãn, hiệu ứng và offset pose theo tỉ lệ scene để khớp bàn/cửa; ảnh UI cận cảnh dùng layout riêng. Các tọa độ 640×480 trong biên bản 09 là lịch sử trước lần thu nhỏ này; xem [biên bản 11](ASSET_SPEC/11_CLASSROOM_SCALE_2026-10-17.md) khi đặt thêm asset/TMX.
+
+**Dấu tương tác 17/10:** nhãn tên trong world và chữ E nổi được thay bằng animation `ui.interaction` từ `added_asset/interaction_mark.png`, runtime `ui/interaction_mark.png`. `InteractionCueRenderer` vẽ dấu ở mục tiêu selector đang chọn và viền vàng cho object; không cấp state hoặc đổi target. `highlightOutline` trong object cấu hình contour chuẩn hóa theo bounds cho đồ vật có chân bàn; mặc định là viền chữ nhật. Marker/viền ẩn trong các UI chặn input. Xem [biên bản 12](ASSET_SPEC/12_INTERACTION_CUES_2026-10-17.md).
+
+**Va chạm sát tường 17/10:** phòng 304 đã chặn kín phía sau bục/bàn giáo viên, bàn cạnh cửa sổ và toàn bộ tủ. Tường sau bắt đầu ở y=192; không để vùng chân lọt vào phần trên đồ vật. Trường object `interaction` tùy chọn giữ một Box chọn E riêng cho cửa sổ/hai ngăn tủ; ảnh, viền và marker vẫn bám bounds hình thật. Khi import TMX, vùng chọn này được dời/scale theo object. Xem [biên bản 13](ASSET_SPEC/13_WALL_FURNITURE_COLLISION_2026-10-17.md).
+
+**Camera 17/10:** world viewport cố định 320×240, không đổi theo kích thước scene. `FollowCamera` theo tâm sprite Linh và clamp theo hai mép mỗi trục; map nhỏ hơn khung nhìn được căn giữa. HUD dùng viewport 640×480 riêng để chữ/điện thoại/icon ghi âm không trôi theo world. Viền vàng giữ độ dày theo khung nhìn, marker giới hạn trong vùng camera đang thấy. Không thu nhỏ geometry map rộng. Demo sân sau dùng chung camera với khung 1920×1440 world unit ở art scale ×6, tương đương 320×240. Xem [biên bản 14](ASSET_SPEC/14_FOLLOW_CAMERA_2026-10-17.md).
+
+**Đợt nhập thử 13/10:** năm idle 32×32 và nền PNG phòng 304 chỉnh từ ảnh người dùng đã được nối vào manifest/profile/runtime. Quy cách nhân vật khác đề xuất art cuối: học sinh 6 frame/0,15 giây; bà Năm/Hùng 1 frame tĩnh. Nền phòng đã được vẽ lại theo artstyle nguồn, xuất PNG RGBA kín 640×480 ở 1×, lọc Nearest; bố cục tám bàn và geometry đã nhập giữ nguyên. Bảng prototype và kích thước đề xuất 11/10 bên dưới cần đối chiếu với [biên bản 09](ASSET_SPEC/09_IMPORTED_ASSETS_2026-10-13.md) trước khi nhận thêm prop/TMX. Build/core/desktop qua trên Windows/Temurin 21.0.12.1, gồm 58 tương tác E và A/B/C/save-load; bản cuối khóa kiểm tra kích thước 640×480 và Nearest. Giữ asset thiếu optional/fallback; không coi bộ thử là art/audio cuối.
 
 Game hiện chạy bốn khu vực bằng geometry/chữ và chơi tới A/B/C. C mặc định ẩn bằng enableC=false. Không có art/audio cuối, không tuyên bố đã nghiệm thu nghe nhìn. Save được bổ sung theo yêu cầu mới của người dùng, thay quy định không lưu của bản kịch bản. Lưu tại mốc khám phá; không ghi giữa giao dịch hội thoại/cutscene.
 
@@ -29,7 +41,7 @@ Các file demo WorldMap/HallwayMap/BackyardMap/NpcDefinition/Wardrobe được g
 
 | Đường dẫn | Vai trò |
 |---|---|
-| game/assets/config/asset-manifest.json | ID → path/type/filter/required và frame metadata. Chỉ font.ui + năm file story config/data là required hiện tại. Legacy art optional. |
+| game/assets/config/asset-manifest.json | ID → path/type/filter/required và frame metadata. Font, dữ liệu story, dấu tương tác và 24 ảnh inspection là required; legacy art optional. |
 | game/assets/config/story-world.json | Bốn RoomId, geometry, spawn, collision, object IDs, target/spawn của cửa, NPC IDs/placements, player speed/canvas/footprint/animation, enableC. |
 | game/assets/story/content.json | 99 khối; speakers, strings, choices, dialogues, route targets, sourceRows visual/audio/wait/effect. Thoại/tài liệu/subtitle nguyên văn. |
 | game/assets/story/ui-layout.json | Font, canvas 640×480, pagination, portrait bounds, choice/control sizes. fallbackPortrait rỗng. |

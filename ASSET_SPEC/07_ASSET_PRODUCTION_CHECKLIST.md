@@ -1,6 +1,12 @@
 # Checklist sản xuất và nghiệm thu
 
-Danh mục ngày11/10/2026:162 mục,160 file chưa có. Hai checkbox [x] duy nhất là font/giấy phép đã kiểm tra file. Checkbox asset biểu thị **file đạt quy cách sản xuất**, không đồng nghĩa runtime đã nghiệm thu; các gate tích hợp phía cuối vẫn để trống. Danh mục chuẩn:01_ASSET_MASTER_LIST.md. Path dưới game/assets/.
+Snapshot danh mục ngày11/10/2026:162 mục,160 file chưa có tại thời điểm đó. Hai checkbox [x] duy nhất là font/giấy phép đã kiểm tra file. Checkbox asset biểu thị **file đạt quy cách sản xuất**, không đồng nghĩa runtime đã nghiệm thu; các gate tích hợp phía cuối vẫn để trống. Danh mục chuẩn:01_ASSET_MASTER_LIST.md. Path dưới game/assets/.
+
+## Đợt nhập thử — 13/10/2026
+
+[Biên bản 09](09_IMPORTED_ASSETS_2026-10-13.md) là nơi ghi metadata, checksum, nguồn và kết quả kiểm tra của đợt này. Năm idle hướng xuống đã có bản thử: Linh/Đức/Trang 192×32, sáu frame 32×32, 0,15 giây/frame; Bà Năm/Hùng 32×32, một frame/1 giây. Các nguồn trong `added_asset/` được giữ nguyên. Bộ thử này chưa hoàn thành quy cách sản xuất 32×48, hai frame/2 FPS và không đóng các checkbox tương ứng.
+
+Nền phòng 304 đã được imagegen vẽ lại theo artstyle ảnh nguồn và xuất PNG RGBA kín 640×480 ở 1×, lọc Nearest; checksum cuối ghi tại 09. Bố cục tám bàn và geometry JSON đã nhập giữ nguyên; footprint 18×10 và tốc độ 120 giữ nguyên. Đợt này không bổ sung các TMX/tileset, walk, pose, portrait, UI, audio hoặc asset còn thiếu. Build/core/desktop và kiểm tra ánh lạnh đã qua; đã xem bản 1×/2× Nearest và năm nhân vật trong game. Bằng chứng, phạm vi và giới hạn ghi tại 09; các gate sản xuất đầy đủ vẫn giữ mở.
 
 Thông số, nội dung, trạng thái kiểm kê và tuyến tích hợp của từng ID xem tại [danh mục chuẩn](01_ASSET_MASTER_LIST.md). Checklist này chỉ theo dõi tiến độ theo ưu tiên; giữ ô kiểm hiện có, không coi file nguồn hoặc file tải về là đã tích hợp/đạt nghiệm thu.
 
@@ -8,38 +14,38 @@ Thông số, nội dung, trạng thái kiểm kê và tuyến tích hợp của 
 
 ### Nhân vật
 
-- [ ] **char.linh.idle.down** — `sprites/linh/idle_down.png`
-- [ ] **char.linh.walk.down** — `sprites/linh/walk_down.png`
-- [ ] **char.linh.idle.up** — `sprites/linh/idle_up.png`
-- [ ] **char.linh.walk.up** — `sprites/linh/walk_up.png`
-- [ ] **char.linh.idle.left** — `sprites/linh/idle_left.png`
-- [ ] **char.linh.walk.left** — `sprites/linh/walk_left.png`
-- [ ] **char.linh.idle.right** — `sprites/linh/idle_right.png`
-- [ ] **char.linh.walk.right** — `sprites/linh/walk_right.png`
-- [ ] **char.trang.idle.down** — `sprites/trang/idle_down.png`
-- [ ] **char.trang.idle.up** — `sprites/trang/idle_up.png`
-- [ ] **char.trang.idle.left** — `sprites/trang/idle_left.png`
-- [ ] **char.trang.idle.right** — `sprites/trang/idle_right.png`
-- [ ] **char.duc.idle.down** — `sprites/duc/idle_down.png`
-- [ ] **char.duc.idle.up** — `sprites/duc/idle_up.png`
-- [ ] **char.duc.idle.left** — `sprites/duc/idle_left.png`
-- [ ] **char.duc.idle.right** — `sprites/duc/idle_right.png`
-- [ ] **char.nam.idle.down** — `sprites/nam/idle_down.png`
-- [ ] **char.nam.idle.up** — `sprites/nam/idle_up.png`
-- [ ] **char.nam.idle.left** — `sprites/nam/idle_left.png`
-- [ ] **char.nam.idle.right** — `sprites/nam/idle_right.png`
-- [ ] **char.hung.idle.down** — `sprites/hung/idle_down.png`
-- [ ] **char.hung.idle.up** — `sprites/hung/idle_up.png`
-- [ ] **char.hung.idle.left** — `sprites/hung/idle_left.png`
-- [ ] **char.hung.idle.right** — `sprites/hung/idle_right.png`
-- [ ] **char.linh.pose.phone** — `sprites/linh/pose_phone.png`
-- [ ] **char.linh.pose.book** — `sprites/linh/pose_book.png`
-- [ ] **char.hung.pose.write** — `sprites/hung/pose_write.png`
-- [ ] **char.nga.idle.down** — `sprites/nga/idle_down.png`
-- [ ] **char.nga.idle.up** — `sprites/nga/idle_up.png`
-- [ ] **char.nga.walk.down** — `sprites/nga/walk_down.png`
-- [ ] **char.nga.pose.seated** — `sprites/nga/pose_seated.png`
-- [ ] **char.nga.pose.point** — `sprites/nga/pose_point.png`
+- [ ] **char.linh.idle.down** — `sprites/linh/idle_down.png` — 32×48/frame; 2 frame; 2 FPS; 64×48; lặp; có bản thử 32×32/sáu frame tại 09, bản sản xuất chưa nghiệm thu; PROPOSED
+- [ ] **char.linh.walk.down** — `sprites/linh/walk_down.png` — 32×48/frame; 6 frame; 8 FPS; 192×48; lặp; chưa có; PROPOSED
+- [ ] **char.linh.idle.up** — `sprites/linh/idle_up.png` — 32×48/frame; 2 frame; 2 FPS; 64×48; lặp; chưa có; PROPOSED
+- [ ] **char.linh.walk.up** — `sprites/linh/walk_up.png` — 32×48/frame; 6 frame; 8 FPS; 192×48; lặp; chưa có; PROPOSED
+- [ ] **char.linh.idle.left** — `sprites/linh/idle_left.png` — 32×48/frame; 2 frame; 2 FPS; 64×48; lặp; chưa có; PROPOSED
+- [ ] **char.linh.walk.left** — `sprites/linh/walk_left.png` — 32×48/frame; 6 frame; 8 FPS; 192×48; lặp; chưa có; PROPOSED
+- [ ] **char.linh.idle.right** — `sprites/linh/idle_right.png` — 32×48/frame; 2 frame; 2 FPS; 64×48; lặp; chưa có; PROPOSED
+- [ ] **char.linh.walk.right** — `sprites/linh/walk_right.png` — 32×48/frame; 6 frame; 8 FPS; 192×48; lặp; chưa có; PROPOSED
+- [ ] **char.trang.idle.down** — `sprites/trang/idle_down.png` — 32×48/frame; 2 frame; 2 FPS; 64×48; lặp; có bản thử 32×32/sáu frame tại 09, bản sản xuất chưa nghiệm thu; PROPOSED
+- [ ] **char.trang.idle.up** — `sprites/trang/idle_up.png` — 32×48/frame; 2 frame; 2 FPS; 64×48; lặp; chưa có; PROPOSED
+- [ ] **char.trang.idle.left** — `sprites/trang/idle_left.png` — 32×48/frame; 2 frame; 2 FPS; 64×48; lặp; chưa có; PROPOSED
+- [ ] **char.trang.idle.right** — `sprites/trang/idle_right.png` — 32×48/frame; 2 frame; 2 FPS; 64×48; lặp; chưa có; PROPOSED
+- [ ] **char.duc.idle.down** — `sprites/duc/idle_down.png` — 32×48/frame; 2 frame; 2 FPS; 64×48; lặp; có bản thử 32×32/sáu frame tại 09, bản sản xuất chưa nghiệm thu; PROPOSED
+- [ ] **char.duc.idle.up** — `sprites/duc/idle_up.png` — 32×48/frame; 2 frame; 2 FPS; 64×48; lặp; chưa có; PROPOSED
+- [ ] **char.duc.idle.left** — `sprites/duc/idle_left.png` — 32×48/frame; 2 frame; 2 FPS; 64×48; lặp; chưa có; PROPOSED
+- [ ] **char.duc.idle.right** — `sprites/duc/idle_right.png` — 32×48/frame; 2 frame; 2 FPS; 64×48; lặp; chưa có; PROPOSED
+- [ ] **char.nam.idle.down** — `sprites/nam/idle_down.png` — 32×48/frame; 2 frame; 2 FPS; 64×48; lặp; có bản thử 32×32/một frame tại 09, bản sản xuất chưa nghiệm thu; PROPOSED
+- [ ] **char.nam.idle.up** — `sprites/nam/idle_up.png` — 32×48/frame; 2 frame; 2 FPS; 64×48; lặp; chưa có; PROPOSED
+- [ ] **char.nam.idle.left** — `sprites/nam/idle_left.png` — 32×48/frame; 2 frame; 2 FPS; 64×48; lặp; chưa có; PROPOSED
+- [ ] **char.nam.idle.right** — `sprites/nam/idle_right.png` — 32×48/frame; 2 frame; 2 FPS; 64×48; lặp; chưa có; PROPOSED
+- [ ] **char.hung.idle.down** — `sprites/hung/idle_down.png` — 32×48/frame; 2 frame; 2 FPS; 64×48; lặp; có bản thử 32×32/một frame tại 09, bản sản xuất chưa nghiệm thu; PROPOSED
+- [ ] **char.hung.idle.up** — `sprites/hung/idle_up.png` — 32×48/frame; 2 frame; 2 FPS; 64×48; lặp; chưa có; PROPOSED
+- [ ] **char.hung.idle.left** — `sprites/hung/idle_left.png` — 32×48/frame; 2 frame; 2 FPS; 64×48; lặp; chưa có; PROPOSED
+- [ ] **char.hung.idle.right** — `sprites/hung/idle_right.png` — 32×48/frame; 2 frame; 2 FPS; 64×48; lặp; chưa có; PROPOSED
+- [ ] **char.linh.pose.phone** — `sprites/linh/pose_phone.png` — 32×48/frame; 4 frame; 8 FPS; 128×48; một lần, giữ frame cuối; chưa có; PROPOSED
+- [ ] **char.linh.pose.book** — `sprites/linh/pose_book.png` — 32×48/frame; 1 frame; 1 FPS; 32×48; một lần, giữ frame cuối; chưa có; PROPOSED
+- [ ] **char.hung.pose.write** — `sprites/hung/pose_write.png` — 32×48/frame; 6 frame; 8 FPS; 192×48; một lần, giữ frame cuối; chưa có; PROPOSED
+- [ ] **char.nga.idle.down** — `sprites/nga/idle_down.png` — 32×48/frame; 1 frame; 1 FPS; 32×48; lặp; chưa có; PROPOSED
+- [ ] **char.nga.idle.up** — `sprites/nga/idle_up.png` — 32×48/frame; 1 frame; 1 FPS; 32×48; lặp; chưa có; PROPOSED
+- [ ] **char.nga.walk.down** — `sprites/nga/walk_down.png` — 32×48/frame; 6 frame; 8 FPS; 192×48; lặp; chưa có; PROPOSED
+- [ ] **char.nga.pose.seated** — `sprites/nga/pose_seated.png` — 32×48/frame; 1 frame; 1 FPS; 32×48; một lần, giữ frame cuối; chưa có; PROPOSED
+- [ ] **char.nga.pose.point** — `sprites/nga/pose_point.png` — 32×48/frame; 4 frame; 8 FPS; 128×48; một lần, giữ frame cuối; chưa có; PROPOSED
 
 ### Portrait
 
@@ -238,8 +244,8 @@ Thông số, nội dung, trạng thái kiểm kê và tuyến tích hợp của 
 - [ ] A/B hợp lệ, C bật trong test riêng; artwork/audio không đổi ý nghĩa truyện.
 - [ ] Đồng bộ master/artist/AI sau thay spec, ghi lỗi chưa xong.
 
-## Biên bản đợt (để trống tới khi có bàn giao)
+## Biên bản đợt
 
 | Ngày / batch | ID | File + checksum | Spec đã duyệt | Cấu hình/source đổi | Test thực chạy | Lỗi còn mở | Người duyệt |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| Chưa có đợt import | — | — | — | — | — | — | — |
+| 13/10/2026 · nhập thử | Năm `char.*.idle.down`; `map.story.room_304` | [Biên bản 09](09_IMPORTED_ASSETS_2026-10-13.md); ảnh phòng cuối đang chờ | Ngoại lệ 32×32; idle tĩnh Năm/Hùng; PNG phòng tạm theo yêu cầu người dùng | Manifest/profile nhân vật; nền phòng và geometry theo ảnh chỉnh | Build/regression/quan sát game: đang chờ ghi kết quả tại 09 | Thiếu bộ sản xuất; quyền sử dụng chưa có thông tin; ảnh phòng cuối/chứng cứ kiểm thử đang chờ | Chưa nghiệm thu art sản xuất |

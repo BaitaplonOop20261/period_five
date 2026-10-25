@@ -35,6 +35,7 @@ public final class GameScreen extends ScreenAdapter {
     private boolean paused,finished,skipFrame;
     private float fadeRemaining,walkDistance;
     private String mode="";
+    private SceneCatalog.ObjectDef inspectedObject;
     public GameScreen(GameAssets assets,StoryContent content,SceneCatalog catalog,SaveStore saves,AudioSettings audio,boolean skipOpening,SaveStore.Loaded saved,Runnable menu,Runnable load,Consumer<Ending> finish) {
         this.assets=assets;this.content=content;this.catalog=catalog;this.saves=saves;this.audio=audio;this.menu=menu;this.load=load;this.finish=finish;
         try {panel=new UiPanel(assets);dialogueUI=new DialogueUI(assets,DialogueLayout.load(assets.catalog().path("story.ui.layout")));
@@ -62,7 +63,8 @@ public final class GameScreen extends ScreenAdapter {
         if(!next.equals(mode)){mode=next;input.modeChanged();dialogueUI.clearCommands();panel.clearCommands();}
         InputProcessor processor=paused?panel.stage():session.dialogue().isActive()&&fadeRemaining==0?dialogueUI.getStage():null;
         if(Gdx.input.getInputProcessor()!=processor) Gdx.input.setInputProcessor(processor);
-        dialogueUI.present(session.dialogue(),world.scene().name,session.dialogue().isActive()?world.visuals().document(session.dialogue().getLine().getId(),session.block()):null);
+        if(session.exploring()||session.isNotes())inspectedObject=null;
+        dialogueUI.present(session.dialogue(),world.scene().name,session.dialogue().isActive()?world.visuals().document(session.dialogue().getLine().getId(),session.block()):null,inspectedObject==null?null:StoryWorldView.inspectionAsset(inspectedObject,session.state()),inspectedObject==null?null:inspectedObject.name);
     }
     @Override public void show(){sync();}
     @Override public void render(float delta) {
@@ -90,7 +92,7 @@ public final class GameScreen extends ScreenAdapter {
                 boolean confirm=input.pressed(Input.Keys.ENTER)||dialogueUI.getHud().consumeContinueRequest();
                 if(choice==null && confirm && dialogueUI.isChoosing()) choice=dialogueUI.selectedChoiceId();
                 if(choice!=null) session.choose(choice);else if(confirm && dialogueUI.continueText()) session.advance();
-            } else if(exploration && (input.pressed(Input.Keys.E)||input.pressed(Input.Keys.ENTER))) {world.update(0,session,player);String target=world.target();if(target!=null) session.interact(target);}
+            } else if(exploration && (input.pressed(Input.Keys.E)||input.pressed(Input.Keys.ENTER))) {world.update(0,session,player);String target=world.target();if(target!=null){inspectedObject=world.scene().objects.stream().filter(o->o.id.equals(target)).findFirst().orElse(null);session.interact(target);}}
         }
         boolean move=exploration && session.exploring() && fadeRemaining==0 && revision==session.dialogue().getRevision() && !input.pressed(Input.Keys.N);
         float beforeX=player.getX(),beforeY=player.getY();

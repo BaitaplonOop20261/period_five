@@ -87,6 +87,52 @@ public final class StoryDesktopChecks {
         System.out.println("TMX adapter checks passed: real loader/renderer, pixel scale, Y conversion, ID preservation, missing-layer rejection.");
     }
     private static void menuPress(MenuScreen menu,int key){keys=Set.of(key);menu.render(1f/60);keys=Set.of();menu.render(1f/60);}
+    private static void checkInspectionUi() {
+        walk("window");frame();
+        int[] before=roomPixel(330,190);
+        float x=screen.player().getX(),y=screen.player().getY();
+        String progress=ProgressSnapshot.encode(screen.session().state());
+        frame(Input.Keys.E,Input.Keys.D);interactions++;
+        check("inspection.window".equals(screen.dialogueUI().inspectionAsset()),"E shows the selected close-up immediately");
+        String first=screen.session().dialogue().getLine().getText();
+        for(int i=0;i<8;i++)frame(Input.Keys.E,Input.Keys.D);
+        check(screen.player().getX()==x&&screen.player().getY()==y,"Inspection blocks movement");
+        check(first.equals(screen.session().dialogue().getLine().getText()),"Held E must not skip inspected object text");
+        check(progress.equals(ProgressSnapshot.encode(screen.session().state())),"Viewing a window must not grant progress");
+        int[] dark=roomPixel(330,190);
+        check(dark[0]+dark[1]+dark[2]<(before[0]+before[1]+before[2])*.5f,"Inspection darkens the world behind the artwork");
+        screen.dialogueUI().continueText();frame();snapshot("inspection-window-16x9");
+        var art=(com.badlogic.gdx.scenes.scene2d.ui.Image)screen.dialogueUI().getStage().getRoot().findActor("inspection-art");
+        check(art.isVisible()&&art.getY()>170&&art.getTop()<420,"Close-up fits above the dialogue text");
+        int loaded=assets.loadedCount();
+        press(Input.Keys.ESCAPE);frame(Input.Keys.D);check(screen.isPaused(),"Pause remains available over inspection");
+        press(Input.Keys.ESCAPE);frame();check("inspection.window".equals(screen.dialogueUI().inspectionAsset()),"Resume preserves selected object");
+        Gdx.graphics.setWindowedMode(800,600);Gdx.input=scripted;screen.resize(800,600);frame();snapshot("inspection-window-4x3");
+        check(art.isVisible(),"Resize preserves close-up");
+        Gdx.graphics.setWindowedMode(960,540);Gdx.input=scripted;screen.resize(960,540);frame();
+        drain();check(screen.dialogueUI().inspectionAsset()==null,"Finishing interaction removes close-up");
+        press(Input.Keys.E);interactions++;
+        check("inspection.window".equals(screen.dialogueUI().inspectionAsset()),"Repeated E reopens the same object");
+        check(assets.loadedCount()==loaded,"Repeated inspection reuses managed textures");drain();
+        press(Input.Keys.N);check(screen.dialogueUI().inspectionAsset()==null,"Notes must not retain the previous object");press(Input.Keys.N);
+        walk("cabinet");press(Input.Keys.E);interactions++;
+        check("inspection.cabinet_locked".equals(screen.dialogueUI().inspectionAsset()),"Locked cabinet uses its close-up variant");
+        screen.dialogueUI().continueText();frame();snapshot("inspection-cabinet-16x9");drain();
+        walk("player");press(Input.Keys.E);interactions++;
+        check("inspection.player".equals(screen.dialogueUI().inspectionAsset()),"Cassette player uses full-size close-up");
+        screen.dialogueUI().continueText();frame();snapshot("inspection-player-16x9");drain();
+        walk("trang");press(Input.Keys.E);interactions++;
+        check(screen.dialogueUI().inspectionAsset()==null,"NPC dialogue must not reuse object close-up");drain();
+        System.out.println("Inspection UI passed: E/held keys, real dim pixels, movement lock, pause/resume, resize 16:9/4:3, repeat/cache, notes and NPC cleanup.");
+    }
+    private static int[] roomPixel(float worldX,float worldY) {
+        int width=Gdx.graphics.getBackBufferWidth(),height=Gdx.graphics.getBackBufferHeight();
+        float scale=Math.min(width/640f,height/480f);
+        int viewportWidth=Math.round(640*scale),viewportHeight=Math.round(480*scale);
+        int x=(width-viewportWidth)/2+(int)(worldX*viewportWidth/640),y=(height-viewportHeight)/2+(int)(worldY*viewportHeight/480);
+        byte[] pixel=com.badlogic.gdx.utils.ScreenUtils.getFrameBufferPixels(x,y,1,1,false);
+        return new int[]{Byte.toUnsignedInt(pixel[0]),Byte.toUnsignedInt(pixel[1]),Byte.toUnsignedInt(pixel[2])};
+    }
     private static void checkAll() throws Exception {
         original=Gdx.input;scripted=(Input)Proxy.newProxyInstance(Input.class.getClassLoader(),new Class<?>[]{Input.class},(proxy,method,args)->{if(method.getName().equals("isKeyPressed")||method.getName().equals("isKeyJustPressed"))return keys.contains((Integer)args[0]);return method.invoke(original,args);});Gdx.input=scripted;
         assets=new GameAssets();assets.validateRequired();AssetCatalog manifest=assets.catalog();content=StoryContent.load(Gdx.files.internal(manifest.path("story.content")));world=SceneCatalog.load(Gdx.files.internal(manifest.path("story.world")),manifest);
@@ -98,6 +144,14 @@ public final class StoryDesktopChecks {
             check(!side.getKeyFrame(0).isFlipX() && mirrored.getKeyFrame(0).isFlipX(),"Opposite walking directions must mirror independently");
             check(!assets.animation("char.linh.walk.side").getKeyFrame(0).isFlipX(),"Mirroring must not mutate shared sprite frames");
             begin(false,null);snapshot("explore-16x9");
+            checkInspectionUi();begin(false,null);
+            var cameraField=StoryWorldView.class.getDeclaredField("camera");cameraField.setAccessible(true);
+            var follow=(FollowCamera)cameraField.get(screen.world());
+            screen.world().scene().followCamera=true;frame();float cameraStart=follow.position.x;
+            check(follow.viewportWidth==320,"Optional follow camera viewport");
+            screen.player().setPosition(480,90);frame();check(follow.position.x>cameraStart,"Optional camera follows player");
+            screen.world().scene().followCamera=false;begin(false,null);frame();
+            check(((FollowCamera)cameraField.get(screen.world())).viewportWidth==640,"Default keeps full-room view");
             screen.player().setPosition(112,368);frame();snapshot("desk-behind");
             screen.player().setPosition(112,318);frame();snapshot("desk-front");
             begin(false,null);

@@ -8,18 +8,28 @@ Menu tạm dừng có tiếp tục, lưu/tải, hướng dẫn, âm thanh và v�
 
 Art, portrait, TMX và âm thanh tuỳ chọn còn thiếu; runtime dùng hình học/nhân vật đơn giản, hiển thị chữ và bỏ qua clip thiếu để vẫn chơi được. File bắt buộc hoặc asset có sẵn nhưng sai định dạng báo lỗi rõ. Các kết nối trình bày và kiểm tra tự động không thay thế nghiệm thu mỹ thuật/âm thanh với tài nguyên hoàn chỉnh.
 
+Bản ghép 24/10/2026 giữ nền phòng 304 đã xóa bàn giáo viên cũ, 20 bộ bàn ghế và world 640×480. Bàn giáo viên dùng sprite register tách lớp; nhân vật được vẽ trước/sau bàn theo vị trí. Linh có idle và animation đi bốn hướng; Trang, Đức, Bà Năm, Thầy Hùng có idle và Nga dùng một frame.
+
+Các bản bố trí 320×240 trước đây vẫn được lưu trong lịch sử Git và tài liệu tham khảo. Tọa độ, collision, spawn và vùng tương tác hiện tại lấy từ config/story-world.json; không áp lại tọa độ cũ vào nền hiện tại.
+
+Camera mặc định hiển thị toàn phòng. Có thể đặt "followCamera": true trong từng scene của story-world.json để dùng camera bám Linh với khung nhìn 320×240 và giới hạn mép map. HUD giữ vị trí cố định; bản demo kiểm thử vẫn dùng camera bám.
+
 ## Điều khiển luồng chính
 
 | Thao tác | Phím |
 | --- | --- |
 | Di chuyển | WASD hoặc phím hướng |
-| Tương tác với vật/NPC gần nhất | E |
+| Tương tác với vật/NPC gần nhất | E hoặc Enter |
 | Hiện hết chữ / tiếp tục thoại | Enter hoặc nút Tiếp tục |
 | Chọn phương án/menu | ↑/↓, Enter; có thể nhấp chuột |
 | Mở/đóng ghi chú khi khám phá/đọc ghi chú | N |
 | Tạm dừng / tiếp tục | Esc |
 
 Thoại, ghi chú, chuyển phòng và pause khóa di chuyển. Phím đang giữ khi đổi ngữ cảnh phải được thả rồi nhấn lại; lần nhấn mở tương tác không đồng thời bỏ qua câu đầu. Tiến trình chỉ cập nhật khi bước truyện hoàn tất; có cassette khác với đã nghe cassette.
+
+Tên nhân vật luôn hiện màu trắng trên đầu. Đồ vật chỉ hiện tên vàng khi được chọn và có thể tương tác; không hiện marker trên NPC. Các ghi chú marker/viền vàng ngày 17/10 là lịch sử trước lần ghép này.
+
+Khi nhấn **E hoặc Enter** vào đồ vật, UI làm tối cảnh và hiện ảnh cận cảnh phía trên lời thoại. Ảnh đổi theo trạng thái tủ, sổ, thùng, máy cassette và hồ sơ. Dùng **Enter / Tiếp tục** để đọc và hoàn tất tương tác; **Esc** tạm dừng rồi tiếp tục tại ảnh đang xem. Bộ ảnh lấy từ `ASSET_SPEC/download`, được đóng gói trong `game/assets/ui/inspection/`; xem [bảng tích hợp](ASSET_SPEC/10_INTERACTION_CLOSEUPS_2026-10-17.md).
 
 <a id="moi-truong-phat-trien-chung"></a>
 ## Môi trường phát triển chung
