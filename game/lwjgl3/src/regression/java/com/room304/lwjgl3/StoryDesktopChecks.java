@@ -147,11 +147,16 @@ public final class StoryDesktopChecks {
             checkInspectionUi();begin(false,null);
             var cameraField=StoryWorldView.class.getDeclaredField("camera");cameraField.setAccessible(true);
             var follow=(FollowCamera)cameraField.get(screen.world());
-            screen.world().scene().followCamera=true;frame();float cameraStart=follow.position.x;
-            check(follow.viewportWidth==320,"Optional follow camera viewport");
-            screen.player().setPosition(480,90);frame();check(follow.position.x>cameraStart,"Optional camera follows player");
-            screen.world().scene().followCamera=false;begin(false,null);frame();
-            check(((FollowCamera)cameraField.get(screen.world())).viewportWidth==640,"Default keeps full-room view");
+            for(RoomId roomId:world.rooms()) {
+                screen.world().enter(roomId);screen.session().state().enteredRoom(roomId);
+                screen.player().setPosition(300,200);frame();float cameraStart=follow.position.x;
+                check(follow.viewportWidth==480&&follow.viewportHeight==360,"Follow camera uses 480x360 in "+roomId);
+                screen.player().setPosition(400,200);frame();check(follow.position.x>cameraStart,"Camera follows player in "+roomId);
+                screen.player().setPosition(16,16);frame();check(follow.position.x==240&&follow.position.y==180,"Camera stops at lower-left map edge in "+roomId);
+                var scene=screen.world().scene();screen.player().setPosition(scene.width-32,scene.height-58);frame();
+                check(follow.position.x==scene.width-240&&follow.position.y==scene.height-180,"Camera stops at upper-right map edge in "+roomId);
+            }
+            begin(false,null);frame();
             screen.player().setPosition(112,368);frame();snapshot("desk-behind");
             screen.player().setPosition(112,318);frame();snapshot("desk-front");
             begin(false,null);

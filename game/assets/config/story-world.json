@@ -280,6 +280,7 @@
   "scenes": [
     {
       "id": "ROOM_304",
+      "followCamera": true,
       "name": "Phòng 304",
       "width": 640,
       "height": 480,
@@ -679,6 +680,7 @@
     },
     {
       "id": "HALLWAY",
+      "followCamera": true,
       "name": "Hành lang tầng ba",
       "width": 640,
       "height": 480,
@@ -833,6 +835,7 @@
     },
     {
       "id": "GUARD_ROOM",
+      "followCamera": true,
       "name": "Phòng bảo vệ",
       "width": 640,
       "height": 480,
@@ -952,6 +955,7 @@
     },
     {
       "id": "CLASSROOM",
+      "followCamera": true,
       "name": "Lớp học bên cạnh",
       "width": 640,
       "height": 480,

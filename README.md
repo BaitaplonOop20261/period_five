@@ -12,7 +12,7 @@ Bản ghép 24/10/2026 giữ nền phòng 304 đã xóa bàn giáo viên cũ, 20
 
 Các bản bố trí 320×240 trước đây vẫn được lưu trong lịch sử Git và tài liệu tham khảo. Tọa độ, collision, spawn và vùng tương tác hiện tại lấy từ config/story-world.json; không áp lại tọa độ cũ vào nền hiện tại.
 
-Camera mặc định hiển thị toàn phòng. Có thể đặt "followCamera": true trong từng scene của story-world.json để dùng camera bám Linh với khung nhìn 320×240 và giới hạn mép map. HUD giữ vị trí cố định; bản demo kiểm thử vẫn dùng camera bám.
+Camera mặc định bám theo Linh trong cả bốn khu vực với khung nhìn 480×360 và dừng tại mép bản đồ. Mỗi scene trong story-world.json bật "followCamera": true; HUD và hội thoại giữ canvas 640×480 riêng, cố định trên màn hình.
 
 ## Điều khiển luồng chính
 

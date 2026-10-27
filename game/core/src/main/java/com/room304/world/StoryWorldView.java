@@ -143,7 +143,7 @@ public final class StoryWorldView implements Disposable {
         return result;
     }
     public void render(StorySession session,Player player) {
-        viewport.setWorldSize(scene.followCamera?320:scene.width,scene.followCamera?240:scene.height);viewport.apply();if(scene.followCamera)camera.follow(player.getX()+player.getBounds().width/2,player.getY()+player.getSpriteHeight()/2,scene.width,scene.height);else{camera.position.set(scene.width/2,scene.height/2,0);camera.update();}shapes.setProjectionMatrix(camera.combined);batch.setProjectionMatrix(camera.combined);
+        viewport.setWorldSize(scene.followCamera?480:scene.width,scene.followCamera?360:scene.height);viewport.apply();if(scene.followCamera)camera.follow(player.getX()+player.getBounds().width/2,player.getY()+player.getSpriteHeight()/2,scene.width,scene.height);else{camera.position.set(scene.width/2,scene.height/2,0);camera.update();}shapes.setProjectionMatrix(camera.combined);batch.setProjectionMatrix(camera.combined);
         boolean cold=session.state().phenomenon()==Phenomenon.ACTIVE || (session.block()!=null && session.block().startsWith("C1-04-HAUNT"));
         shapes.begin(ShapeRenderer.ShapeType.Filled);shapes.setColor(cold?new Color(.08f,.12f,.16f,1):new Color(.18f,.17f,.13f,1));shapes.rect(0,0,scene.width,scene.height);
         shapes.setColor(.09f,.09f,.10f,1);for(SceneCatalog.Box b:scene.collisions) shapes.rect(b.x,b.y,b.width,b.height);
