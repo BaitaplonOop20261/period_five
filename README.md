@@ -27,7 +27,7 @@ Camera mặc định bám theo Linh trong cả bốn khu vực với khung nhìn
 
 Thoại, ghi chú, chuyển phòng và pause khóa di chuyển. Phím đang giữ khi đổi ngữ cảnh phải được thả rồi nhấn lại; lần nhấn mở tương tác không đồng thời bỏ qua câu đầu. Tiến trình chỉ cập nhật khi bước truyện hoàn tất; có cassette khác với đã nghe cassette.
 
-Tên nhân vật luôn hiện màu trắng trên đầu. Đồ vật chỉ hiện tên vàng khi được chọn và có thể tương tác; không hiện marker trên NPC. Các ghi chú marker/viền vàng ngày 17/10 là lịch sử trước lần ghép này.
+Tên nhân vật luôn hiện màu trắng trên đầu. Đồ vật chỉ hiện tên vàng khi được chọn và có thể tương tác. Animation `ui/interaction_mark.png` hiện trên đúng một mục tiêu gần nhất trong tầm và hướng tương tác, gồm đồ vật, cửa và NPC; phím E/Enter dùng cùng mục tiêu. Dấu cao 18 world unit, giữ tỉ lệ frame 8:25 và nằm trong khung camera 480×360. Khi hai mục tiêu cách đều nhau, giữ mục tiêu đang chọn để tránh nhấp nháy; ẩn dấu khi đọc thoại, ghi chú, tạm dừng hoặc chuyển phòng.
 
 Khi nhấn **E hoặc Enter** vào đồ vật, UI làm tối cảnh và hiện ảnh cận cảnh phía trên lời thoại. Ảnh đổi theo trạng thái tủ, sổ, thùng, máy cassette và hồ sơ. Dùng **Enter / Tiếp tục** để đọc và hoàn tất tương tác; **Esc** tạm dừng rồi tiếp tục tại ảnh đang xem. Bộ ảnh lấy từ `ASSET_SPEC/download`, được đóng gói trong `game/assets/ui/inspection/`; xem [bảng tích hợp](ASSET_SPEC/10_INTERACTION_CLOSEUPS_2026-10-17.md).
 

@@ -72,7 +72,7 @@ public final class GameScreen extends ScreenAdapter {
         walkDistance=0;boolean skipped=skipFrame;skipFrame=false;
         if(input.pressed(Input.Keys.ESCAPE)||dialogueUI.getHud().consumeMenuRequest()){if(paused) resumePlay();else pausePlay();skipped=true;}
         if(!paused && fadeRemaining==0 && !skipped) update(delta);
-        sound.update(session,paused,delta,walkDistance);world.render(session,player);dialogueUI.draw();
+        sound.update(session,paused,delta,walkDistance);world.render(session,player,!paused && fadeRemaining==0);dialogueUI.draw();
         if(paused){panel.key(input.choiceDirection(),input.pressed(Input.Keys.ENTER));panel.adjustAudio((input.pressed(Input.Keys.RIGHT)?1:0)-(input.pressed(Input.Keys.LEFT)?1:0));panel.draw(delta);panel.executeCommand();}
         else if(fadeRemaining>0) {
             fadeViewport.apply();Gdx.gl.glEnable(com.badlogic.gdx.graphics.GL20.GL_BLEND);Gdx.gl.glBlendFunc(com.badlogic.gdx.graphics.GL20.GL_SRC_ALPHA,com.badlogic.gdx.graphics.GL20.GL_ONE_MINUS_SRC_ALPHA);

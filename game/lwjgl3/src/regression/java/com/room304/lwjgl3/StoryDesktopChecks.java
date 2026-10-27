@@ -87,6 +87,54 @@ public final class StoryDesktopChecks {
         System.out.println("TMX adapter checks passed: real loader/renderer, pixel scale, Y conversion, ID preservation, missing-layer rejection.");
     }
     private static void menuPress(MenuScreen menu,int key){keys=Set.of(key);menu.render(1f/60);keys=Set.of();menu.render(1f/60);}
+    private static byte[] interactionPixels(String id) throws ReflectiveOperationException {
+        float x,y,width;
+        if(screen.session().visibleNpcs().contains(id)) {
+            var npc=world.npc(id);var p=screen.world().actorPosition(id,screen.session(),screen.player());
+            width=npc.canvasWidth*npc.scale;x=p.x+npc.footWidth/2-width*npc.anchorX;
+            y=p.y+npc.canvasHeight*npc.scale*(1-npc.anchorY)+20;
+        } else {var object=screen.world().scene().object(id);x=object.x;y=object.y+object.height+20;width=object.width;}
+        var field=StoryWorldView.class.getDeclaredField("viewport");field.setAccessible(true);
+        var viewport=(com.badlogic.gdx.utils.viewport.Viewport)field.get(screen.world());
+        var lower=viewport.project(new com.badlogic.gdx.math.Vector3(x,y,0));
+        var upper=viewport.project(new com.badlogic.gdx.math.Vector3(x+width,y+24,0));
+        return com.badlogic.gdx.utils.ScreenUtils.getFrameBufferPixels((int)lower.x,(int)lower.y,(int)Math.ceil(upper.x-lower.x),(int)Math.ceil(upper.y-lower.y),false);
+    }
+    private static boolean hasInteractionMark(String id) throws ReflectiveOperationException {
+        byte[] shown=interactionPixels(id);
+        screen.world().render(screen.session(),screen.player(),false);
+        byte[] hidden=interactionPixels(id);
+        screen.world().render(screen.session(),screen.player(),true);
+        return !Arrays.equals(shown,hidden);
+    }
+    private static void checkInteractionMarks() throws ReflectiveOperationException {
+        screen.player().setPosition(488,240);screen.player().restoreFacing("right");frame();
+        check("player".equals(screen.world().target()),"Closer cassette player wins overlapping interaction ranges");
+        byte[] first=interactionPixels("player");check(hasInteractionMark("player"),"Selected object renders the actual marker pixels");
+        check(!hasInteractionMark("crate"),"Only one of the nearby objects receives a marker");
+        snapshot("interaction-player-16x9");tick();
+        check(!Arrays.equals(first,interactionPixels("player")),"Interaction marker advances through its animation frames");
+        screen.player().setPosition(488,239);frame();check("player".equals(screen.world().target()),"Exact distance tie retains the selected object");
+        screen.player().setPosition(488,238);frame();check("crate".equals(screen.world().target()),"Slightly closer crate immediately replaces the previous target");
+        check(hasInteractionMark("crate")&&!hasInteractionMark("player"),"Marker follows the selected target without leaving the old marker");
+        snapshot("interaction-crate-16x9");
+        screen.world().render(screen.session(),screen.player(),false);
+        check(!hasInteractionMark("crate"),"Paused/transition presentation suppresses the marker");frame();
+        press(Input.Keys.N);screen.world().render(screen.session(),screen.player(),true);
+        check(!hasInteractionMark("crate"),"Notes suppress interaction markers");press(Input.Keys.N);
+        press(Input.Keys.E);check(screen.session().dialogue().isActive(),"E interacts with the marked crate");
+        screen.world().render(screen.session(),screen.player(),true);
+        check(!hasInteractionMark("crate"),"Dialogue suppresses interaction markers");drain();
+        walk("trang");check(hasInteractionMark("trang"),"NPC receives the same interaction marker above its name");snapshot("interaction-npc-16x9");
+        Gdx.graphics.setWindowedMode(800,600);Gdx.input=scripted;screen.resize(800,600);frame();
+        check(hasInteractionMark("trang"),"Marker remains aligned after 4:3 resize");snapshot("interaction-npc-4x3");
+        Gdx.graphics.setWindowedMode(960,540);Gdx.input=scripted;screen.resize(960,540);
+        screen.player().setPosition(300,90);frame();check(screen.world().target()==null,"No interaction selected outside all ranges");
+        byte[] far=com.badlogic.gdx.utils.ScreenUtils.getFrameBufferPixels(0,0,Gdx.graphics.getBackBufferWidth(),Gdx.graphics.getBackBufferHeight(),false);
+        screen.world().render(screen.session(),screen.player(),false);
+        check(Arrays.equals(far,com.badlogic.gdx.utils.ScreenUtils.getFrameBufferPixels(0,0,Gdx.graphics.getBackBufferWidth(),Gdx.graphics.getBackBufferHeight(),false)),"No marker rendered when far from interactables");
+        System.out.println("Interaction markers passed: real animated pixels, nearest/tied/overlapping objects, E target, NPC, modal suppression, far range and resize.");
+    }
     private static void checkInspectionUi() {
         walk("window");frame();
         int[] before=roomPixel(330,190);
@@ -144,7 +192,7 @@ public final class StoryDesktopChecks {
             check(!side.getKeyFrame(0).isFlipX() && mirrored.getKeyFrame(0).isFlipX(),"Opposite walking directions must mirror independently");
             check(!assets.animation("char.linh.walk.side").getKeyFrame(0).isFlipX(),"Mirroring must not mutate shared sprite frames");
             begin(false,null);snapshot("explore-16x9");
-            checkInspectionUi();begin(false,null);
+            checkInteractionMarks();begin(false,null);checkInspectionUi();begin(false,null);
             var cameraField=StoryWorldView.class.getDeclaredField("camera");cameraField.setAccessible(true);
             var follow=(FollowCamera)cameraField.get(screen.world());
             for(RoomId roomId:world.rooms()) {

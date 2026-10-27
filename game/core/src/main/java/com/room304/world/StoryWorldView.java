@@ -20,6 +20,7 @@ import static com.room304.story.GameState.*;
 
 /** Asset-independent geometry and fallback presentation. TMX replaces geometry without replacing routing. */
 public final class StoryWorldView implements Disposable {
+    private static final float INTERACTION_MARK_HEIGHT = 18f;
     private final GameAssets assets;
     private final SceneCatalog catalog;
     private final StoryContent content;
@@ -30,6 +31,8 @@ public final class StoryWorldView implements Disposable {
     private final FitViewport hudViewport=new FitViewport(640,480);
     private final FitViewport viewport=new FitViewport(640,480,camera);
     private final RoomInteractionSystem selector=new RoomInteractionSystem(List.of());
+    private final Rectangle visibleBounds=new Rectangle();
+    private Animation<TextureRegion> interactionMarkAnimation;
     private final Map<String,Animation<TextureRegion>> animations=new HashMap<>();
     private final Map<String,Texture> textures=new HashMap<>();
     private SceneCatalog.Scene scene;
@@ -46,6 +49,7 @@ public final class StoryWorldView implements Disposable {
     public StoryWorldView(GameAssets assets,SceneCatalog catalog,StoryContent content,BitmapFont font) {
         this.assets=assets;this.catalog=catalog;this.content=content;this.font=font;
         try{visuals=StoryVisuals.load(Gdx.files.internal(assets.catalog().path("story.visuals")),assets.catalog(),content,catalog);
+        interactionMarkAnimation=assets.animation("ui.interaction");
         for(var a:catalog.player().animations.entrySet()){Animation<TextureRegion> animation=assets.animation(a.getValue(),catalog.player().mirrorWalkLeft && a.getKey().equals("walk.left"));if(animation!=null)animations.put("linh/"+a.getKey(),animation);}
         for(String npc:catalog.npcIds()) for(var a:catalog.npc(npc).animations.entrySet()) {
             Animation<TextureRegion> animation=assets.animation(a.getValue());if(animation!=null) animations.put(npc+"/"+a.getKey(),animation);
@@ -142,7 +146,7 @@ public final class StoryWorldView implements Disposable {
         for(String id:session.visibleNpcs()) if(!id.equals("nga")) {SceneCatalog.Point p=catalog.npcPosition(session.state(),id);result.add(new Wall(p.x,p.y,catalog.npc(id).footWidth,catalog.npc(id).footHeight));}
         return result;
     }
-    public void render(StorySession session,Player player) {
+    public void render(StorySession session,Player player,boolean interactionsEnabled) {
         viewport.setWorldSize(scene.followCamera?480:scene.width,scene.followCamera?360:scene.height);viewport.apply();if(scene.followCamera)camera.follow(player.getX()+player.getBounds().width/2,player.getY()+player.getSpriteHeight()/2,scene.width,scene.height);else{camera.position.set(scene.width/2,scene.height/2,0);camera.update();}shapes.setProjectionMatrix(camera.combined);batch.setProjectionMatrix(camera.combined);
         boolean cold=session.state().phenomenon()==Phenomenon.ACTIVE || (session.block()!=null && session.block().startsWith("C1-04-HAUNT"));
         shapes.begin(ShapeRenderer.ShapeType.Filled);shapes.setColor(cold?new Color(.08f,.12f,.16f,1):new Color(.18f,.17f,.13f,1));shapes.rect(0,0,scene.width,scene.height);
@@ -175,7 +179,7 @@ public final class StoryWorldView implements Disposable {
         drawEffects(session);
         font.setColor(Color.LIGHT_GRAY);font.getData().setScale(.68f);
         String selected=target();
-        if(selected!=null && session.exploring() && selector.getActiveTarget().getKind()!=RoomInteractionSystem.Kind.NPC) {
+        if(selected!=null && interactionsEnabled && session.exploring() && selector.getActiveTarget().getKind()!=RoomInteractionSystem.Kind.NPC) {
             SceneCatalog.ObjectDef object=scene.objects.stream().filter(o->o.id.equals(selected)).findFirst().orElse(null);
             Rectangle b=object==null?selector.getActiveTarget().getBounds():object.bounds();
             String label=object==null?catalog.npc(selected).name:(object.name==null?object.id:object.name);
@@ -183,9 +187,30 @@ public final class StoryWorldView implements Disposable {
             GlyphLayout measured=new GlyphLayout(font,label);font.setColor(Color.YELLOW);
             font.draw(batch,label,Math.max(8,Math.min(b.x+(b.width-measured.width)/2,scene.width-8-measured.width)),Math.min(scene.height-60,b.y+b.height+18));
         }
+        if(interactionsEnabled && session.exploring()) drawInteractionMark(session,player);
         batch.end();hudViewport.apply();batch.setProjectionMatrix(hudViewport.getCamera().combined);batch.begin();
         if(!session.overlay().equals("NONE")){font.setColor(session.overlay().equals("CLEAR_LINH")?Color.WHITE:Color.GRAY);font.draw(batch,session.overlay().equals("CLEAR_LINH")?"33. Linh":"Linh",260,390);}
         if(session.exploring()){font.setColor(Color.WHITE);font.getData().setScale(1);font.draw(batch,scene.name,16,scene.height-16);font.getData().setScale(.8f);font.draw(batch,session.objective(),16,scene.height-43);font.getData().setScale(.65f);font.draw(batch,"WASD / phím hướng · E tương tác · N ghi chú · Esc tạm dừng",16,24);}font.getData().setScale(1);batch.end();
+    }
+    private void drawInteractionMark(StorySession session,Player player) {
+        RoomInteractionSystem.Target target=selector.getActiveTarget();
+        if(target==null || interactionMarkAnimation==null) return;
+        TextureRegion frame=interactionMarkAnimation.getKeyFrame(time,true);
+        float height=INTERACTION_MARK_HEIGHT,width=height*frame.getRegionWidth()/frame.getRegionHeight();
+        float centerX,bottom;
+        if(target.getKind()==RoomInteractionSystem.Kind.NPC) {
+            var npc=catalog.npc(target.getId());var position=actorPosition(target.getId(),session,player);
+            centerX=position.x+npc.footWidth/2+npc.canvasWidth*npc.scale*(.5f-npc.anchorX);
+            bottom=position.y+npc.canvasHeight*npc.scale*(1-npc.anchorY)+22;
+        } else {
+            var object=scene.object(target.getId());
+            centerX=object.x+object.width/2;bottom=object.y+object.height+22;
+        }
+        // Keep the original frame aspect ratio and leave room for the target's name.
+        camera.visibleBounds(visibleBounds);
+        float x=MathUtils.clamp(centerX-width/2,visibleBounds.x+4,visibleBounds.x+visibleBounds.width-width-4);
+        float y=MathUtils.clamp(bottom,visibleBounds.y+4,visibleBounds.y+visibleBounds.height-height-4);
+        batch.setColor(Color.WHITE);batch.draw(frame,x,y,width,height);
     }
     private void updateVisuals(StorySession session){
         if(!Objects.equals(visualBlock,session.block())){poses.clear();poseTimes.clear();recording=false;effect=effectAsset=recordAsset=null;lastVisualLine=null;visualBlock=session.block();}
