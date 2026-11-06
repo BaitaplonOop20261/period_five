@@ -15,15 +15,18 @@ public final class DialogueLayout {
     public float textBottom = 66;
     public float textWidth = 650;
     public int textRows = 3;
-    public float nameGap = 14;
-    public float gradientHeight = 250;
+    public float nameGap = 24;
+    public float frameMargin = 24;
+    public float frameBottom = 16;
+    public float frameAlpha = .75f;
+    public float nameplateHeight = 30;
     public float dimAlpha = 0.22f;
     public float hudLeft = 48;
     public float hudTop = 26;
     public float controlsRight = 24;
-    public float controlsBottom = 30;
+    public float controlsBottom = 26;
     public float controlsWidth = 98;
-    public float buttonHeight = 46;
+    public float buttonHeight = 26;
     public float choiceWidth = 390;
     public float choiceHeight = 44;
     public float choiceGap = 8;
@@ -40,7 +43,6 @@ public final class DialogueLayout {
     public float hudPaddingY = 9;
     public float hudRowGap = 4;
     public float hudButtonGap = 8;
-    public float hintBottomGap = 28;
     public float placeholderTop = 30;
     public float placeholderWidth = 130;
     public float smallLabelHeight = 20;
@@ -54,11 +56,20 @@ public final class DialogueLayout {
         if (layout == null || layout.width <= 0 || layout.height <= 0 || layout.fontSize <= 0 || layout.textRows < 1
             || layout.textWidth <= 0 || layout.charactersPerSecond <= 0 || layout.portraitHeight <= 0
             || layout.portraitMaxWidth <= 0 || layout.textLeft < 0 || layout.textBottom < 0
-            || layout.textLeft + layout.textWidth > layout.width - layout.controlsRight - layout.controlsWidth
+            || layout.textLeft + layout.textWidth > layout.width - layout.frameMargin - 12
+            || layout.textLeft < layout.frameMargin + 12 || layout.frameMargin < 0 || layout.frameBottom < 0
+            || !Float.isFinite(layout.frameAlpha) || layout.frameAlpha < 0 || layout.frameAlpha > 1
+            || layout.nameplateHeight < layout.fontSize * layout.nameFontScale + 8
+            || layout.nameGap < layout.nameplateHeight / 2 + 6
+            || layout.controlsBottom < layout.frameBottom + 6
+            || layout.controlsBottom + layout.buttonHeight + 7 >= layout.textBottom
+            || layout.controlsRight < layout.frameMargin + 12
+            || layout.width - layout.controlsRight - layout.controlsWidth - DialogueHud.MENU_WIDTH
+                - layout.hudButtonGap - layout.textLeft < 100
             || layout.textBottom + layout.fontSize * layout.textRows + layout.nameGap >= layout.height
             || layout.dimAlpha < 0 || layout.dimAlpha > 1 || layout.buttonHeight <= 0
             || layout.controlsWidth <= 0 || layout.choiceWidth <= 0 || layout.choiceWidth > layout.width
-            || layout.choiceHeight <= 0 || layout.gradientHeight <= 0 || layout.gradientHeight > layout.height
+            || layout.choiceHeight <= 0
             || layout.fallbackPortrait == null
             || layout.font == null || layout.font.isBlank()) {
             throw new IllegalArgumentException("Invalid dialogue layout: " + path);

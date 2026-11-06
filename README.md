@@ -4,6 +4,8 @@ Game phiêu lưu pixel 2D / Visual Novel viết bằng Java 21 và libGDX, chạ
 
 **Bắt đầu** tạo lượt mới từ mở màn; `Room304Game` chuyển `MenuScreen` → `GameScreen`, nơi `StorySession` giữ tiến độ xuyên suốt bốn khu vực: phòng 304, hành lang tầng ba, phòng bảo vệ và lớp học. Người chơi đọc thoại/tài liệu, thu thập manh mối, dùng sổ ghi chú và lựa chọn nhánh truyện. Kết thúc C có code và dữ liệu, nhưng `enableC` trong `game/assets/config/story-world.json` mặc định là `false`.
 
+Lobby đầu game dùng nền trường học lúc hoàng hôn, logo bên trên và menu bên trái: **Play → Cài đặt → Hướng dẫn → Thoát**. Âm thanh nằm trong Cài đặt; Esc quay lại từng trang. Bản này luôn hiện Play, chưa hiện Continue kể cả khi có bản lưu. Play bắt đầu lượt mới và giữ file lưu cũ. Lobby dùng canvas 960×540; màn chơi, thoại và pause giữ viewport riêng. Xem [asset và bố cục lobby](ASSET_SPEC/15_MAIN_MENU_LOBBY_2026-11-06.md).
+
 Menu tạm dừng có tiếp tục, lưu/tải, hướng dẫn, âm thanh và về menu. Lưu thủ công dùng **một slot** `saves/room304.json`, tính từ thư mục làm việc; chỉ lưu ở trạng thái khám phá sau cảnh đầu, khi không đọc thoại, ghi chú hoặc chạy bước truyện. Bản lưu giữ tiến độ, phòng, tọa độ và hướng nhìn. Về menu bỏ phần tiến độ chưa lưu; chơi lại tạo lượt mới và có thể xem hoặc bỏ qua mở màn.
 
 Art, portrait, TMX và âm thanh tuỳ chọn còn thiếu; runtime dùng hình học/nhân vật đơn giản, hiển thị chữ và bỏ qua clip thiếu để vẫn chơi được. File bắt buộc hoặc asset có sẵn nhưng sai định dạng báo lỗi rõ. Các kết nối trình bày và kiểm tra tự động không thay thế nghiệm thu mỹ thuật/âm thanh với tài nguyên hoàn chỉnh.

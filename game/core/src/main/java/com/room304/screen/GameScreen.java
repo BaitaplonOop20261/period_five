@@ -38,7 +38,7 @@ public final class GameScreen extends ScreenAdapter {
     private SceneCatalog.ObjectDef inspectedObject;
     public GameScreen(GameAssets assets,StoryContent content,SceneCatalog catalog,SaveStore saves,AudioSettings audio,boolean skipOpening,SaveStore.Loaded saved,Runnable menu,Runnable load,Consumer<Ending> finish) {
         this.assets=assets;this.content=content;this.catalog=catalog;this.saves=saves;this.audio=audio;this.menu=menu;this.load=load;this.finish=finish;
-        try {panel=new UiPanel(assets);dialogueUI=new DialogueUI(assets,DialogueLayout.load(assets.catalog().path("story.ui.layout")));
+        try {panel=new UiPanel(assets,true);dialogueUI=new DialogueUI(assets,DialogueLayout.load(assets.catalog().path("story.ui.layout")));
         world=new StoryWorldView(assets,catalog,content,panel.font());
         GameState state=saved==null?new GameState():saved.state();world.enter(state.room());
         SceneCatalog.Point initial=world.scene().spawn("entry");player=new Player(assets,initial.x,initial.y,catalog.player());
