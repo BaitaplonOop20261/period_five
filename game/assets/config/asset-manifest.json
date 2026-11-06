@@ -394,7 +394,8 @@
       "id": "background.menu",
       "path": "ui/menu.png",
       "type": "texture",
-      "required": false
+      "required": false,
+      "filter": "Nearest"
     },
     {
       "id": "background.ending.a",

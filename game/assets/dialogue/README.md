@@ -1,6 +1,12 @@
 # Dialogue Presentation — Room304
 
-Một `DialogueUI` dùng chung cho tất cả hội thoại trong `GameScreen`. UI vẽ bằng Scene2D trên `FitViewport` 960 × 540, độc lập với camera world. Portrait ở trung tâm, tên và chữ ở dưới trái, background phủ viewport và HUD thời gian/địa điểm ở trên trái. Không có khung RPG hoặc nút lựa chọn giả.
+Một `DialogueUI` dùng chung cho tất cả hội thoại trong `GameScreen`. UI vẽ bằng Scene2D trên `FitViewport`, độc lập với camera world: luồng chính dùng canvas 640 × 480 trong `story/ui-layout.json`, demo regression dùng 960 × 540 trong `dialogue/ui-layout.json`.
+
+Khung thoại có nền than tối, viền vàng đồng hai lớp và góc pixel. Bảng tên gắn vào mép trên, tự vừa tên và ẩn khi lời dẫn không có người nói. Phím Enter, chỉ dẫn và nút Hiện hết/Tiếp tục, Esc · Menu nằm cùng một hàng bên trong khung. Lựa chọn có viền đồng và nền sáng hơn khi được chọn. `ui/PixelFrame` vẽ bằng pixel trắng dùng chung với menu, không cần ảnh khung tải ngoài; Skin tuỳ chọn vẫn có thể ghi đè `dialogue-frame`, `speaker-frame` và style nút.
+
+Layout chỉnh được `frameMargin`, `frameBottom`, `nameplateHeight`; mép trên khung được tính từ vùng chữ và `nameGap`. Luồng chính chừa ba hàng chữ rộng 556 đơn vị, câu dài tiếp tục được phân trang. `controlsRight`, `controlsBottom`, `controlsWidth`, `buttonHeight` xác định hàng nút. Các trường cũ `gradientHeight` và `hintBottomGap` đã được thay bằng bố cục khung/footer này.
+
+Nền khung thoại vẽ bằng code dùng `frameAlpha: 0.75`: 75% màu nền tối, 25% cảnh phía sau. Viền đồng, bảng tên và nút giữ màu rõ. `frameAlpha` nhận giá trị 0–1, chỉ thay alpha phần ruột; PixelFrame vẽ các dải không chồng nhau và giữ bóng ngoài khung để độ trong suốt đồng đều. Skin riêng có drawable `dialogue-frame` tự quyết định nền của drawable đó.
 
 ## Trách nhiệm và file
 
@@ -11,6 +17,7 @@ Một `DialogueUI` dùng chung cho tất cả hội thoại trong `GameScreen`. 
 - `DialogueHud`: hiển thị giờ/địa điểm và phát yêu cầu Tiếp tục/Menu. Không tự thay trạng thái game.
 - `DialogueLayout`: cấu hình chung trong `ui-layout.json`.
 - `DialogueAssets`: sở hữu font/chrome UI và mượn background/portrait từ `GameAssets` cấp ứng dụng. Nạp khi đổi câu; đóng thoại tháo drawable, giữ cache tới khi ứng dụng dispose. Constructor độc lập sở hữu cache riêng. Xem [manifest và bàn giao](../../../ASSET_INTEGRATION_GUIDE.md).
+- `ui/PixelFrame`: vẽ nền, đường viền và góc cố định bằng drawable dùng chung với menu; không tạo texture mỗi frame.
 - `GameScreen`: điều phối F/Enter, yêu cầu chuột, khóa di chuyển và pause. Render không tiến hội thoại hoặc thay state.
 
 `DialogueView` thử nghiệm đã được xóa. Không có adapter hoặc đường render UI cũ.
@@ -93,7 +100,7 @@ Từ thư mục gốc repo:
 
 Bắt đầu game, đi gần Trang ở phòng 305 và nhấn F. Ví dụ tích hợp có background, portrait PNG trong suốt, tên và ba câu tiếng Việt. Nội dung này chỉ là thử nghiệm giao diện, không thay cho kịch bản truyện chính thức.
 
-- F tương tác. Khi hội thoại đang mở, F/Enter hoặc nút **HIỆN HẾT** hoàn tất chữ của trang; lần nhấn sau mới chuyển trang/câu.
+- F tương tác. Khi hội thoại đang mở, F/Enter hoặc nút **Skip** hoàn tất chữ của trang; lần nhấn sau mới chuyển trang/câu. Khi chữ đang hiện dần, chỉ dẫn hiển thị **skipping**.
 - Câu dài tự xuống dòng và phân trang; một lần bấm không bỏ qua phần chưa đọc.
 - **MENU / Esc** mở pause hiện có. Pause dừng typewriter và gameplay; tiếp tục giữ nguyên câu, trang và phần chữ đã hiện.
 - Frame mở/đóng hội thoại đều chặn movement; frame sau khi đóng khôi phục điều khiển. Idle vẫn do Player cập nhật.

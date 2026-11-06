@@ -1,5 +1,19 @@
 # Room304 — Tiến độ phát triển
 
+Cập nhật 06/11/2026 — nền thoại bán trong suốt: `frameAlpha: 0.75` cho ruột khung, viền/bảng tên/nút giữ rõ. PixelFrame vẽ nền theo các dải không chồng nhau, bóng nằm ngoài khung, tránh alpha bị cộng dồn thành nền kín. Build/core và story desktop qua (19.168 frame, A/B/C); kiểm tra màu pixel trên nền biết trước xác nhận đúng 75% ở giữa và mép dưới, viền vẫn màu đồng đặc. Ảnh thực tế: `game/lwjgl3/build/dialogue-translucent-800x600.png`.
+
+Cập nhật 06/11/2026 — lobby đầu game: thay modal mở đầu bằng ảnh trường học hoàng hôn và logo tĩnh, canvas960×540; menu native bên trái **Play → Cài đặt → Hướng dẫn → Thoát**. Âm thanh nằm trong Cài đặt, Esc quay lại từng trang. Phiên bản này chỉ có Play dù đã có save; Play mở lượt mới, không xóa file lưu. Pause/ending vẫn dùng modal riêng. Ảnh `game/assets/ui/menu.png` tạo bằng ImageGen tích hợp theo mẫu được duyệt; [nguồn, prompt và bàn giao](ASSET_SPEC/15_MAIN_MENU_LOBBY_2026-11-06.md).
+
+Kiểm tra lobby: build/core regression và `lwjgl3:storyDesktopTest` qua, A/B/C, 63 tương tác và 19.167 frame. Kiểm tra thứ tự bốn nút, không có Continue khi save tồn tại, năm kích thước cửa sổ, keyboard wrap/Play, click Play/Cài đặt/Hướng dẫn, thay đổi âm lượng và Esc qua từng cấp. File save trước/sau Play được so sánh nguyên byte. Ảnh thực tế: `game/lwjgl3/build/story-lobby-1280x720.png`, `story-lobby-960x540.png`, `story-lobby-800x600.png`, `story-lobby-settings-audio.png`.
+
+Cập nhật 06/11/2026 — menu: áp dụng mẫu nền than và viền đồng cho khung menu giữa màn hình, tiêu đề “Tạm dừng” không có dòng tên phòng phía trên. Nút đang chọn có nền nâu, viền sáng và mũi tên pixel; footer có chọn lên/xuống, Enter và Esc. Trang hướng dẫn, âm thanh, xác nhận, menu chính và ending dùng chung kiểu khung, có vùng cuộn cho nội dung dài. Đưa drawable `DialogueFrame` sang `ui/PixelFrame` để dùng chung với hội thoại; không thêm dependency hoặc asset mạng.
+
+Kiểm tra menu: build/core regression và `lwjgl3:storyDesktopTest` qua (63 tương tác, 19.167 frame, A/B/C). Ca mới kiểm tra menu ở năm kích thước cửa sổ, không có phụ đề tên phòng, khóa di chuyển, click Hướng dẫn/Âm thanh/xác nhận/Tiếp tục, phím chỉnh âm lượng/tắt tiếng/quay lại. Ảnh thực tế: `game/lwjgl3/build/story-pause-menu-800x600.png`, `story-pause-menu-960x540.png`, `story-pause-help-16x9.png`, `story-pause-audio-16x9.png`.
+
+Cập nhật 06/11/2026 — khung hội thoại: áp dụng mẫu nền than, viền vàng đồng hai lớp, góc pixel, bảng tên gắn mép trên và footer Enter/Tiếp tục/Menu. Khung và biểu tượng tiếp tục vẽ bằng code, không thêm tài nguyên mạng hay dependency. Lựa chọn có màu focus cùng tông; lời dẫn không có người nói ẩn bảng tên. Luồng chính dùng vùng chữ 556 đơn vị × 3 hàng, giữ typewriter/phân trang và khóa input hiện có.
+
+Kiểm tra thay đổi UI: build/core regression và `lwjgl3:storyDesktopTest` qua, gồm A/B/C, 63 tương tác, 19.131 frame. Ca mới xác minh chữ/nút nằm trong khung, bảng tên gắn mép, resize 640×480/1280×960/800×600/960×540/1280×720, chuột Hiện hết/Tiếp tục/Menu và pause/resume. Ảnh chụp thực tế nằm trong `game/lwjgl3/build/story-dialogue-trang-960x540.png` và `story-dialogue-trang-800x600.png`. `lwjgl3:desktopRegressionTest` của demo cũ dừng ở yêu cầu portrait hiển thị vì thiếu `portraits/student_placeholder.png` (file không có trong HEAD); không coi bộ kiểm tra này đã qua.
+
 Hiện trạng sau ghép 24/10/2026: giữ bố trí 640×480, 20 bàn ghế, bàn giáo viên tách lớp và sprite/animation mới từ bản local; ghép 24 ảnh xem chi tiết theo trạng thái từ GitHub. Tên NPC luôn trắng, đồ vật hiện tên vàng khi tương tác. Camera bám là tùy chọn scene.followCamera, mặc định tắt. Các mốc bên dưới mô tả lịch sử trước lần ghép này.
 
 

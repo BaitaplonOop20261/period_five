@@ -11,6 +11,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.*;
 import com.badlogic.gdx.utils.*;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.room304.assets.GameAssets;
+import com.room304.ui.PixelFrame;
 import java.util.List;
 import java.util.ArrayList;
 import com.room304.story.StoryContent;
@@ -18,16 +19,23 @@ import com.room304.story.StoryContent;
 /** Functional menus and overlays. Commands are queued and run by the caller after drawing. */
 public final class UiPanel implements Disposable {
     public record Option(String text,Runnable action) {}
-    private final Stage stage=new Stage(new FitViewport(640,480));
+    private final Stage stage;
     private final BitmapFont font;
     private final Texture pixel;
+    private final Texture arrowTexture;
+    private final TextureRegionDrawable white, arrowDrawable;
+    private final Drawable frame, keycap;
+    private final ScrollPane.ScrollPaneStyle scrollStyle;
+    private final boolean pauseOverlay;
     private final TextButton.TextButtonStyle buttonStyle;
+    private final TextButton.TextButtonStyle lobbyButtonStyle;
     private final Skin skin;
     private final GameAssets assets;
     private final com.badlogic.gdx.scenes.scene2d.utils.Drawable defaultBackground;
     private Label.LabelStyle labels;
     private final Table root=new Table();
     private final List<TextButton> buttons=new ArrayList<>();
+    private final List<Image> markers=new ArrayList<>();
     private List<Option> options=List.of();
     private int selected;
     private Runnable command;
@@ -35,8 +43,14 @@ public final class UiPanel implements Disposable {
     private StoryContent audioContent;
     private Runnable audioBack;
     private ScrollPane optionsPane;
-    public UiPanel(GameAssets assets) {
+    private boolean hasBackgroundArt;
+    public UiPanel(GameAssets assets) { this(assets,false); }
+    public UiPanel(GameAssets assets,boolean pauseOverlay) { this(assets,pauseOverlay,new FitViewport(640,480)); }
+    public UiPanel(GameAssets assets,FitViewport viewport) { this(assets,false,viewport); }
+    private UiPanel(GameAssets assets,boolean pauseOverlay,FitViewport viewport) {
+        stage=new Stage(viewport);
         this.assets=assets;
+        this.pauseOverlay=pauseOverlay;
         FreeTypeFontGenerator generator=new FreeTypeFontGenerator(Gdx.files.internal(assets.catalog().path("font.ui")));
         try {
             FreeTypeFontGenerator.FreeTypeFontParameter p=new FreeTypeFontGenerator.FreeTypeFontParameter();p.size=18;
@@ -45,43 +59,127 @@ public final class UiPanel implements Disposable {
             p.minFilter=p.magFilter=Texture.TextureFilter.Linear;font=generator.generateFont(p);
         } finally { generator.dispose(); }
         Pixmap image=new Pixmap(1,1,Pixmap.Format.RGBA8888);image.setColor(Color.WHITE);image.fill();pixel=new Texture(image);image.dispose();
-        TextureRegionDrawable drawable=new TextureRegionDrawable(pixel);
-        TextButton.TextButtonStyle fallback=new TextButton.TextButtonStyle();fallback.font=font;fallback.fontColor=Color.WHITE;
-        fallback.up=drawable.tint(new Color(.07f,.10f,.14f,1));fallback.checked=fallback.over=drawable.tint(new Color(.20f,.32f,.40f,1));fallback.down=fallback.over;
-        try {skin=assets.optionalSkin(font);}catch(RuntimeException e){stage.dispose();font.dispose();pixel.dispose();throw e;}buttonStyle=skin!=null&&skin.has("default",TextButton.TextButtonStyle.class)?skin.get("default",TextButton.TextButtonStyle.class):fallback;
-        labels=skin!=null&&skin.has("default",Label.LabelStyle.class)?skin.get("default",Label.LabelStyle.class):new Label.LabelStyle(font,Color.WHITE);
-        defaultBackground=GameAssets.skinDrawable(skin,"menu-frame",drawable.tint(new Color(.02f,.025f,.04f,.95f)));root.setFillParent(true);root.setBackground(defaultBackground);stage.addActor(root);
+        white=new TextureRegionDrawable(pixel);
+        Pixmap triangle=new Pixmap(5,7,Pixmap.Format.RGBA8888);triangle.setColor(Color.WHITE);triangle.fillTriangle(0,0,0,6,4,3);
+        arrowTexture=new Texture(triangle);triangle.dispose();arrowDrawable=new TextureRegionDrawable(arrowTexture);
+        Color dark=new Color(.105f,.092f,.085f,1),gold=new Color(.70f,.55f,.33f,1),bright=new Color(.96f,.77f,.46f,1);
+        TextButton.TextButtonStyle fallback=new TextButton.TextButtonStyle();fallback.font=font;fallback.fontColor=new Color(.94f,.91f,.85f,1);
+        fallback.checkedFontColor=fallback.overFontColor=bright;
+        fallback.up=new PixelFrame(white.getRegion(),dark,new Color(.46f,.37f,.24f,1),false);
+        fallback.checked=fallback.over=new PixelFrame(white.getRegion(),new Color(.25f,.19f,.12f,1),bright,false);
+        fallback.down=new PixelFrame(white.getRegion(),new Color(.16f,.12f,.08f,1),gold,false);
+        try {skin=assets.optionalSkin(font);}catch(RuntimeException e){stage.dispose();font.dispose();pixel.dispose();arrowTexture.dispose();throw e;}buttonStyle=skin!=null&&skin.has("default",TextButton.TextButtonStyle.class)?skin.get("default",TextButton.TextButtonStyle.class):fallback;
+        lobbyButtonStyle=new TextButton.TextButtonStyle(fallback);
+        lobbyButtonStyle.up=white.tint(new Color(.04f,.035f,.025f,.12f));
+        lobbyButtonStyle.over=white.tint(new Color(.20f,.15f,.09f,.6f));
+        lobbyButtonStyle.checked=new PixelFrame(white.getRegion(),new Color(.20f,.15f,.09f,.7f),bright,false);
+        labels=skin!=null&&skin.has("default",Label.LabelStyle.class)?skin.get("default",Label.LabelStyle.class):new Label.LabelStyle(font,new Color(.96f,.93f,.85f,1));
+        frame=GameAssets.skinDrawable(skin,"menu-frame",new PixelFrame(white.getRegion(),dark,gold,true));
+        PixelFrame keyFrame=new PixelFrame(white.getRegion(),dark,gold,false);
+        keyFrame.setLeftWidth(3);keyFrame.setRightWidth(3);keyFrame.setTopHeight(1);keyFrame.setBottomHeight(1);keycap=keyFrame;
+        scrollStyle=new ScrollPane.ScrollPaneStyle();
+        BaseDrawable track=(BaseDrawable)white.tint(new Color(.32f,.27f,.19f,.35f)),knob=(BaseDrawable)white.tint(gold);
+        track.setMinWidth(2);knob.setMinWidth(2);knob.setMinHeight(18);scrollStyle.vScroll=track;scrollStyle.vScrollKnob=knob;
+        defaultBackground=white.tint(new Color(.02f,.018f,.016f,pauseOverlay?.64f:1));
+        root.setFillParent(true);root.setBackground(defaultBackground);stage.addActor(root);
     }
-    public void background(String id){Texture art=assets.optionalTexture(id);root.setBackground(art==null?defaultBackground:new TextureRegionDrawable(art));}
+    public void background(String id){Texture art=assets.optionalTexture(id);hasBackgroundArt=art!=null;root.setBackground(art==null?defaultBackground:new TextureRegionDrawable(art));}
     public BitmapFont font() { return font; }
     public Stage stage() { return stage; }
     public void show(String title,String body,List<Option> options) {
-        audioSettings=null;stage.cancelTouchFocus();command=null;this.options=List.copyOf(options);selected=0;buttons.clear();root.clear();
-        Label heading=new Label(title,labels);heading.setWrap(true);heading.setAlignment(Align.center);
-        root.add(heading).width(580).padBottom(18).row();
+        prepare(options);
+        if(hasBackgroundArt) {
+            Image dim=new Image(white);dim.setColor(0,0,0,.62f);dim.setBounds(0,0,stage.getWidth(),stage.getHeight());dim.setTouchable(Touchable.disabled);root.addActor(dim);
+        }
+        float panelWidth=body.length()>120||title.length()>36?500:344,innerWidth=panelWidth-56;
+        Table card=new Table();card.setName("menu-panel");card.setBackground(frame);card.pad(24,28,20,28);
+        Label heading=new Label(title,labels);heading.setName("menu-title");heading.setFontScale(1.3f);heading.setWrap(true);heading.setAlignment(Align.center);heading.setWidth(innerWidth);
+        card.add(heading).width(innerWidth).padBottom(12).row();
+        card.add(separator()).width(innerWidth).height(5).padBottom(18).row();
+        float fixedHeight=24+20+heading.getPrefHeight()+12+5+18+16+5+12+20;
         if(!body.isBlank()) {
-            Label message=new Label(body,new Label.LabelStyle(font,Color.LIGHT_GRAY));message.setWrap(true);message.setAlignment(Align.center);
-            ScrollPane scroll=new ScrollPane(message);scroll.setScrollingDisabled(true,false);scroll.setFadeScrollBars(false);
-            root.add(scroll).width(570).height(Math.min(160,Math.max(52,body.length()/45*24))).padBottom(12).row();
+            Label message=new Label(body,new Label.LabelStyle(font,new Color(.77f,.73f,.65f,1)));message.setFontScale(.8f);message.setWrap(true);message.setAlignment(Align.center);message.setWidth(innerWidth);
+            float bodyHeight=Math.min(110,message.getPrefHeight());
+            card.add(scroll(message)).width(innerWidth).height(bodyHeight).padBottom(12).row();fixedHeight+=bodyHeight+12;
         }
         Table choices=new Table();
         for(int i=0;i<options.size();i++) {
-            final int index=i;TextButton b=new TextButton(options.get(i).text(),buttonStyle);b.setProgrammaticChangeEvents(false);b.getLabel().setWrap(true);b.setChecked(i==0);buttons.add(b);
-            b.addListener(new ChangeListener(){@Override public void changed(ChangeEvent e,Actor actor){if(command==null) command=UiPanel.this.options.get(index).action();}});
-            choices.add(b).width(510).minHeight(38).padBottom(5).row();
+            TextButton b=menuButton(i,innerWidth,false);
+            float buttonHeight=Math.max(36,b.getLabel().getPrefHeight()+12);
+            choices.add(b).width(innerWidth).height(buttonHeight).padBottom(i+1<options.size()?8:0).row();
         }
-        ScrollPane scroll=new ScrollPane(choices);optionsPane=scroll;scroll.setScrollingDisabled(true,false);scroll.setFadeScrollBars(false);root.add(scroll).width(540).maxHeight(270).row();
-        Label hint=new Label("Phím lên / xuống · Chọn     Enter · Xác nhận",new Label.LabelStyle(font,Color.LIGHT_GRAY));hint.setFontScale(.75f);root.add(hint).padTop(10);
+        choices.pack();optionsPane=scroll(choices);optionsPane.setName("menu-options");
+        card.add(optionsPane).width(innerWidth).height(Math.min(choices.getPrefHeight(),Math.max(36,440-fixedHeight))).row();
+        card.add(separator()).width(innerWidth).height(5).padTop(16).padBottom(12).row();
+        Table footer=new Table();footer.setName("menu-footer");
+        footer.add(shortcut("↑ ↓","Chọn",26)).padRight(12);
+        footer.add(shortcut("Enter","Xác nhận",32));
+        if(pauseOverlay)footer.add(shortcut("Esc","Tiếp tục",24)).padLeft(12);
+        card.add(footer).height(20).row();
+        root.add(card).width(panelWidth);
+    }
+    /** Title art stays behind native, interactive left-side navigation. */
+    public void lobby(String fallbackTitle,List<Option> options) {
+        prepare(options);
+        if(!hasBackgroundArt) {
+            Label title=new Label(fallbackTitle,labels);title.setWrap(true);title.setFontScale(1.6f);title.setBounds(44,322,305,170);title.setTouchable(Touchable.disabled);root.addActor(title);
+        }
+        Table choices=new Table();choices.setName("lobby-actions");
+        for(int i=0;i<options.size();i++)choices.add(menuButton(i,240,true)).width(240).height(38).padBottom(i+1<options.size()?8:0).row();
+        choices.pack();optionsPane=scroll(choices);optionsPane.setName("menu-options");optionsPane.setBounds(40,114,240,choices.getPrefHeight());root.addActor(optionsPane);
+        Label hint=new Label("Lên / xuống · Chọn    Enter · Xác nhận",new Label.LabelStyle(font,new Color(.84f,.80f,.70f,1)));
+        hint.setFontScale(.62f);hint.setBounds(22,28,480,22);hint.setTouchable(Touchable.disabled);root.addActor(hint);
+    }
+    private void prepare(List<Option> options) {
+        audioSettings=null;stage.cancelTouchFocus();stage.setScrollFocus(null);command=null;this.options=List.copyOf(options);selected=0;buttons.clear();markers.clear();root.clear();
+    }
+    private TextButton menuButton(int index,float width,boolean lobby) {
+        TextButton button=new TextButton(options.get(index).text(),lobby?lobbyButtonStyle:buttonStyle);
+        button.setName("menu-option-"+index);button.setProgrammaticChangeEvents(false);
+        Label label=button.getLabel();label.setFontScale(lobby?1.05f:.82f);label.setWrap(true);label.setWidth(width-64);label.setAlignment(lobby?Align.left:Align.center);
+        Image marker=new Image(arrowDrawable);marker.setColor(.96f,.77f,.46f,1);marker.setTouchable(Touchable.disabled);marker.setVisible(index==0);markers.add(marker);
+        button.clearChildren();button.pad(6,12,6,12);button.add(marker).size(5,7).padLeft(lobby?12:8).padRight(lobby?18:8);button.add(label).growX();button.add().width(21);
+        button.setChecked(index==0);buttons.add(button);
+        button.addListener(new InputListener(){@Override public boolean mouseMoved(InputEvent event,float x,float y){select(index);return false;}});
+        button.addListener(new ChangeListener(){@Override public void changed(ChangeEvent event,Actor actor){select(index);if(command==null)command=UiPanel.this.options.get(index).action();}});
+        return button;
+    }
+    private ScrollPane scroll(Actor content) {
+        ScrollPane pane=new ScrollPane(content,scrollStyle);pane.setScrollingDisabled(true,false);pane.setFadeScrollBars(false);pane.setOverscroll(false,false);
+        pane.addListener(new InputListener(){@Override public void enter(InputEvent event,float x,float y,int pointer,Actor from){if(pointer==-1)stage.setScrollFocus(pane);}});
+        return pane;
+    }
+    private Table separator() {
+        Table rule=new Table();Image left=new Image(white),right=new Image(white),mark=new Image(white);
+        left.setColor(.50f,.39f,.24f,1);right.setColor(left.getColor());mark.setColor(.70f,.55f,.33f,1);
+        rule.add(left).growX().height(1);rule.add(mark).size(5).padLeft(10).padRight(10);rule.add(right).growX().height(1);rule.setTouchable(Touchable.disabled);return rule;
+    }
+    private Table shortcut(String key,String description,float width) {
+        Actor keyActor;
+        if(key.equals("↑ ↓")) {
+            Table directions=new Table();directions.setBackground(keycap);directions.pad(0);
+            Image up=new Image(arrowDrawable),down=new Image(arrowDrawable);
+            for(Image arrow:List.of(up,down)){arrow.setSize(5,7);arrow.setOrigin(Align.center);arrow.setColor(.90f,.84f,.72f,1);}
+            up.setRotation(90);down.setRotation(270);directions.add(up).size(5,7).padRight(5);directions.add(down).size(5,7);keyActor=directions;
+        } else {
+            Label keyLabel=new Label(key,new Label.LabelStyle(font,new Color(.90f,.84f,.72f,1)));keyLabel.getStyle().background=keycap;keyLabel.setFontScale(.55f);keyLabel.setAlignment(Align.center);keyActor=keyLabel;
+        }
+        Label hint=new Label(description,new Label.LabelStyle(font,new Color(.76f,.72f,.65f,1)));hint.setFontScale(.55f);
+        Table group=new Table();group.add(keyActor).size(width,18).padRight(5);group.add(hint);group.setTouchable(Touchable.disabled);return group;
+    }
+    private void select(int index) {
+        selected=index;
+        for(int i=0;i<buttons.size();i++){buttons.get(i).setChecked(i==selected);markers.get(i).setVisible(i==selected);}
     }
     public void key(int direction,boolean confirm) {
         if(options.isEmpty()) return;
-        if(direction!=0) {selected=Math.floorMod(selected+direction,options.size());for(int i=0;i<buttons.size();i++) buttons.get(i).setChecked(i==selected);optionsPane.scrollTo(buttons.get(selected).getX(),buttons.get(selected).getY(),buttons.get(selected).getWidth(),buttons.get(selected).getHeight());}
+        if(direction!=0) {select(Math.floorMod(selected+direction,options.size()));optionsPane.scrollTo(buttons.get(selected).getX(),buttons.get(selected).getY(),buttons.get(selected).getWidth(),buttons.get(selected).getHeight());}
         if(confirm && command==null) command=options.get(selected).action();
     }
     public void help(StoryContent content,Runnable back) {
         StringBuilder text=new StringBuilder();for(int i=1;i<=5;i++) text.append(content.text("UI-HELP-0"+i)).append("\n");
         text.append("Esc → Lưu game: lưu tại mốc khám phá. Tiếp tục từ menu để tải lại.");
-        show(content.text("UI-HELP-TITLE"),text.toString(),List.of(new Option(content.text("UI-BACK"),back)));
+        show(content.text("UI-HELP-TITLE"),text.toString().replace("↑ / ↓","Lên / xuống").replace("Esc →","Esc >"),List.of(new Option(content.text("UI-BACK"),back)));
     }
     public void audio(StoryContent content,AudioSettings settings,Runnable back) {
         List<Option> choices=new ArrayList<>();String[] ids={"MASTER","MUSIC","FX","VOICE"};float[] values={settings.master,settings.music,settings.fx,settings.voice};
@@ -93,11 +191,11 @@ public final class UiPanel implements Disposable {
     public void adjustAudio(int direction) {
         if(audioSettings==null || direction==0 || selected>3) return;
         int previous=selected;AudioSettings settings=audioSettings;StoryContent content=audioContent;Runnable back=audioBack;
-        settings.change(selected,direction*.1f);audio(content,settings,back);selected=previous;for(int i=0;i<buttons.size();i++) buttons.get(i).setChecked(i==selected);
+        settings.change(selected,direction*.1f);audio(content,settings,back);select(previous);optionsPane.scrollTo(buttons.get(selected).getX(),buttons.get(selected).getY(),buttons.get(selected).getWidth(),buttons.get(selected).getHeight());
     }
     public void draw(float delta) { stage.act(Math.max(0,delta));stage.getViewport().apply();stage.draw(); }
     public void executeCommand() { Runnable next=command;command=null;if(next!=null) next.run(); }
     public void clearCommands() { command=null;stage.cancelTouchFocus(); }
     public void resize(int width,int height) { if(width>0 && height>0) stage.getViewport().update(width,height,true); }
-    @Override public void dispose() { stage.dispose();if(skin!=null){skin.remove("default-font",BitmapFont.class);skin.dispose();}font.dispose();pixel.dispose(); }
+    @Override public void dispose() { stage.dispose();if(skin!=null){skin.remove("default-font",BitmapFont.class);skin.dispose();}font.dispose();pixel.dispose();arrowTexture.dispose(); }
 }

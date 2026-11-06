@@ -170,8 +170,96 @@ public final class StoryDesktopChecks {
         check("inspection.player".equals(screen.dialogueUI().inspectionAsset()),"Cassette player uses full-size close-up");
         screen.dialogueUI().continueText();frame();snapshot("inspection-player-16x9");drain();
         walk("trang");press(Input.Keys.E);interactions++;
-        check(screen.dialogueUI().inspectionAsset()==null,"NPC dialogue must not reuse object close-up");drain();
+        check(screen.dialogueUI().inspectionAsset()==null,"NPC dialogue must not reuse object close-up");
+        checkDialogueFrame();drain();
         System.out.println("Inspection UI passed: E/held keys, real dim pixels, movement lock, pause/resume, resize 16:9/4:3, repeat/cache, notes and NPC cleanup.");
+    }
+    private static Rectangle actorBounds(com.badlogic.gdx.scenes.scene2d.Actor actor) {
+        var position=actor.localToStageCoordinates(new com.badlogic.gdx.math.Vector2());
+        return new Rectangle(position.x,position.y,actor.getWidth(),actor.getHeight());
+    }
+    private static void click(com.badlogic.gdx.scenes.scene2d.Stage stage,String actorName) {
+        var actor=stage.getRoot().findActor(actorName);
+        check(actor!=null&&actor.getWidth()>0&&actor.getHeight()>0,"Click target must be laid out: "+actorName);
+        var point=actor.localToStageCoordinates(new com.badlogic.gdx.math.Vector2(actor.getWidth()/2,actor.getHeight()/2));
+        stage.stageToScreenCoordinates(point);
+        stage.touchDown(Math.round(point.x),Math.round(point.y),0,Input.Buttons.LEFT);
+        stage.touchUp(Math.round(point.x),Math.round(point.y),0,Input.Buttons.LEFT);
+    }
+    private static void checkDialogueFrame() {
+        var ui=screen.dialogueUI();var stage=ui.getStage();
+        var frame=(com.badlogic.gdx.scenes.scene2d.ui.Image)stage.getRoot().findActor("dialogue-frame");
+        var batch=new com.badlogic.gdx.graphics.g2d.SpriteBatch();
+        try {
+            stage.getViewport().apply();com.badlogic.gdx.utils.ScreenUtils.clear(.8f,.5f,.2f,1);
+            batch.setProjectionMatrix(stage.getCamera().combined);batch.begin();frame.draw(batch,1);batch.end();
+            int[] expected={71,49,29};
+            for(float sampleY:new float[]{100,frame.getY()+2}) {
+                int[] actual=roomPixel(320,sampleY);
+                for(int channel=0;channel<3;channel++)check(Math.abs(actual[channel]-expected[channel])<=4,"Dialogue body must blend at 75% opacity without overlapping fills or shadow");
+            }
+            int[] border=roomPixel(frame.getX(),100);
+            check(border[0]>160&&border[1]>120,"Dialogue border remains solid gold");
+        } finally {batch.dispose();}
+        frame();
+        var line=screen.session().dialogue().getLine();
+        click(stage,"dialogue-next");frame();
+        check(ui.isTextComplete()&&line==screen.session().dialogue().getLine(),"Mouse reveal must not skip the NPC line");
+        for(int[] size:new int[][]{{640,480},{1280,960},{800,600},{960,540},{1280,720}}) {
+            Gdx.graphics.setWindowedMode(size[0],size[1]);Gdx.input=scripted;screen.resize(size[0],size[1]);frame();
+            Rectangle panel=actorBounds(stage.getRoot().findActor("dialogue-frame"));
+            Rectangle body=actorBounds(stage.getRoot().findActor("dialogue-text"));
+            Rectangle controls=actorBounds(stage.getRoot().findActor("dialogue-controls"));
+            Rectangle hint=actorBounds(stage.getRoot().findActor("dialogue-hint"));
+            var speaker=stage.getRoot().findActor("dialogue-speaker");Rectangle tab=actorBounds(speaker);
+            check(panel.contains(body)&&panel.contains(controls)&&panel.contains(hint),"Text/footer must stay inside the dialogue frame after resize");
+            check(body.y>controls.y+controls.height&&hint.x+hint.width<controls.x,"Body and footer controls must not overlap");
+            check(speaker.isVisible()&&tab.y<panel.y+panel.height&&tab.y+tab.height>panel.y+panel.height,"Speaker tab must attach to top border");
+            if(size[0]==960||size[0]==800)snapshot("dialogue-trang-"+size[0]+"x"+size[1]);
+        }
+        click(stage,"dialogue-menu");frame();check(screen.isPaused(),"Footer Menu must open pause by mouse after resize");
+        press(Input.Keys.ESCAPE);frame();check(line==screen.session().dialogue().getLine(),"Pause/resume preserves framed dialogue");
+        click(stage,"dialogue-next");frame();
+        check(line!=screen.session().dialogue().getLine(),"Footer Next must advance a completed line by mouse");
+        Gdx.graphics.setWindowedMode(960,540);Gdx.input=scripted;screen.resize(960,540);frame();
+        System.out.println("Dialogue frame passed: body/footer containment, attached name tab, five window sizes, mouse reveal/next/menu and pause/resume.");
+    }
+    private static void checkPauseMenuUi() {
+        float x=screen.player().getX(),y=screen.player().getY();press(Input.Keys.ESCAPE);
+        var stage=(com.badlogic.gdx.scenes.scene2d.Stage)Gdx.input.getInputProcessor();
+        for(int[] size:new int[][]{{640,480},{1280,960},{800,600},{960,540},{1280,720}}) {
+            Gdx.graphics.setWindowedMode(size[0],size[1]);Gdx.input=scripted;screen.resize(size[0],size[1]);frame(Input.Keys.D);
+            var card=(com.badlogic.gdx.scenes.scene2d.ui.Table)stage.getRoot().findActor("menu-panel");
+            Rectangle bounds=actorBounds(card);
+            var title=(com.badlogic.gdx.scenes.scene2d.ui.Label)stage.getRoot().findActor("menu-title");
+            check(title.getText().toString().equals("Tạm dừng"),"Pause header must contain only the approved title");
+            long labels=java.util.stream.StreamSupport.stream(card.getChildren().spliterator(),false).filter(a->a instanceof com.badlogic.gdx.scenes.scene2d.ui.Label).count();
+            check(labels==1,"No room-name subtitle above pause heading");
+            check(bounds.width<400&&bounds.height<=440&&Math.abs(bounds.x+bounds.width/2-320)<1&&Math.abs(bounds.y+bounds.height/2-240)<1,"Pause card fits and stays centered after resize");
+            check(bounds.contains(actorBounds(title))&&bounds.contains(actorBounds(stage.getRoot().findActor("menu-footer"))),"Pause title and shortcuts fit inside frame");
+            for(int i=0;i<5;i++)check(bounds.contains(actorBounds(stage.getRoot().findActor("menu-option-"+i))),"Pause action stays inside frame");
+            check(screen.isPaused()&&screen.player().getX()==x&&screen.player().getY()==y,"Pause menu must keep movement locked");
+            if(size[0]==960||size[0]==800)snapshot("pause-menu-"+size[0]+"x"+size[1]);
+        }
+        Gdx.graphics.setWindowedMode(960,540);Gdx.input=scripted;screen.resize(960,540);frame();
+        click(stage,"menu-option-2");frame();frame();
+        check(((com.badlogic.gdx.scenes.scene2d.ui.Label)stage.getRoot().findActor("menu-title")).getText().toString().equals("Hướng dẫn"),"Mouse opens framed Help");
+        snapshot("pause-help-16x9");click(stage,"menu-option-0");frame();frame();
+        click(stage,"menu-option-3");frame();frame();
+        check(((com.badlogic.gdx.scenes.scene2d.ui.Label)stage.getRoot().findActor("menu-title")).getText().toString().equals("Âm thanh"),"Mouse opens framed Audio");
+        var master=(com.badlogic.gdx.scenes.scene2d.ui.TextButton)stage.getRoot().findActor("menu-option-0");String before=master.getText().toString();
+        press(Input.Keys.RIGHT);
+        check(!before.equals(((com.badlogic.gdx.scenes.scene2d.ui.TextButton)stage.getRoot().findActor("menu-option-0")).getText().toString()),"Audio Right changes master volume");
+        snapshot("pause-audio-16x9");
+        for(int i=0;i<4;i++)press(Input.Keys.DOWN);
+        String mute=((com.badlogic.gdx.scenes.scene2d.ui.TextButton)stage.getRoot().findActor("menu-option-4")).getText().toString();press(Input.Keys.ENTER);
+        check(!mute.equals(((com.badlogic.gdx.scenes.scene2d.ui.TextButton)stage.getRoot().findActor("menu-option-4")).getText().toString()),"Framed Audio mute still toggles");
+        press(Input.Keys.UP);press(Input.Keys.ENTER);
+        click(stage,"menu-option-4");frame();frame();
+        check(((com.badlogic.gdx.scenes.scene2d.ui.Label)stage.getRoot().findActor("menu-title")).getText().toString().equals("Về menu chính?"),"Mouse opens leave confirmation");
+        click(stage,"menu-option-0");frame();frame();click(stage,"menu-option-0");frame();frame();
+        check(!screen.isPaused()&&screen.session().exploring(),"Stay then Resume returns to exploration");
+        System.out.println("Pause menu passed: title without room subtitle, centered frame at five sizes, mouse Help/Audio/leave/resume, keyboard volume/mute/back and movement lock.");
     }
     private static int[] roomPixel(float worldX,float worldY) {
         int width=Gdx.graphics.getBackBufferWidth(),height=Gdx.graphics.getBackBufferHeight();
@@ -180,6 +268,42 @@ public final class StoryDesktopChecks {
         int x=(width-viewportWidth)/2+(int)(worldX*viewportWidth/640),y=(height-viewportHeight)/2+(int)(worldY*viewportHeight/480);
         byte[] pixel=com.badlogic.gdx.utils.ScreenUtils.getFrameBufferPixels(x,y,1,1,false);
         return new int[]{Byte.toUnsignedInt(pixel[0]),Byte.toUnsignedInt(pixel[1]),Byte.toUnsignedInt(pixel[2])};
+    }
+    private static void checkLobbyUi() throws Exception {
+        byte[] saved=Files.readAllBytes(save.path());
+        var starts=new java.util.concurrent.atomic.AtomicInteger();var loaded=new java.util.concurrent.atomic.AtomicBoolean();
+        AudioSettings audio=new AudioSettings();
+        MenuScreen main=new MenuScreen(assets,content,audio,save,skip->{check(!skip,"Play starts with opening");starts.incrementAndGet();},()->loaded.set(true),()->{},Ending.NONE);
+        try {
+            main.show();keys=Set.of();var stage=(com.badlogic.gdx.scenes.scene2d.Stage)Gdx.input.getInputProcessor();
+            String[] labels={"Play","Cài đặt","Hướng dẫn","Thoát"};
+            for(int[] size:new int[][]{{960,540},{1280,720},{800,600},{640,480},{1280,960}}) {
+                Gdx.graphics.setWindowedMode(size[0],size[1]);Gdx.input=scripted;main.resize(size[0],size[1]);main.render(0);
+                check(stage.getViewport().getWorldWidth()==960&&stage.getViewport().getWorldHeight()==540,"Lobby keeps 16:9 art canvas");
+                check(stage.getRoot().findActor("menu-panel")==null,"Lobby must use side navigation instead of a centered modal");
+                for(int i=0;i<labels.length;i++) {
+                    var button=(com.badlogic.gdx.scenes.scene2d.ui.TextButton)stage.getRoot().findActor("menu-option-"+i);Rectangle b=actorBounds(button);
+                    check(button.getText().toString().equals(labels[i]),"Lobby option order: "+labels[i]);
+                    check(b.x>=0&&b.x+b.width<320&&b.y>=0&&b.y+b.height<325,"Lobby buttons fit below title in left third");
+                }
+                check(stage.getRoot().findActor("menu-option-4")==null,"Existing save must not add Continue in this version");
+                if(size[0]==960||size[0]==1280&&size[1]==720||size[0]==800)snapshot("lobby-"+size[0]+"x"+size[1]);
+            }
+            Gdx.graphics.setWindowedMode(960,540);Gdx.input=scripted;main.resize(960,540);main.render(0);
+            menuPress(main,Input.Keys.UP);check(((com.badlogic.gdx.scenes.scene2d.ui.TextButton)stage.getRoot().findActor("menu-option-3")).isChecked(),"Lobby keyboard wraps to Exit");menuPress(main,Input.Keys.DOWN);
+            click(stage,"menu-option-1");main.render(0);main.render(0);
+            check(((com.badlogic.gdx.scenes.scene2d.ui.Label)stage.getRoot().findActor("menu-title")).getText().toString().equals("Cài đặt"),"Settings appears above Help and opens by mouse");
+            click(stage,"menu-option-0");main.render(0);main.render(0);menuPress(main,Input.Keys.RIGHT);
+            check(Math.abs(audio.master-.8f)<.001f,"Lobby Settings contains working Audio controls");snapshot("lobby-settings-audio");
+            menuPress(main,Input.Keys.ESCAPE);menuPress(main,Input.Keys.ESCAPE);
+            check(stage.getRoot().findActor("lobby-actions")!=null,"Esc returns from Audio through Settings to lobby");
+            click(stage,"menu-option-2");main.render(0);main.render(0);
+            check(((com.badlogic.gdx.scenes.scene2d.ui.Label)stage.getRoot().findActor("menu-title")).getText().toString().equals("Hướng dẫn"),"Lobby Help opens by mouse");menuPress(main,Input.Keys.ESCAPE);
+            click(stage,"menu-option-0");main.render(0);main.render(0);check(starts.get()==1,"Play starts by mouse");
+            menuPress(main,Input.Keys.ENTER);check(starts.get()==2&&!loaded.get(),"Play starts by keyboard even when a save exists");
+            check(Arrays.equals(saved,Files.readAllBytes(save.path())),"Lobby Play must preserve the existing save file");
+        } finally {main.dispose();}
+        System.out.println("Lobby passed: original title art, Play/Settings/Help/Exit order, no Continue with existing save, five sizes, keyboard/mouse, nested Audio, Esc and save preservation.");
     }
     private static void checkAll() throws Exception {
         original=Gdx.input;scripted=(Input)Proxy.newProxyInstance(Input.class.getClassLoader(),new Class<?>[]{Input.class},(proxy,method,args)->{if(method.getName().equals("isKeyPressed")||method.getName().equals("isKeyJustPressed"))return keys.contains((Integer)args[0]);return method.invoke(original,args);});Gdx.input=scripted;
@@ -192,7 +316,7 @@ public final class StoryDesktopChecks {
             check(!side.getKeyFrame(0).isFlipX() && mirrored.getKeyFrame(0).isFlipX(),"Opposite walking directions must mirror independently");
             check(!assets.animation("char.linh.walk.side").getKeyFrame(0).isFlipX(),"Mirroring must not mutate shared sprite frames");
             begin(false,null);snapshot("explore-16x9");
-            checkInteractionMarks();begin(false,null);checkInspectionUi();begin(false,null);
+            checkPauseMenuUi();checkInteractionMarks();begin(false,null);checkInspectionUi();begin(false,null);
             var cameraField=StoryWorldView.class.getDeclaredField("camera");cameraField.setAccessible(true);
             var follow=(FollowCamera)cameraField.get(screen.world());
             for(RoomId roomId:world.rooms()) {
@@ -261,8 +385,7 @@ public final class StoryDesktopChecks {
             Path cFile=folder.resolve("c-world.json");Files.writeString(cFile,Gdx.files.internal(manifest.path("story.world")).readString().replace("\"enableC\": false","\"enableC\": true"));world=SceneCatalog.load(new FileHandle(cFile.toFile()),manifest);
             begin(true,null);ready();choice("C6-01-CHOICE05");check(screen.dialogueUI().selectedChoiceId().equals("C-01-CHOICE02"),"C cancel selected first");choice("C-01-CHOICE02");choice("C6-01-CHOICE05");choice("C-01-CHOICE01");check(screen.session().ended()&&screen.session().state().ending()==Ending.C,"C runtime ending");System.out.println("Desktop C complete");
             Gdx.graphics.setWindowedMode(800,600);System.out.println("Input proxy after window resize: "+(Gdx.input==scripted));Gdx.input=scripted;screen.resize(800,600);for(int i=0;i<3;i++)frame();java.util.concurrent.atomic.AtomicBoolean replaySkip=new java.util.concurrent.atomic.AtomicBoolean();MenuScreen end=new MenuScreen(assets,content,new AudioSettings(),save,replaySkip::set,()->{},()->{},Ending.C);try{end.show();end.resize(800,600);end.render(0);snapshot("ending-4x3");menuPress(end,Input.Keys.ENTER);menuPress(end,Input.Keys.DOWN);menuPress(end,Input.Keys.ENTER);check(replaySkip.get(),"Replay skip button callback");}finally{end.dispose();}
-            java.util.concurrent.atomic.AtomicBoolean continued=new java.util.concurrent.atomic.AtomicBoolean();MenuScreen main=new MenuScreen(assets,content,new AudioSettings(),save,skip->{},()->{check(save.load(world).state().reached(Event.INITIAL_SCENE_DONE),"Continue file validated");continued.set(true);},()->{},Ending.NONE);
-            try{main.show();main.resize(800,600);main.render(0);menuPress(main,Input.Keys.DOWN);menuPress(main,Input.Keys.ENTER);check(continued.get(),"Continue menu command");}finally{main.dispose();}
+            checkLobbyUi();
             check(visualChecks.containsAll(Set.of("haunt","record","memory","seated")),"Missing runtime visual coverage: "+visualChecks);System.out.println("Runtime visual bindings passed: real animation profiles, haunt/record/memory/C seated, unchanged physics.");
             Files.deleteIfExists(cFile);
         }finally{if(screen!=null)screen.dispose();assets.dispose();Gdx.input=original;Files.deleteIfExists(save.path());Files.deleteIfExists(folder.resolve("c-world.json"));Files.deleteIfExists(folder.resolve("geometry.tmx"));

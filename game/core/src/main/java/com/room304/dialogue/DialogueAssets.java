@@ -1,6 +1,7 @@
 package com.room304.dialogue;
 
 import com.room304.assets.GameAssets;
+import com.room304.ui.PixelFrame;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
@@ -17,9 +18,10 @@ final class DialogueAssets implements Disposable {
     private final boolean ownsAssets;
     final BitmapFont font;
     final TextureRegionDrawable pixel;
-    final TextureRegionDrawable gradient;
+    final TextureRegionDrawable arrow;
+    final PixelFrame frame, nameplate, button, buttonFocus, buttonPressed, buttonDisabled;
     private final Texture pixelTexture;
-    private final Texture gradientTexture;
+    private final Texture arrowTexture;
 
     DialogueAssets(GameAssets sharedAssets, DialogueLayout layout) {
         ownsAssets = sharedAssets == null;
@@ -37,11 +39,11 @@ final class DialogueAssets implements Disposable {
             for (char c = 0x1ea0; c <= 0x1ef9; c++) characters.append(c);
             characters.append("‘’“”…–—→");
             params.characters = characters.toString();
-            params.borderWidth = 0.7f;
+            params.borderWidth = 0;
             params.borderColor = new Color(0.025f, 0.03f, 0.05f, 0.8f);
             params.shadowOffsetX = 1;
-            params.shadowOffsetY = 2;
-            params.shadowColor = new Color(0, 0, 0, 0.75f);
+            params.shadowOffsetY = 1;
+            params.shadowColor = new Color(0, 0, 0, 0.35f);
             params.minFilter = Texture.TextureFilter.Linear;
             params.magFilter = Texture.TextureFilter.Linear;
             font = generator.generateFont(params);
@@ -55,16 +57,25 @@ final class DialogueAssets implements Disposable {
         pixelTexture = new Texture(solid);
         solid.dispose();
         pixel = new TextureRegionDrawable(pixelTexture);
-        Pixmap fade = new Pixmap(1, 256, Pixmap.Format.RGBA8888);
-        for (int y = 0; y < fade.getHeight(); y++) {
-            float alpha = (float) y / (fade.getHeight() - 1);
-            fade.setColor(0.015f, 0.02f, 0.035f, alpha * alpha * 0.88f);
-            fade.drawPixel(0, y);
-        }
-        gradientTexture = new Texture(fade);
-        gradientTexture.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
-        fade.dispose();
-        gradient = new TextureRegionDrawable(gradientTexture);
+        // Use actual pixels for the continue icon; font coverage varies for triangle glyphs.
+        Pixmap triangle = new Pixmap(5, 7, Pixmap.Format.RGBA8888);
+        triangle.setColor(Color.WHITE);
+        triangle.fillTriangle(0, 0, 0, 6, 4, 3);
+        arrowTexture = new Texture(triangle);
+        triangle.dispose();
+        arrow = new TextureRegionDrawable(arrowTexture);
+        Color gold = new Color(.70f, .55f, .33f, 1);
+        Color dark = new Color(.105f, .092f, .085f, 1);
+        frame = new PixelFrame(pixel.getRegion(), new Color(dark.r,dark.g,dark.b,layout.frameAlpha), gold, true);
+        nameplate = new PixelFrame(pixel.getRegion(), dark, gold, false);
+        nameplate.setLeftWidth(4);
+        nameplate.setRightWidth(4);
+        nameplate.setTopHeight(2);
+        nameplate.setBottomHeight(2);
+        button = new PixelFrame(pixel.getRegion(), dark, gold, false);
+        buttonFocus = new PixelFrame(pixel.getRegion(), new Color(.25f, .19f, .12f, 1), new Color(.96f, .77f, .46f, 1), false);
+        buttonPressed = new PixelFrame(pixel.getRegion(), new Color(.16f, .12f, .08f, 1), gold, false);
+        buttonDisabled = new PixelFrame(pixel.getRegion(), dark, new Color(.28f, .25f, .20f, 1), false);
     }
 
     com.badlogic.gdx.scenes.scene2d.ui.Skin skin() {return scenes.optionalSkin(font);}
@@ -87,6 +98,6 @@ final class DialogueAssets implements Disposable {
         if (ownsAssets) scenes.dispose();
         font.dispose();
         pixelTexture.dispose();
-        gradientTexture.dispose();
+        arrowTexture.dispose();
     }
 }

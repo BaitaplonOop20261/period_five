@@ -3,6 +3,8 @@ package com.room304.dialogue;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Group;
+import com.badlogic.gdx.scenes.scene2d.Touchable;
+import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
@@ -11,9 +13,11 @@ import java.text.Normalizer;
 
 /** HUD emits commands; it never advances dialogue or changes gameplay state. */
 public final class DialogueHud extends Group {
+    static final float MENU_WIDTH = 72;
     private final Label time;
     private final Label location;
     private final TextButton next;
+    private final Image arrow;
     private boolean continueRequested;
     private boolean menuRequested;
 
@@ -36,17 +40,28 @@ public final class DialogueHud extends Group {
 
         TextButton.TextButtonStyle buttonStyle = new TextButton.TextButtonStyle();
         buttonStyle.font = assets.font;
-        buttonStyle.fontColor = Color.WHITE;
-        buttonStyle.disabledFontColor = Color.GRAY;
-        buttonStyle.up = assets.pixel.tint(new Color(0.025f, 0.035f, 0.055f, 0.65f));
-        buttonStyle.over = assets.pixel.tint(new Color(0.20f, 0.28f, 0.34f, 0.9f));
-        buttonStyle.down = assets.pixel.tint(new Color(0.30f, 0.39f, 0.44f, 0.95f));
+        buttonStyle.fontColor = new Color(.96f, .79f, .50f, 1);
+        buttonStyle.disabledFontColor = new Color(.40f, .37f, .31f, 1);
+        buttonStyle.up = assets.button;
+        buttonStyle.over = assets.buttonFocus;
+        buttonStyle.down = assets.buttonPressed;
+        buttonStyle.disabled = assets.buttonDisabled;
         if(skin!=null&&skin.has("hud",TextButton.TextButtonStyle.class))buttonStyle=skin.get("hud",TextButton.TextButtonStyle.class);
-        next = button("TIẾP TỤC", buttonStyle, layout.controlFontScale, () -> continueRequested = true);
-        TextButton menu = button("MENU / Esc", buttonStyle, layout.controlFontScale, () -> menuRequested = true);
+        next = button("Tiếp tục", buttonStyle, layout.controlFontScale, () -> continueRequested = true);
+        next.setName("dialogue-next");
+        arrow = new Image(assets.arrow);
+        arrow.setColor(.96f, .79f, .50f, 1);
+        arrow.setTouchable(Touchable.disabled);
+        next.add(arrow).size(5, 7).padLeft(5);
+        TextButton.TextButtonStyle menuStyle = new TextButton.TextButtonStyle(buttonStyle);
+        menuStyle.fontColor = new Color(.76f, .72f, .65f, 1);
+        menuStyle.up = assets.pixel.tint(Color.CLEAR);
+        TextButton menu = button("Esc · Menu", menuStyle, layout.controlFontScale, () -> menuRequested = true);
+        menu.setName("dialogue-menu");
         Table controls = new Table();
-        controls.add(next).size(layout.controlsWidth, layout.buttonHeight).padBottom(layout.hudButtonGap).row();
-        controls.add(menu).size(layout.controlsWidth, layout.buttonHeight);
+        controls.setName("dialogue-controls");
+        controls.add(next).size(layout.controlsWidth, layout.buttonHeight).padRight(layout.hudButtonGap);
+        controls.add(menu).size(MENU_WIDTH, layout.buttonHeight);
         controls.pack();
         controls.setPosition(layout.width - layout.controlsRight - controls.getWidth(), layout.controlsBottom);
         addActor(controls);
@@ -71,7 +86,8 @@ public final class DialogueHud extends Group {
     }
 
     void showProgress(boolean complete, boolean choices) {
-        next.setText(complete ? "TIẾP TỤC" : "HIỆN HẾT");
+        next.setText(choices ? "Chọn câu" : complete ? "Tiếp tục" : "Skip");
+        arrow.setVisible(complete && !choices);
         next.setDisabled(choices);
     }
     public boolean consumeContinueRequest() {

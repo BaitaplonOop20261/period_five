@@ -2,7 +2,11 @@
 
 ## Bounds thực tế
 
-`game/assets/story/ui-layout.json` CONFIRMED: canvas 640×480; font18; portrait centerX320,bottom70,maxWidth300,height350; textLeft24,textBottom40,textWidth484,textRows4; gradientHeight230; choice530×38,gap6; HUD maxWidth220,left18,top18; control80×36 ở right12,bottom16. `UiPanel.java` dùng nút510px rộng, tối thiểu38px, vùng cuộn540px. Game không có layout adaptive riêng cho16:9, dùng FitViewport letterbox.
+`game/assets/story/ui-layout.json` CONFIRMED: canvas 640×480; font18; portrait centerX320,bottom70,maxWidth300,height350; textLeft42,textBottom68,textWidth556,textRows3; frameMargin18,frameBottom16,nameplateHeight28; choice530×38,gap6; HUD maxWidth220,left18,top18. Footer nằm trong khung: nút tiếp tục100×26, Menu72×26, gap8, right38,bottom28. `UiPanel.java` dùng khung giữa màn hình rộng344 (500 với nội dung dài), nút tối thiểu36px, cách8px; giới hạn tổng chiều cao440 bằng vùng cuộn. Game không có layout adaptive riêng cho16:9, dùng FitViewport letterbox.
+
+Cập nhật 06/11/2026: khung thoại và menu nền than, viền đồng được vẽ bằng code trong `ui/PixelFrame`. Thoại có bảng tên gắn mép trên; menu có tiêu đề, nút focus màu đồng và mũi tên pixel, footer phím tắt. Menu tạm dừng chỉ ghi “Tạm dừng”, không có phụ đề tên phòng phía trên. `menu-frame` của Skin ghi đè khung modal; ảnh menu/ending là nền toàn canvas riêng. Bộ ảnh khung bên dưới là phương án Skin tuỳ chọn, không phải tài nguyên bắt buộc để có giao diện này.
+
+Nền thoại mặc định bán trong suốt: `frameAlpha: 0.75` trong `story/ui-layout.json` (0 trong suốt, 1 kín). Chỉ ruột khung dùng alpha này; tên/viền/chữ/nút vẫn rõ. PixelFrame không chồng các dải nền hoặc bóng bên trong khung, nên alpha khai báo cũng là alpha hiển thị thực tế.
 
 Portrait150×175 (PROPOSED) scale2× vừa300×350. Chữ font Noto Sans hiện Linear, hình pixel đề xuất Nearest; manifest portrait hiện Linear nên phải cập nhật có chủ đích. Các hộp chữ vẫn phải đọc được khi alpha/dim phủ tài liệu. Pixel art bị scale lẻ ở800×600 hoặc960×540 là giới hạn hiện có; không tuyên bố nearest đồng nghĩa integer scaling.
 
@@ -27,7 +31,8 @@ Khung66×66: ruột64×64, border1, giữ8px mỗi góc, vạch top/left và vù
 
 | Skin resource | Nguồn / liên kết | Consumer |
 | --- | --- | --- |
-| Drawable dialogue-frame | NinePatch từ dialogue_frame | DialogueUI: nền khung640×gradientHeight. |
+| Drawable dialogue-frame | NinePatch từ dialogue_frame | DialogueUI: khung inset; cao theo vùng chữ + nameGap, đáy frameBottom. Fallback vẽ bằng code. |
+| Drawable speaker-frame | Tuỳ chọn; có thể dùng lại button_normal | DialogueUI: bảng tên gắn mép trên, ẩn khi người nói trống. Fallback vẽ bằng code. |
 | Drawable menu-frame / hud-frame | Cùng NinePatch panel_frame, alias drawable; không tạo ảnh trùng | UiPanel / DialogueHud. |
 | TextButtonStyle default / choice / hud | up button_normal, checked/over button_focus, down button_pressed; default-font | Menu/pause/notes / lựa chọn thoại / nút HUD. |
 | LabelStyle default / dialogue / speaker / hud | default-font, màu đủ tương phản | Tiêu đề menu / thân thoại / tên / HUD. |
@@ -38,9 +43,9 @@ Camera/record icons không nằm trong atlas Skin ở phương án này: `story-
 
 ## Không cần file ảnh riêng
 
-UI-NAMEFX (tên Linh mờ/rõ), E/outline, địa điểm/thời gian, subtitle, objectives, choices/text, notes/transcript, controls, sliders/audio/save/load, tên ending đều là chữ/hình học. Nameplate dùng LabelStyle speaker trên khung thoại; không có hook drawable nameplate riêng. Document viewer dùng ảnh giấy + chữ/phân trang; không có hook document-frame riêng. Inventory/grid icon không có trong gameplay chính. Không yêu cầu artist vẽ các bộ này lần hai.
+UI-NAMEFX (tên Linh mờ/rõ), E/outline, địa điểm/thời gian, subtitle, objectives, choices/text, notes/transcript, controls, sliders/audio/save/load, tên ending đều là chữ/hình học. Nameplate dùng LabelStyle speaker trên drawable speaker-frame tuỳ chọn, mặc định vẽ bằng code. Document viewer dùng ảnh giấy + chữ/phân trang; không có hook document-frame riêng. Inventory/grid icon không có trong gameplay chính. Không yêu cầu artist vẽ các bộ này lần hai.
 
-Ảnh nền menu/A/B/C optional từ story-visuals.menus; nếu có, UiPanel.background thay menu-frame và kéo vào canvas 640×480. Giữ phần giữa ít chi tiết, không bake tiêu đề. Nếu không làm CG riêng giữ fallback; muốn bỏ dùng slot ảnh có thể bỏ key menus tương ứng trong config sau khi kiểm tra parser, không xóa manifest cũ tùy tiện.
+Ảnh nền menu/A/B/C optional từ story-visuals.menus. Lobby đầu game hiện dùng `ui/menu.png` gồm cảnh trường học và logo tĩnh đã duyệt, trên canvas 960×540. `UiPanel.lobby` vẽ riêng các nút Play/Cài đặt/Hướng dẫn/Thoát bên trái, không có modal giữa màn hình; nút và chỉ dẫn không bake vào PNG. Xem [bàn giao lobby](15_MAIN_MENU_LOBBY_2026-11-06.md). Ending A/B/C vẫn dùng canvas 640×480 và chữ ending do code vẽ, không bake nội dung truyện vào ảnh. `menu-frame` của Skin chỉ thay khung modal, không thay ảnh nền. Thiếu ảnh vẫn có fallback; không xóa manifest cũ tùy tiện.
 
 ## Giấy/ảnh và chữ
 

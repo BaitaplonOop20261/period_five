@@ -38,6 +38,7 @@ public final class DialogueUI implements Disposable {
     private final Image inspection = new Image();
     private final Label inspectionTitle;
     private final Image portrait = new Image();
+    private final Table nameplate = new Table();
     private final Label name;
     private final Label text;
     private final Label hint;
@@ -99,26 +100,51 @@ public final class DialogueUI implements Disposable {
         portrait.setTouchable(Touchable.disabled);
         root.addActor(portrait);
 
-        Image gradient = new Image(com.room304.assets.GameAssets.skinDrawable(skin,"dialogue-frame",assets.gradient));
-        gradient.setBounds(0, 0, layout.width, layout.gradientHeight);
-        gradient.setTouchable(Touchable.disabled);
-        root.addActor(gradient);
-        Label.LabelStyle bodyStyle = skin!=null&&skin.has("dialogue",Label.LabelStyle.class)?skin.get("dialogue",Label.LabelStyle.class):new Label.LabelStyle(assets.font, new Color(0.98f, 0.98f, 0.96f, 1));
+        Image frame = new Image(com.room304.assets.GameAssets.skinDrawable(skin,"dialogue-frame",assets.frame));
+        frame.setName("dialogue-frame");
+        frame.setBounds(layout.frameMargin, layout.frameBottom, layout.width - layout.frameMargin * 2,
+            frameTop() - layout.frameBottom);
+        frame.setTouchable(Touchable.disabled);
+        root.addActor(frame);
+        Image divider = new Image(assets.pixel);
+        divider.setColor(.60f, .46f, .27f, .42f);
+        divider.setBounds(layout.textLeft, layout.controlsBottom + layout.buttonHeight + 7, layout.textWidth, 1);
+        divider.setTouchable(Touchable.disabled);
+        root.addActor(divider);
+        Label.LabelStyle bodyStyle = skin!=null&&skin.has("dialogue",Label.LabelStyle.class)?skin.get("dialogue",Label.LabelStyle.class):new Label.LabelStyle(assets.font, new Color(.96f, .94f, .90f, 1));
         text = new Label("", bodyStyle);
+        text.setName("dialogue-text");
         text.setWrap(true);
         text.setAlignment(Align.topLeft);
         text.setBounds(layout.textLeft, layout.textBottom, layout.textWidth, textHeight());
         text.setTouchable(Touchable.disabled);
         root.addActor(text);
-        name = new Label("", skin!=null&&skin.has("speaker",Label.LabelStyle.class)?skin.get("speaker",Label.LabelStyle.class):new Label.LabelStyle(assets.font, new Color(0.83f, 0.90f, 0.91f, 1)));
+        name = new Label("", skin!=null&&skin.has("speaker",Label.LabelStyle.class)?skin.get("speaker",Label.LabelStyle.class):new Label.LabelStyle(assets.font, new Color(.94f, .76f, .47f, 1)));
         name.setFontScale(layout.nameFontScale);
         name.setEllipsis(true);
-        name.setBounds(layout.textLeft, layout.textBottom + textHeight() + layout.nameGap, layout.textWidth, assets.font.getLineHeight());
+        name.setAlignment(Align.center);
         name.setTouchable(Touchable.disabled);
-        root.addActor(name);
-        hint = new Label("", bodyStyle);
+        nameplate.setName("dialogue-speaker");
+        nameplate.setBackground(com.room304.assets.GameAssets.skinDrawable(skin,"speaker-frame",assets.nameplate));
+        nameplate.pad(0);
+        nameplate.add(name).grow().padLeft(14).padRight(14);
+        nameplate.setTouchable(Touchable.disabled);
+        root.addActor(nameplate);
+        Label.LabelStyle hintStyle = new Label.LabelStyle(assets.font, new Color(.76f, .72f, .65f, 1));
+        Label enter = new Label("Enter", new Label.LabelStyle(hintStyle));
+        enter.getStyle().background = assets.nameplate;
+        enter.setFontScale(layout.hintFontScale);
+        enter.setAlignment(Align.center);
+        enter.setBounds(layout.textLeft, layout.controlsBottom + 3, 36, layout.smallLabelHeight);
+        enter.setTouchable(Touchable.disabled);
+        root.addActor(enter);
+        hint = new Label("", hintStyle);
+        hint.setName("dialogue-hint");
         hint.setFontScale(layout.hintFontScale);
-        hint.setBounds(layout.textLeft, layout.textBottom - layout.hintBottomGap, layout.textWidth, layout.smallLabelHeight);
+        hint.setEllipsis(true);
+        hint.setBounds(layout.textLeft + 46, layout.controlsBottom + 3,
+            layout.width - layout.controlsRight - layout.controlsWidth - DialogueHud.MENU_WIDTH
+                - layout.hudButtonGap - layout.textLeft - 58, layout.smallLabelHeight);
         hint.setTouchable(Touchable.disabled);
         root.addActor(hint);
         placeholder = new Label("PORTRAIT TẠM", bodyStyle);
@@ -135,6 +161,7 @@ public final class DialogueUI implements Disposable {
     }
 
     private float textHeight() { return assets.font.getLineHeight() * layout.textRows; }
+    private float frameTop() { return layout.textBottom + textHeight() + layout.nameGap; }
 
     /** Synchronize only in update; textures and labels are untouched in draw(). */
     public void present(DialogueController controller, String worldLocation) {present(controller,worldLocation,null);}
@@ -184,6 +211,9 @@ public final class DialogueUI implements Disposable {
         float bottom = speaker == null ? layout.portraitBottom : speaker.getBottom(layout);
         portrait.setBounds(center - maxWidth / 2, bottom, maxWidth, height);
         name.setText(escape(controller.getSpeakerName() == null ? "" : controller.getSpeakerName()));
+        nameplate.setBounds(layout.textLeft - 8, frameTop() - layout.nameplateHeight / 2,
+            Math.min(layout.textWidth, Math.max(84, name.getPrefWidth() + 32)), layout.nameplateHeight);
+        nameplate.setVisible(!name.getText().toString().isBlank());
         hud.showContext(conversation.getTime() == null ? "—" : conversation.getTime(),
             conversation.getLocation() == null ? worldLocation : conversation.getLocation());
         paginate(Normalizer.normalize(line.getText(), Normalizer.Form.NFC).replace("↑ / ↓","Lên / xuống"));
@@ -251,13 +281,13 @@ public final class DialogueUI implements Disposable {
         choicePane.setVisible(selecting);
         layoutInspection();
         hud.showProgress(complete, selecting);
-        hint.setText(selecting ? "Lên / xuống  ·  Chọn     Enter  ·  Xác nhận" : complete
-            ? "Enter  ·  Tiếp tục" + (pages.size() > 1 ? "   " + (pageIndex + 1) + "/" + pages.size() : "")
-            : "Enter  ·  Hiện toàn bộ câu");
+        hint.setText(selecting ? "Xác nhận · Lên / xuống để chọn" : complete
+            ? "Tiếp tục" + (pages.size() > 1 ? "   " + (pageIndex + 1) + "/" + pages.size() : "")
+            : "Skipping");
     }
 
     private void layoutInspection() {
-        float bottom=layout.textBottom+textHeight()+layout.nameGap+assets.font.getLineHeight()+12;
+        float bottom=frameTop()+layout.nameplateHeight/2+12;
         if(choicePane.isVisible()) bottom=Math.max(bottom,choicePane.getTop()+12);
         float height=layout.height-72-bottom;
         inspection.setBounds(24,bottom,layout.width-48,Math.max(0,height));
@@ -283,10 +313,11 @@ public final class DialogueUI implements Disposable {
         selectedChoice = 0;
         TextButton.TextButtonStyle style = new TextButton.TextButtonStyle();
         style.font = assets.font;
-        style.fontColor = Color.WHITE;
-        style.up = assets.pixel.tint(new Color(0.04f, 0.065f, 0.09f, 0.92f));
-        style.over = assets.pixel.tint(new Color(0.23f, 0.34f, 0.40f, 0.95f));
-        style.down = style.over;
+        style.fontColor = new Color(.92f, .88f, .80f, 1);
+        style.checkedFontColor = new Color(1, .85f, .57f, 1);
+        style.up = assets.button;
+        style.over = assets.buttonFocus;
+        style.down = assets.buttonPressed;
         style.checked = style.over;
         if(skin!=null && skin.has("choice",TextButton.TextButtonStyle.class))style=skin.get("choice",TextButton.TextButtonStyle.class);
         for (DialogueChoice choice : line.getChoices()) {
@@ -304,6 +335,7 @@ public final class DialogueUI implements Disposable {
             choices.add(button).width(layout.choiceWidth).minHeight(layout.choiceHeight).padBottom(layout.choiceGap).row();
         }
         choices.pack();
+        choicePane.setName("dialogue-choices");
         float bottom = layout.textBottom + textHeight() + layout.choiceTextGap;
         choicePane.setBounds((layout.width - layout.choiceWidth) / 2, bottom, layout.choiceWidth,
             Math.min(choices.getPrefHeight(), Math.max(layout.choiceHeight, layout.height - bottom - layout.choiceTopMargin)));

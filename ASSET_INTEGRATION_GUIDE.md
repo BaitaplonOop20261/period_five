@@ -120,7 +120,7 @@ Bảng này là manifest hiện tại. Có file không đồng nghĩa asset nghe
 | effect.memory | Thiếu; optional/fallback | game/assets/effects/memory.png | PNG; kích thước/anchor bộ cuối chưa chốt | Presentation |
 | document.c_phone | Thiếu; optional/fallback | game/assets/documents/trang_phone.png | PNG; kích thước/anchor bộ cuối chưa chốt | Document/UI |
 | story.visuals | Có, cấu hình runtime | game/assets/config/story-visuals.json | JSON version1 | Visual bindings |
-| background.menu | Thiếu; optional/fallback | game/assets/ui/menu.png | PNG; kích thước/anchor bộ cuối chưa chốt | Presentation |
+| background.menu | Đã có; optional/fallback | game/assets/ui/menu.png | PNG nền/logo lobby; canvas960×540, Nearest; nút native bên trái | Presentation |
 | background.ending.a | Thiếu; optional/fallback | game/assets/endings/a.png | PNG; kích thước/anchor bộ cuối chưa chốt | Presentation |
 | background.ending.b | Thiếu; optional/fallback | game/assets/endings/b.png | PNG; kích thước/anchor bộ cuối chưa chốt | Presentation |
 | background.ending.c | Thiếu; optional/fallback | game/assets/endings/c.png | PNG; kích thước/anchor bộ cuối chưa chốt | Presentation |
@@ -221,7 +221,7 @@ Cập nhật story/content.json.speakers và line expression; không gắn portr
 
 Đặt ui/room304-skin.json (+ cùng basename .atlas nếu dùng atlas). GameAssets.optionalSkin dùng LibGDX Skin và cache atlas. default-font được view tạo bằng FreeType: không khai lại tên này trong JSON; style tham chiếu default-font. Skin có thể có default TextButtonStyle/LabelStyle cho menu; dialogue LabelStyle tên dialogue và TextButtonStyle tên choice. Không có style → fallback hiện hành. checked/over/down cần rõ, chữ Việt/wrap phải đủ; skin chưa có art thật để nghiệm thu.
 
-Geometry/typewriter/pagination/portrait nằm ở story/ui-layout.json. Thêm LabelStyle speaker/hud và TextButtonStyle hud để thay tên/HUD/control. Drawable dialogue-frame thay gradient trong bounds layout.gradientHeight; hud-frame thay nền info; menu-frame thay nền UiPanel. Drawable có thể là region/ninepatch/sprite/texture đã nạp vào Skin. Thiếu style/drawable dùng fallback. Tint dim và geometry đọc từ layout; thay bố cục căn bản ngoài các bounds hiện có vẫn cần presentation Java, không đổi callback/gate. Menu/ending ảnh theo story-visuals.json.menus, không bắt buộc Skin.
+Geometry/typewriter/pagination/portrait nằm ở story/ui-layout.json. Thêm LabelStyle speaker/hud và TextButtonStyle hud để thay tên/HUD/control. Drawable dialogue-frame thay khung inset theo vùng chữ và frameMargin/frameBottom; speaker-frame thay bảng tên; hud-frame thay nền info; menu-frame thay khung modal của UiPanel. Drawable có thể là region/ninepatch/sprite/texture đã nạp vào Skin. Thiếu style/drawable dùng PixelFrame vẽ bằng code. Tint dim và geometry đọc từ layout; thay bố cục căn bản ngoài các bounds hiện có vẫn cần presentation Java, không đổi callback/gate. Lobby dùng UiPanel.lobby trên canvas960×540 với nút bên trái, nền/logo ui/menu.png; menu pause/ending vẫn dùng modal. Menu/ending ảnh theo story-visuals.json.menus, không bắt buộc Skin.
 
 ### 6. Audio
 
