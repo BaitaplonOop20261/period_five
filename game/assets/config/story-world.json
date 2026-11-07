@@ -756,6 +756,12 @@
           "y": 0,
           "width": 20,
           "height": 480
+        },
+        {
+          "x": 20,
+          "y": 192,
+          "width": 42,
+          "height": 90
         }
       ],
       "objects": [
@@ -763,9 +769,9 @@
           "id": "door.304",
           "type": "DOOR",
           "label": "WORLD-SIGN-304",
-          "x": 300,
+          "x": 304,
           "y": 300,
-          "width": 60,
+          "width": 50,
           "height": 24,
           "range": 44,
           "target": "ROOM_304",
@@ -777,9 +783,9 @@
           "id": "door.hung",
           "type": "DOOR",
           "label": "WORLD-SIGN-HUNG",
-          "x": 120,
+          "x": 122,
           "y": 300,
-          "width": 60,
+          "width": 50,
           "height": 24,
           "range": 44,
           "target": "CLASSROOM",
@@ -791,23 +797,29 @@
           "id": "stairs",
           "type": "DOOR",
           "label": "WORLD-SIGN-STAIR",
-          "x": 25,
-          "y": 195,
-          "width": 46,
-          "height": 60,
+          "x": 20,
+          "y": 190,
+          "width": 60,
+          "height": 90,
           "range": 44,
           "target": "GUARD_ROOM",
           "spawn": "entry",
           "name": "Cầu thang",
-          "inBackground": true
+          "inBackground": true,
+          "interactionArea": {
+            "x": 60,
+            "y": 200,
+            "width": 20,
+            "height": 65
+          }
         },
         {
           "id": "guard.wall",
           "type": "DOOR",
           "label": "WORLD-SIGN-GUARD",
-          "x": 560,
+          "x": 600,
           "y": 220,
-          "width": 46,
+          "width": 20,
           "height": 50,
           "range": 44,
           "target": "GUARD_ROOM",
@@ -817,23 +829,26 @@
           "inspectionVariants": {
             "open": "inspection.guard_door"
           },
-          "asset": "prop.guard_wall",
-          "variants": {
-            "open": "prop.guard_door"
-          }
+          "inBackground": true
         },
         {
           "id": "board",
           "type": "PROP",
           "label": "UI-BOARD",
-          "x": 365,
-          "y": 300,
-          "width": 90,
-          "height": 24,
+          "x": 404,
+          "y": 346,
+          "width": 70,
+          "height": 45,
           "range": 44,
           "name": "Bảng tin",
           "inspection": "inspection.board",
-          "asset": "prop.board"
+          "inBackground": true,
+          "interactionArea": {
+            "x": 404,
+            "y": 294,
+            "width": 70,
+            "height": 22
+          }
         }
       ],
       "npcSlots": {

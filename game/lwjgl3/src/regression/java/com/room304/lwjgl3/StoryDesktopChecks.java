@@ -46,6 +46,10 @@ public final class StoryDesktopChecks {
             return;
         }
         String id=screen.session().dialogue().getLine().getId();
+        if(id!=null && (id.startsWith("C4-02-DUC") || id.startsWith("C3-01-MAIN-D")
+            || id.startsWith("C3-05-UNHEARD-D") || id.startsWith("C3-05-HEARD-D"))) {
+            check(screen.dialogueUI().inspectionAsset()==null,"NPC conversation must not retain a previous object close-up: "+id);
+        }
         if("C1-04-READ-T02".equals(id)){check(StoryWorldView.OPEN_REGISTER_ART.equals(screen.dialogueUI().inspectionAsset()),"Reading the register must show open pages");if(visualChecks.add("open-register"))snapshot("register-open");}
         if("C1-04-HAUNT-E08".equals(id)){check(screen.world().pose("nga").equals("pose.seated"),"Haunt seated ghost binding");visualChecks.add("haunt");}
         if("C4-05-MAIN-D06".equals(id)){check(screen.world().recording(),"Recording icon persists through tape subtitles");check("inspection.player_playing".equals(screen.dialogueUI().inspectionAsset()),"Tape close-up plays during tape dialogue");visualChecks.add("record");}
