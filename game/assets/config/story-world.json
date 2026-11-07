@@ -542,7 +542,13 @@
           "inspection": "inspection.register",
           "inspectionVariants": {
             "empty": "inspection.desk_empty",
-            "final": "inspection.desk_final"
+            "final": "inspection.desk_final",
+            "open": "document.register_open"
+          },
+          "variants": {
+            "open": "prop.desk_empty",
+            "empty": "prop.desk_empty",
+            "final": "prop.desk_final"
           }
         },
         {
@@ -561,6 +567,11 @@
             "open": "inspection.player_open",
             "playing": "inspection.player_playing",
             "powered": "inspection.player_powered"
+          },
+          "variants": {
+            "open": "prop.player_open",
+            "powered": "prop.player_powered",
+            "playing": "prop.player_playing"
           }
         },
         {
@@ -577,6 +588,9 @@
           "inspection": "inspection.crate",
           "inspectionVariants": {
             "open": "inspection.crate_open"
+          },
+          "variants": {
+            "open": "prop.crate_open"
           }
         },
         {
@@ -588,7 +602,6 @@
           "width": 61,
           "height": 62,
           "range": 44,
-          "asset": "prop.cabinet",
           "name": "Ngăn dưới",
           "inBackground": true,
           "interactionArea": {
@@ -601,6 +614,9 @@
           "inspectionVariants": {
             "locked": "inspection.cabinet_locked",
             "open": "inspection.cabinet_open"
+          },
+          "variants": {
+            "open": "prop.cabinet_open"
           }
         },
         {
@@ -795,6 +811,10 @@
           "inspection": "inspection.guard_wall",
           "inspectionVariants": {
             "open": "inspection.guard_door"
+          },
+          "asset": "prop.guard_wall",
+          "variants": {
+            "open": "prop.guard_door"
           }
         },
         {
@@ -807,7 +827,8 @@
           "height": 24,
           "range": 44,
           "name": "Bảng tin",
-          "inspection": "inspection.board"
+          "inspection": "inspection.board",
+          "asset": "prop.board"
         }
       ],
       "npcSlots": {
@@ -899,7 +920,8 @@
           "range": 44,
           "target": "HALLWAY",
           "spawn": "guard",
-          "name": "Cửa hành lang"
+          "name": "Cửa hành lang",
+          "inBackground": true
         },
         {
           "id": "records",
@@ -927,6 +949,10 @@
           "inspection": "inspection.gate_closed",
           "inspectionVariants": {
             "open": "inspection.gate_open"
+          },
+          "asset": "prop.gate_closed",
+          "variants": {
+            "open": "prop.gate_open"
           }
         }
       ],
@@ -1030,6 +1056,10 @@
           "inspection": "inspection.evidence",
           "inspectionVariants": {
             "final": "inspection.evidence_signed"
+          },
+          "asset": "prop.evidence",
+          "variants": {
+            "final": "prop.evidence_signed"
           }
         }
       ],

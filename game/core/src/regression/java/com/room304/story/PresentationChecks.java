@@ -33,7 +33,7 @@ final class PresentationChecks {
     static void run(Path fixtures,Path assetRoot,AssetCatalog assets,StoryContent content,SceneCatalog world)throws Exception{
         checkInspections(assetRoot,assets,world);
         Path visualFile=assetRoot.resolve(assets.path("story.visuals"));StoryVisuals v=StoryVisuals.load(new FileHandle(visualFile.toFile()),assets,content,world);
-        assert v.document("DOC-SIGNED-07").equals("document.signed");assert v.document("C3-05-MAIN-T05__7").equals("document.report");assert v.cue("C-02-MAIN-E09").actors().get(0).pose().equals("pose.seated");assert v.document("UNKNOWN")==null;
+        assert v.document("DOC-SIGNED-07").equals("inspection.evidence_signed");assert v.document("C3-05-MAIN-T05__7").equals("inspection.papers");assert v.cue("C-02-MAIN-E09").actors().get(0).pose().equals("pose.seated");assert v.document("UNKNOWN")==null;
         String raw=Files.readString(visualFile);Path bad=fixtures.resolve("visual-invalid.json");
         try{Files.writeString(bad,raw.replace("C-02-MAIN-E09","NO-SUCH-CUE"));reject(()->StoryVisuals.load(new FileHandle(bad.toFile()),assets,content,world));Files.writeString(bad,raw.replace("\"anchor\": \"lastdesk\"","\"anchor\": \"no-such-object\""));reject(()->StoryVisuals.load(new FileHandle(bad.toFile()),assets,content,world));}finally{Files.deleteIfExists(bad);}
         String manifest=Files.readString(assetRoot.resolve(AssetCatalog.MANIFEST));int end=manifest.lastIndexOf(']');
@@ -77,6 +77,7 @@ final class PresentationChecks {
         GameState state=new GameState();state.enteredRoom(RoomId.ROOM_304);
         var room=world.scene(RoomId.ROOM_304);
         assert StoryWorldView.inspectionAsset(room.object("desk"),state).equals("inspection.register");
+        assert StoryWorldView.inspectionAsset(room.object("desk"),state,"C1-04-READ-T02__1").equals(StoryWorldView.OPEN_REGISTER_ART);
         assert StoryWorldView.inspectionAsset(room.object("crate"),state).equals("inspection.crate");
         state.book=BookLocation.CARRIED;state.cabinetLocked=false;state.events.add(Event.RECORDER_CHECKED);
         assert StoryWorldView.inspectionAsset(room.object("desk"),state).equals("inspection.desk_empty");
@@ -88,7 +89,9 @@ final class PresentationChecks {
         state.battery=BatteryLocation.PLAYER;
         assert StoryWorldView.inspectionAsset(room.object("player"),state).equals("inspection.player_powered");
         state.tape=TapeLocation.PLAYER;
-        assert StoryWorldView.inspectionAsset(room.object("player"),state).equals("inspection.player_playing");
+        assert StoryWorldView.inspectionAsset(room.object("player"),state,"C4-05-MAIN-D06").equals("inspection.player_playing");
+        assert StoryWorldView.inspectionAsset(room.object("player"),state,"C4-05-MAIN-SFX13").equals("inspection.player_powered");
+        assert StoryWorldView.inspectionAsset(room.object("player"),state).equals("inspection.player_powered");
         state.items.add(Item.CASSETTE);
         assert StoryWorldView.inspectionAsset(room.object("crate"),state).equals("inspection.crate_open");
         state.book=BookLocation.FINAL_TABLE;state.clues.add(Clue.SIGNED_ADDENDUM);

@@ -250,7 +250,7 @@
       "id": "map.story.guard_room",
       "path": "maps/guard_room.png",
       "type": "texture",
-      "required": false
+      "required": true
     },
     {
       "id": "map.tmx.guard_room",
@@ -286,13 +286,13 @@
       "id": "prop.player",
       "path": "sprites/props/player.png",
       "type": "texture",
-      "required": false
+      "required": true
     },
     {
       "id": "prop.crate",
       "path": "sprites/props/crate.png",
       "type": "texture",
-      "required": false
+      "required": true
     },
     {
       "id": "prop.cabinet",
@@ -304,7 +304,7 @@
       "id": "prop.papers",
       "path": "sprites/props/papers.png",
       "type": "texture",
-      "required": false
+      "required": true
     },
     {
       "id": "story.audio",
@@ -382,7 +382,8 @@
       "id": "document.c_phone",
       "path": "documents/trang_phone.png",
       "type": "texture",
-      "required": false
+      "required": true,
+      "filter": "Nearest"
     },
     {
       "id": "story.visuals",
@@ -674,6 +675,118 @@
     {
       "id": "inspection.window",
       "path": "ui/inspection/window.png",
+      "type": "texture",
+      "required": true,
+      "filter": "Nearest"
+    },
+    {
+      "id": "prop.player_open",
+      "path": "sprites/props/player_open.png",
+      "type": "texture",
+      "required": true,
+      "filter": "Nearest"
+    },
+    {
+      "id": "prop.player_powered",
+      "path": "sprites/props/player_powered.png",
+      "type": "texture",
+      "required": true,
+      "filter": "Nearest"
+    },
+    {
+      "id": "prop.player_playing",
+      "path": "sprites/props/player_playing.png",
+      "type": "texture",
+      "required": true,
+      "filter": "Nearest"
+    },
+    {
+      "id": "prop.crate_open",
+      "path": "sprites/props/crate_open.png",
+      "type": "texture",
+      "required": true,
+      "filter": "Nearest"
+    },
+    {
+      "id": "prop.cabinet_open",
+      "path": "sprites/props/cabinet_open.png",
+      "type": "texture",
+      "required": true,
+      "filter": "Nearest"
+    },
+    {
+      "id": "prop.desk_empty",
+      "path": "sprites/props/desk_empty.png",
+      "type": "texture",
+      "required": true,
+      "filter": "Nearest"
+    },
+    {
+      "id": "prop.desk_final",
+      "path": "sprites/props/desk_final.png",
+      "type": "texture",
+      "required": true,
+      "filter": "Nearest"
+    },
+    {
+      "id": "prop.board",
+      "path": "sprites/props/board.png",
+      "type": "texture",
+      "required": true,
+      "filter": "Nearest"
+    },
+    {
+      "id": "prop.guard_wall",
+      "path": "sprites/props/guard_wall.png",
+      "type": "texture",
+      "required": true,
+      "filter": "Nearest"
+    },
+    {
+      "id": "prop.guard_door",
+      "path": "sprites/props/guard_door.png",
+      "type": "texture",
+      "required": true,
+      "filter": "Nearest"
+    },
+    {
+      "id": "prop.gate_closed",
+      "path": "sprites/props/gate_closed.png",
+      "type": "texture",
+      "required": true,
+      "filter": "Nearest"
+    },
+    {
+      "id": "prop.gate_open",
+      "path": "sprites/props/gate_open.png",
+      "type": "texture",
+      "required": true,
+      "filter": "Nearest"
+    },
+    {
+      "id": "prop.evidence",
+      "path": "sprites/props/evidence.png",
+      "type": "texture",
+      "required": true,
+      "filter": "Nearest"
+    },
+    {
+      "id": "prop.evidence_signed",
+      "path": "sprites/props/evidence_signed.png",
+      "type": "texture",
+      "required": true,
+      "filter": "Nearest"
+    },
+    {
+      "id": "prop.chair",
+      "path": "sprites/props/chair.png",
+      "type": "texture",
+      "required": true,
+      "filter": "Nearest"
+    },
+    {
+      "id": "document.register_open",
+      "path": "documents/register_open.png",
       "type": "texture",
       "required": true,
       "filter": "Nearest"

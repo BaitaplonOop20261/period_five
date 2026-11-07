@@ -64,7 +64,18 @@ public final class GameScreen extends ScreenAdapter {
         InputProcessor processor=paused?panel.stage():session.dialogue().isActive()&&fadeRemaining==0?dialogueUI.getStage():null;
         if(Gdx.input.getInputProcessor()!=processor) Gdx.input.setInputProcessor(processor);
         if(session.exploring()||session.isNotes())inspectedObject=null;
-        dialogueUI.present(session.dialogue(),world.scene().name,session.dialogue().isActive()?world.visuals().document(session.dialogue().getLine().getId(),session.block()):null,inspectedObject==null?null:StoryWorldView.inspectionAsset(inspectedObject,session.state()),inspectedObject==null?null:inspectedObject.name);
+        String line=session.dialogue().isActive()?session.dialogue().getLine().getId():null;
+        String document=line==null?null:world.visuals().document(line,session.block());
+        String inspection=inspectedObject==null?null:StoryWorldView.inspectionAsset(inspectedObject,session.state(),line);
+        String title=inspectedObject==null?null:inspectedObject.name;
+        if(StoryWorldView.OPEN_REGISTER_ART.equals(document)) {
+            inspection=document;
+            title="Sổ đầu bài";
+        } else if("inspection.evidence_signed".equals(document)) {
+            inspection=document;
+            title="Bản bổ sung đã ký";
+        }
+        dialogueUI.present(session.dialogue(),world.scene().name,document,inspection,title);
     }
     @Override public void show(){sync();}
     @Override public void render(float delta) {

@@ -39,8 +39,9 @@ public final class StoryDesktopChecks {
     private static void tick(){screen.render(.25f);frames++;observeVisuals();}
     private static void observeVisuals(){
         if(!screen.session().dialogue().isActive())return;String id=screen.session().dialogue().getLine().getId();
+        if("C1-04-READ-T02".equals(id)){check(StoryWorldView.OPEN_REGISTER_ART.equals(screen.dialogueUI().inspectionAsset()),"Reading the register must show open pages");if(visualChecks.add("open-register"))snapshot("register-open");}
         if("C1-04-HAUNT-E08".equals(id)){check(screen.world().pose("nga").equals("pose.seated"),"Haunt seated ghost binding");visualChecks.add("haunt");}
-        if("C4-05-MAIN-D06".equals(id)){check(screen.world().recording(),"Recording icon persists through tape subtitles");visualChecks.add("record");}
+        if("C4-05-MAIN-D06".equals(id)){check(screen.world().recording(),"Recording icon persists through tape subtitles");check("inspection.player_playing".equals(screen.dialogueUI().inspectionAsset()),"Tape close-up plays during tape dialogue");visualChecks.add("record");}
         if("A-01-MAIN-E03".equals(id)){check(screen.world().pose("nga").equals("walk.down"),"Memory departure pose");visualChecks.add("memory");}
         if("C-02-MAIN-E09".equals(id)){check(screen.world().pose("linh").equals("pose.seated"),"C seated pose");var p=screen.world().actorPosition("linh",screen.session(),screen.player());check(Math.abs(p.x-screen.player().getX())>1||Math.abs(p.y-screen.player().getY())>1,"C visual placement must not mutate Player physics");visualChecks.add("seated");}
     }
@@ -386,7 +387,7 @@ public final class StoryDesktopChecks {
             begin(true,null);ready();choice("C6-01-CHOICE05");check(screen.dialogueUI().selectedChoiceId().equals("C-01-CHOICE02"),"C cancel selected first");choice("C-01-CHOICE02");choice("C6-01-CHOICE05");choice("C-01-CHOICE01");check(screen.session().ended()&&screen.session().state().ending()==Ending.C,"C runtime ending");System.out.println("Desktop C complete");
             Gdx.graphics.setWindowedMode(800,600);System.out.println("Input proxy after window resize: "+(Gdx.input==scripted));Gdx.input=scripted;screen.resize(800,600);for(int i=0;i<3;i++)frame();java.util.concurrent.atomic.AtomicBoolean replaySkip=new java.util.concurrent.atomic.AtomicBoolean();MenuScreen end=new MenuScreen(assets,content,new AudioSettings(),save,replaySkip::set,()->{},()->{},Ending.C);try{end.show();end.resize(800,600);end.render(0);snapshot("ending-4x3");menuPress(end,Input.Keys.ENTER);menuPress(end,Input.Keys.DOWN);menuPress(end,Input.Keys.ENTER);check(replaySkip.get(),"Replay skip button callback");}finally{end.dispose();}
             checkLobbyUi();
-            check(visualChecks.containsAll(Set.of("haunt","record","memory","seated")),"Missing runtime visual coverage: "+visualChecks);System.out.println("Runtime visual bindings passed: real animation profiles, haunt/record/memory/C seated, unchanged physics.");
+            check(visualChecks.containsAll(Set.of("open-register","haunt","record","memory","seated")),"Missing runtime visual coverage: "+visualChecks);System.out.println("Runtime visual bindings passed: open register, playback, real animation profiles, haunt/memory/C seated, unchanged physics.");
             Files.deleteIfExists(cFile);
         }finally{if(screen!=null)screen.dispose();assets.dispose();Gdx.input=original;Files.deleteIfExists(save.path());Files.deleteIfExists(folder.resolve("c-world.json"));Files.deleteIfExists(folder.resolve("geometry.tmx"));
             // OneDrive can mark a newly created fixture directory read-only on Windows.

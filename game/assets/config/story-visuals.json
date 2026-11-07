@@ -3,12 +3,12 @@
   "documents": {
     "DOC-MSG": "document.msg",
     "DOC-PHOTO": "document.photo",
-    "DOC-REGISTER": "document.register",
+    "DOC-REGISTER": "document.register_open",
     "DOC-NEWS": "document.news",
     "DOC-GATE": "document.gate",
-    "DOC-REPORT": "document.report",
+    "DOC-REPORT": "inspection.papers",
     "DOC-INVENTORY": "document.inventory",
-    "DOC-SIGNED": "document.signed",
+    "DOC-SIGNED": "inspection.evidence_signed",
     "DOC-FAMILY": "document.family"
   },
   "lineDocuments": {
@@ -155,7 +155,8 @@
       "cue": "C1-04-HAUNT-E03",
       "room": "ROOM_304",
       "actors": [],
-      "effect": "chair"
+      "effect": "chair",
+      "asset": "prop.chair"
     },
     {
       "cue": "C1-04-HAUNT-E08",
@@ -220,7 +221,8 @@
           "alpha": 0.4
         }
       ],
-      "effect": "chair"
+      "effect": "chair",
+      "asset": "prop.chair"
     },
     {
       "cue": "C4-05-END-E01",
