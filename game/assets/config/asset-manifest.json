@@ -238,7 +238,7 @@
       "id": "map.story.hallway",
       "path": "maps/hallway.png",
       "type": "texture",
-      "required": false
+      "required": true
     },
     {
       "id": "map.tmx.hallway",

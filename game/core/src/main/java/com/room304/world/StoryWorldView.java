@@ -198,6 +198,14 @@ public final class StoryWorldView implements Disposable {
             else depthDraws.add(new DepthDraw(o.depthSortY,draw));
         }
         List<String> actors=new ArrayList<>(session.visibleNpcs());actors.add("linh");for(String id:poses.keySet())if(!actors.contains(id))actors.add(id);actors.removeIf(id->poses.containsKey(id)&&poses.get(id).hidden());actors.sort(Comparator.comparingDouble(id->-actorPosition(id,session,player).y));
+        if(scene.id.equals("ROOM_304")&&(chairShift||session.state().knows(Clue.ALTERED_REGISTER))){
+            var desk=scene.object("lastdesk");
+            Texture chair=textures.get(chairAsset==null?"prop.chair":chairAsset);
+            if(chair!=null) {
+                float x=desk.x+(desk.width-chair.getWidth())/2f,y=desk.y+4;
+                depthDraws.add(new DepthDraw(y,()->batch.draw(chair,x,y)));
+            }
+        }
         for(String actor:actors) {
             depthDraws.add(new DepthDraw(actorPosition(actor,session,player).y,()->drawActor(actor,session,player)));
         }
@@ -341,11 +349,6 @@ public final class StoryWorldView implements Disposable {
         if(recording){Texture icon=textures.get(recordAsset);if(icon!=null)batch.draw(icon,420,scene.height-105,icon.getWidth(),icon.getHeight());font.setColor(Color.SALMON);UiFont.scale(font,.8f);font.draw(batch,content.text("UI-RECORD-ICON"),420,scene.height-70);UiFont.scale(font,1);}
         if("memory".equals(effect)){SceneCatalog.ObjectDef door=scene.object("door.hall"),desk=scene.object("lastdesk");Texture art=textures.get(effectAsset);for(int i=0;i<3;i++){float t=Math.min(1,Math.max(0,(elapsed-i*.2f)/2));float x=MathUtils.lerp(desk.x-i*42,door.x+i*12,t),y=MathUtils.lerp(desk.y-28,door.y+32,t);if(art!=null){batch.setColor(1,1,1,.25f*(1-t));batch.draw(art,x,y,art.getWidth(),art.getHeight());batch.setColor(Color.WHITE);}else drawBody(x,y,24,40,"",new Color(.6f,.7f,.8f,.25f*(1-t)),"down");}}
         if("camera".equals(effect)&&elapsed<.45f){Texture art=textures.get(effectAsset);if(art!=null)batch.draw(art,470,scene.height-120,art.getWidth(),art.getHeight());font.setColor(Color.WHITE);UiFont.scale(font,.8f);font.draw(batch,"Đã chụp",470,scene.height-95);UiFont.scale(font,1);}
-        if(scene.id.equals("ROOM_304")&&(chairShift||session.state().knows(Clue.ALTERED_REGISTER))){
-            var desk=scene.object("lastdesk");
-            Texture chair=textures.get(chairAsset==null?"prop.chair":chairAsset);
-            if(chair!=null) batch.draw(chair,desk.x+desk.width-chair.getWidth()/2f,desk.y+8);
-        }
     }
     private void drawBody(float x,float y,float width,float height,String name,Color color,String facing) {
         // Geometry only: no generated substitute game artwork.

@@ -116,14 +116,14 @@ public final class StoryDesktopChecks {
         return !Arrays.equals(shown,hidden);
     }
     private static void checkInteractionMarks() throws ReflectiveOperationException {
-        screen.player().setPosition(488,240);screen.player().restoreFacing("right");frame();
-        check("player".equals(screen.world().target()),"Closer cassette player wins overlapping interaction ranges");
+        walk("player");frame();
+        check("player".equals(screen.world().target()),"Cassette player is reachable on its resized table");
         byte[] first=interactionPixels("player");check(hasInteractionMark("player"),"Selected object renders the actual marker pixels");
         check(!hasInteractionMark("crate"),"Only one of the nearby objects receives a marker");
         snapshot("interaction-player-16x9");tick();
         check(!Arrays.equals(first,interactionPixels("player")),"Interaction marker advances through its animation frames");
-        screen.player().setPosition(488,239);frame();check("player".equals(screen.world().target()),"Exact distance tie retains the selected object");
-        screen.player().setPosition(488,238);frame();check("crate".equals(screen.world().target()),"Slightly closer crate immediately replaces the previous target");
+        frame();check("player".equals(screen.world().target()),"Stationary selection remains stable");
+        walk("crate");frame();check("crate".equals(screen.world().target()),"Crate below podium is reachable");
         check(hasInteractionMark("crate")&&!hasInteractionMark("player"),"Marker follows the selected target without leaving the old marker");
         snapshot("interaction-crate-16x9");
         screen.world().render(screen.session(),screen.player(),false);

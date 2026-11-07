@@ -336,14 +336,14 @@
           "height": 24
         },
         {
-          "x": 510,
-          "y": 270,
-          "width": 54,
-          "height": 10
+          "x": 602,
+          "y": 282,
+          "width": 26,
+          "height": 28
         },
         {
-          "x": 510,
-          "y": 190,
+          "x": 293,
+          "y": 310,
           "width": 54,
           "height": 10
         },
@@ -555,10 +555,10 @@
           "id": "player",
           "type": "PROP",
           "label": "UI-PLAYER",
-          "x": 510,
-          "y": 270,
-          "width": 54,
-          "height": 28,
+          "x": 606,
+          "y": 306,
+          "width": 20,
+          "height": 10,
           "range": 44,
           "asset": "prop.player",
           "name": "Máy cassette",
@@ -572,14 +572,21 @@
             "open": "prop.player_open",
             "powered": "prop.player_powered",
             "playing": "prop.player_playing"
+          },
+          "depthSortY": 290,
+          "interactionArea": {
+            "x": 594,
+            "y": 283,
+            "width": 32,
+            "height": 36
           }
         },
         {
           "id": "crate",
           "type": "PROP",
           "label": "UI-CRATE",
-          "x": 510,
-          "y": 190,
+          "x": 293,
+          "y": 310,
           "width": 54,
           "height": 28,
           "range": 44,
@@ -591,7 +598,8 @@
           },
           "variants": {
             "open": "prop.crate_open"
-          }
+          },
+          "depthSortY": 310
         },
         {
           "id": "cabinet",
@@ -729,31 +737,25 @@
           "x": 0,
           "y": 0,
           "width": 640,
-          "height": 8
+          "height": 170
         },
         {
           "x": 0,
-          "y": 472,
+          "y": 316,
           "width": 640,
-          "height": 8
+          "height": 164
         },
         {
           "x": 0,
           "y": 0,
-          "width": 8,
+          "width": 20,
           "height": 480
         },
         {
-          "x": 632,
+          "x": 620,
           "y": 0,
-          "width": 8,
+          "width": 20,
           "height": 480
-        },
-        {
-          "x": 365,
-          "y": 300,
-          "width": 90,
-          "height": 10
         }
       ],
       "objects": [
@@ -768,7 +770,8 @@
           "range": 44,
           "target": "ROOM_304",
           "spawn": "entry",
-          "name": "Cửa 304"
+          "name": "Cửa 304",
+          "inBackground": true
         },
         {
           "id": "door.hung",
@@ -781,7 +784,8 @@
           "range": 44,
           "target": "CLASSROOM",
           "spawn": "entry",
-          "name": "Cửa lớp thầy Hùng"
+          "name": "Cửa lớp thầy Hùng",
+          "inBackground": true
         },
         {
           "id": "stairs",
@@ -794,7 +798,8 @@
           "range": 44,
           "target": "GUARD_ROOM",
           "spawn": "entry",
-          "name": "Cầu thang"
+          "name": "Cầu thang",
+          "inBackground": true
         },
         {
           "id": "guard.wall",
@@ -850,7 +855,7 @@
         },
         "nga": {
           "x": 475,
-          "y": 355
+          "y": 280
         }
       }
     },
