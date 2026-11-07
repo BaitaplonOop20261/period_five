@@ -153,7 +153,7 @@ public class DemoGameScreen implements Screen {
     }
 
     private void updateGame(float delta) {
-        dialogueUI.present(dialogueController, getDialogueLocation());
+        dialogueUI.present(dialogueController);
         interactionMarkStateTime += delta;
 
         if (scene == Scene.ROOM) {
@@ -195,16 +195,8 @@ public class DemoGameScreen implements Screen {
             roomInteractions.update(player.getBounds());
         }
 
-        dialogueUI.present(dialogueController, getDialogueLocation());
+        dialogueUI.present(dialogueController);
         restoreInputProcessor();
-    }
-
-    private String getDialogueLocation() {
-        return switch (scene) {
-            case ROOM -> "Phòng " + activeRoom;
-            case HALLWAY -> "Hành lang";
-            case BACKYARD -> "Sân sau";
-        };
     }
 
     private void updatePlayer(float delta, boolean movementAllowed) {

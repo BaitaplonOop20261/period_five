@@ -75,7 +75,7 @@ public final class GameScreen extends ScreenAdapter {
             inspection=document;
             title="Bản bổ sung đã ký";
         }
-        dialogueUI.present(session.dialogue(),world.scene().name,document,inspection,title);
+        dialogueUI.present(session.dialogue(), document, inspection, title);
     }
     @Override public void show(){sync();}
     @Override public void render(float delta) {

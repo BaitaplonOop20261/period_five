@@ -14,7 +14,7 @@ Nền khung thoại vẽ bằng code dùng `frameAlpha: 0.75`: 75% màu nền t�
 - `DialogueLoader`: kiểm tra nội dung, speaker, ID trùng và liên kết `next`.
 - `DialogueController`: bắt đầu/kết thúc, câu hiện tại, liên kết câu và lựa chọn đã chọn. Không phụ thuộc renderer hoặc Player.
 - `DialogueUI`: layout, background, portrait, typewriter, xuống dòng/phân trang, hiển thị lựa chọn thực sự có trong dữ liệu.
-- `DialogueHud`: hiển thị giờ/địa điểm và phát yêu cầu Tiếp tục/Menu. Không tự thay trạng thái game.
+- `DialogueHud`: hiển thị nút Tiếp tục/Menu và gửi thao tác của người chơi. Thẻ nhiệm vụ và tên khu vực nằm ở HUD khám phá.
 - `DialogueLayout`: cấu hình chung trong `ui-layout.json`.
 - `DialogueAssets`: sở hữu font/chrome UI và mượn background/portrait từ `GameAssets` cấp ứng dụng. Nạp khi đổi câu; đóng thoại tháo drawable, giữ cache tới khi ứng dụng dispose. Constructor độc lập sở hữu cache riêng. Xem [manifest và bàn giao](../../../ASSET_INTEGRATION_GUIDE.md).
 - `ui/PixelFrame`: vẽ nền, đường viền và góc cố định bằng drawable dùng chung với menu; không tạo texture mỗi frame.

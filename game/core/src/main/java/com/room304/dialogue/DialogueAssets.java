@@ -2,13 +2,13 @@ package com.room304.dialogue;
 
 import com.room304.assets.GameAssets;
 import com.room304.ui.PixelFrame;
+import com.room304.ui.UiFont;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
-import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Disposable;
 
@@ -29,28 +29,8 @@ final class DialogueAssets implements Disposable {
         if (!Gdx.files.internal(layout.font).exists()) {
             throw new IllegalArgumentException("Dialogue font not found: " + layout.font);
         }
-        FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal(layout.font));
-        try {
-            FreeTypeFontGenerator.FreeTypeFontParameter params = new FreeTypeFontGenerator.FreeTypeFontParameter();
-            params.size = layout.fontSize;
-            // Pre-bake Vietnamese, including đ/Đ and the complete tone-mark block.
-            StringBuilder characters = new StringBuilder(FreeTypeFontGenerator.DEFAULT_CHARS);
-            for (char c = 0x00a0; c <= 0x01ff; c++) characters.append(c);
-            for (char c = 0x1ea0; c <= 0x1ef9; c++) characters.append(c);
-            characters.append("‘’“”…–—→");
-            params.characters = characters.toString();
-            params.borderWidth = 0;
-            params.borderColor = new Color(0.025f, 0.03f, 0.05f, 0.8f);
-            params.shadowOffsetX = 1;
-            params.shadowOffsetY = 1;
-            params.shadowColor = new Color(0, 0, 0, 0.35f);
-            params.minFilter = Texture.TextureFilter.Linear;
-            params.magFilter = Texture.TextureFilter.Linear;
-            font = generator.generateFont(params);
-            font.getData().markupEnabled = true;
-        } finally {
-            generator.dispose();
-        }
+        font = UiFont.create(Gdx.files.internal(layout.font), layout.fontSize);
+        font.getData().markupEnabled = true;
         Pixmap solid = new Pixmap(1, 1, Pixmap.Format.RGBA8888);
         solid.setColor(Color.WHITE);
         solid.fill();

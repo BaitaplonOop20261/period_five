@@ -2,7 +2,9 @@
 
 ## Bounds thực tế
 
-`game/assets/story/ui-layout.json` CONFIRMED: canvas 640×480; font18; portrait centerX320,bottom70,maxWidth300,height350; textLeft42,textBottom68,textWidth556,textRows3; frameMargin18,frameBottom16,nameplateHeight28; choice530×38,gap6; HUD maxWidth220,left18,top18. Footer nằm trong khung: nút tiếp tục100×26, Menu72×26, gap8, right38,bottom28. `UiPanel.java` dùng khung giữa màn hình rộng344 (500 với nội dung dài), nút tối thiểu36px, cách8px; giới hạn tổng chiều cao440 bằng vùng cuộn. Game không có layout adaptive riêng cho16:9, dùng FitViewport letterbox.
+`game/assets/story/ui-layout.json` dùng canvas 640×480 và font thoại cỡ 19. Portrait có centerX320, bottom70, maxWidth300, height350. Thân thoại có textLeft42, textBottom68, textWidth556 và textRows3. Khung có frameMargin18, frameBottom16 và nameplateHeight28. Nút lựa chọn rộng530, cao38, cách6. Footer chứa nút tiếp tục100×26 và Menu72×26, với gap8, right38, bottom28. `UiPanel.java` dùng khung giữa màn hình rộng 344 hoặc 500 tùy nội dung, nút cao tối thiểu 36, cách 8, và giới hạn chiều cao 440 bằng vùng cuộn. `FitViewport` giữ tỉ lệ khi đổi kích thước cửa sổ.
+
+`ObjectiveHud` vẽ thẻ nhiệm vụ rộng 186 ở góc trái khi người chơi có thể di chuyển trong chế độ khám phá. Thẻ ẩn khi mở đầu, hội thoại, xem vật phẩm, mở ghi chú, tạm dừng hoặc chuyển cảnh.
 
 Cập nhật 06/11/2026: khung thoại và menu nền than, viền đồng được vẽ bằng code trong `ui/PixelFrame`. Thoại có bảng tên gắn mép trên; menu có tiêu đề, nút focus màu đồng và mũi tên pixel, footer phím tắt. Menu tạm dừng chỉ ghi “Tạm dừng”, không có phụ đề tên phòng phía trên. `menu-frame` của Skin ghi đè khung modal; ảnh menu/ending là nền toàn canvas riêng. Bộ ảnh khung bên dưới là phương án Skin tuỳ chọn, không phải tài nguyên bắt buộc để có giao diện này.
 
@@ -33,9 +35,9 @@ Khung66×66: ruột64×64, border1, giữ8px mỗi góc, vạch top/left và vù
 | --- | --- | --- |
 | Drawable dialogue-frame | NinePatch từ dialogue_frame | DialogueUI: khung inset; cao theo vùng chữ + nameGap, đáy frameBottom. Fallback vẽ bằng code. |
 | Drawable speaker-frame | Tuỳ chọn; có thể dùng lại button_normal | DialogueUI: bảng tên gắn mép trên, ẩn khi người nói trống. Fallback vẽ bằng code. |
-| Drawable menu-frame / hud-frame | Cùng NinePatch panel_frame, alias drawable; không tạo ảnh trùng | UiPanel / DialogueHud. |
+| Drawable menu-frame | NinePatch từ panel_frame | UiPanel: khung menu. |
 | TextButtonStyle default / choice / hud | up button_normal, checked/over button_focus, down button_pressed; default-font | Menu/pause/notes / lựa chọn thoại / nút HUD. |
-| LabelStyle default / dialogue / speaker / hud | default-font, màu đủ tương phản | Tiêu đề menu / thân thoại / tên / HUD. |
+| LabelStyle default / dialogue / speaker | default-font, màu đủ tương phản | Tiêu đề menu / thân thoại / tên. |
 
 `GameAssets.optionalSkin(font)` đọc ui.skin JSON và cùng basename .atlas; atlas cache trong AssetManager. Skin mỗi view mượn default-font, không định nghĩa lại BitmapFont default-font trong JSON; tháo font trước dispose Skin. Page atlas do atlas quản lý; không load lại bằng một Texture mới. Drawable có thể là NinePatch/region/texture/sprite đã nạp.
 

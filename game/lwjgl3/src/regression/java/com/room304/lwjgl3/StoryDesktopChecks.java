@@ -38,7 +38,14 @@ public final class StoryDesktopChecks {
     private static void press(int key){frame(key);frame();}
     private static void tick(){screen.render(.25f);frames++;observeVisuals();}
     private static void observeVisuals(){
-        if(!screen.session().dialogue().isActive())return;String id=screen.session().dialogue().getLine().getId();
+        if(!screen.session().dialogue().isActive()) {
+            if(screen.session().exploring() && "GUARD_ROOM".equals(screen.world().scene().id)
+                && "OBJ-09".equals(screen.session().objectiveId()) && visualChecks.add("objective-guard")) {
+                snapshot("objective-guard");
+            }
+            return;
+        }
+        String id=screen.session().dialogue().getLine().getId();
         if("C1-04-READ-T02".equals(id)){check(StoryWorldView.OPEN_REGISTER_ART.equals(screen.dialogueUI().inspectionAsset()),"Reading the register must show open pages");if(visualChecks.add("open-register"))snapshot("register-open");}
         if("C1-04-HAUNT-E08".equals(id)){check(screen.world().pose("nga").equals("pose.seated"),"Haunt seated ghost binding");visualChecks.add("haunt");}
         if("C4-05-MAIN-D06".equals(id)){check(screen.world().recording(),"Recording icon persists through tape subtitles");check("inspection.player_playing".equals(screen.dialogueUI().inspectionAsset()),"Tape close-up plays during tape dialogue");visualChecks.add("record");}
@@ -131,9 +138,15 @@ public final class StoryDesktopChecks {
         check(hasInteractionMark("trang"),"Marker remains aligned after 4:3 resize");snapshot("interaction-npc-4x3");
         Gdx.graphics.setWindowedMode(960,540);Gdx.input=scripted;screen.resize(960,540);
         screen.player().setPosition(300,90);frame();check(screen.world().target()==null,"No interaction selected outside all ranges");
-        byte[] far=com.badlogic.gdx.utils.ScreenUtils.getFrameBufferPixels(0,0,Gdx.graphics.getBackBufferWidth(),Gdx.graphics.getBackBufferHeight(),false);
+        int[] objectiveBorder = roomPixel(100, 465.5f);
+        int width = Gdx.graphics.getBackBufferWidth();
+        // The objective HUD also disappears when interaction is disabled. Compare the scene below it.
+        int heightBelowHud = Gdx.graphics.getBackBufferHeight() * 3 / 4;
+        byte[] far = com.badlogic.gdx.utils.ScreenUtils.getFrameBufferPixels(0, 0, width, heightBelowHud, false);
         screen.world().render(screen.session(),screen.player(),false);
-        check(Arrays.equals(far,com.badlogic.gdx.utils.ScreenUtils.getFrameBufferPixels(0,0,Gdx.graphics.getBackBufferWidth(),Gdx.graphics.getBackBufferHeight(),false)),"No marker rendered when far from interactables");
+        check(Arrays.equals(far, com.badlogic.gdx.utils.ScreenUtils.getFrameBufferPixels(0, 0, width, heightBelowHud, false)),
+            "No marker rendered when far from interactables");
+        check(!Arrays.equals(objectiveBorder, roomPixel(100, 465.5f)), "Objective HUD hides when exploration controls are disabled");
         System.out.println("Interaction markers passed: real animated pixels, nearest/tied/overlapping objects, E target, NPC, modal suppression, far range and resize.");
     }
     private static void checkInspectionUi() {
@@ -311,7 +324,28 @@ public final class StoryDesktopChecks {
         assets=new GameAssets();assets.validateRequired();AssetCatalog manifest=assets.catalog();content=StoryContent.load(Gdx.files.internal(manifest.path("story.content")));world=SceneCatalog.load(Gdx.files.internal(manifest.path("story.world")),manifest);
         Path folder=Files.createTempDirectory("room304-story-save-");save=new SaveStore(folder.resolve("slot.json"));
         try {
-            Room304Game app=new Room304Game();try{app.create();check(app.getScreen() instanceof MenuScreen,"Menu startup");keys=Set.of(Input.Keys.ENTER);app.render();check(app.getScreen() instanceof GameScreen,"New game routing");GameScreen current=(GameScreen)app.getScreen();String first=current.session().dialogue().getLine().getId();app.render();app.render();check(first.equals(current.session().dialogue().getLine().getId()),"Held menu Enter must not advance opening");keys=Set.of();app.requestMenu();app.render();check(app.getScreen() instanceof MenuScreen,"Return menu routing");}finally{app.dispose();}
+            Room304Game app = new Room304Game();
+            try {
+                app.create();
+                check(app.getScreen() instanceof MenuScreen, "Menu startup");
+                keys = Set.of(Input.Keys.ENTER);
+                app.render();
+                check(app.getScreen() instanceof GameScreen, "New game routing");
+                GameScreen current = (GameScreen) app.getScreen();
+                String first = current.session().dialogue().getLine().getId();
+                app.render();
+                app.render();
+                check(first.equals(current.session().dialogue().getLine().getId()), "Held menu Enter must not advance opening");
+                current.dialogueUI().continueText();
+                app.render();
+                snapshot("opening-without-location");
+                keys = Set.of();
+                app.requestMenu();
+                app.render();
+                check(app.getScreen() instanceof MenuScreen, "Return menu routing");
+            } finally {
+                app.dispose();
+            }
             var side=assets.animation("char.linh.walk.side");
             var mirrored=assets.animation("char.linh.walk.side",true);
             check(!side.getKeyFrame(0).isFlipX() && mirrored.getKeyFrame(0).isFlipX(),"Opposite walking directions must mirror independently");

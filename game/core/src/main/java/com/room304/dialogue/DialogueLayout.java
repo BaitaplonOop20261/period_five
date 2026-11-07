@@ -21,8 +21,6 @@ public final class DialogueLayout {
     public float frameAlpha = .75f;
     public float nameplateHeight = 30;
     public float dimAlpha = 0.22f;
-    public float hudLeft = 48;
-    public float hudTop = 26;
     public float controlsRight = 24;
     public float controlsBottom = 26;
     public float controlsWidth = 98;
@@ -33,15 +31,10 @@ public final class DialogueLayout {
     public float choiceTextGap = 65;
     public float choiceTopMargin = 40;
     public float nameFontScale = 0.75f;
-    public float hudFontScale = 0.62f;
     public float controlFontScale = 0.48f;
     public float hintFontScale = 0.48f;
     public float choiceFontScale = 0.65f;
     public float placeholderFontScale = 0.40f;
-    public float hudMaxWidth = 300;
-    public float hudPaddingX = 14;
-    public float hudPaddingY = 9;
-    public float hudRowGap = 4;
     public float hudButtonGap = 8;
     public float placeholderTop = 30;
     public float placeholderWidth = 130;
