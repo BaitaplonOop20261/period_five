@@ -4,6 +4,7 @@ import com.room304.assets.GameAssets;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
+import com.room304.ui.UiFont;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
@@ -89,7 +90,7 @@ public final class DialogueUI implements Disposable {
         inspection.setVisible(false);
         root.addActor(inspection);
         inspectionTitle = new Label("", new Label.LabelStyle(assets.font, new Color(.86f,.83f,.72f,1)));
-        inspectionTitle.setFontScale(.7f);
+        UiFont.scale(inspectionTitle, .74f);
         inspectionTitle.setAlignment(Align.center);
         inspectionTitle.setEllipsis(true);
         inspectionTitle.setBounds(24, layout.height-64, layout.width-48, 24);
@@ -120,7 +121,7 @@ public final class DialogueUI implements Disposable {
         text.setTouchable(Touchable.disabled);
         root.addActor(text);
         name = new Label("", skin!=null&&skin.has("speaker",Label.LabelStyle.class)?skin.get("speaker",Label.LabelStyle.class):new Label.LabelStyle(assets.font, new Color(.94f, .76f, .47f, 1)));
-        name.setFontScale(layout.nameFontScale);
+        UiFont.scale(name, layout.nameFontScale);
         name.setEllipsis(true);
         name.setAlignment(Align.center);
         name.setTouchable(Touchable.disabled);
@@ -133,14 +134,14 @@ public final class DialogueUI implements Disposable {
         Label.LabelStyle hintStyle = new Label.LabelStyle(assets.font, new Color(.76f, .72f, .65f, 1));
         Label enter = new Label("Enter", new Label.LabelStyle(hintStyle));
         enter.getStyle().background = assets.nameplate;
-        enter.setFontScale(layout.hintFontScale);
+        UiFont.scale(enter, layout.hintFontScale);
         enter.setAlignment(Align.center);
         enter.setBounds(layout.textLeft, layout.controlsBottom + 3, 36, layout.smallLabelHeight);
         enter.setTouchable(Touchable.disabled);
         root.addActor(enter);
         hint = new Label("", hintStyle);
         hint.setName("dialogue-hint");
-        hint.setFontScale(layout.hintFontScale);
+        UiFont.scale(hint, layout.hintFontScale);
         hint.setEllipsis(true);
         hint.setBounds(layout.textLeft + 46, layout.controlsBottom + 3,
             layout.width - layout.controlsRight - layout.controlsWidth - DialogueHud.MENU_WIDTH
@@ -148,7 +149,7 @@ public final class DialogueUI implements Disposable {
         hint.setTouchable(Touchable.disabled);
         root.addActor(hint);
         placeholder = new Label("PORTRAIT TẠM", bodyStyle);
-        placeholder.setFontScale(layout.placeholderFontScale);
+        UiFont.scale(placeholder, layout.placeholderFontScale);
         placeholder.setBounds((layout.width - layout.placeholderWidth) / 2,
             layout.height - layout.placeholderTop, layout.placeholderWidth, layout.smallLabelHeight);
         placeholder.setVisible(false);
@@ -164,11 +165,10 @@ public final class DialogueUI implements Disposable {
     private float frameTop() { return layout.textBottom + textHeight() + layout.nameGap; }
 
     /** Synchronize only in update; textures and labels are untouched in draw(). */
-    public void present(DialogueController controller, String worldLocation) {present(controller,worldLocation,null);}
-    public void present(DialogueController controller, String worldLocation,String documentBackground) {
-        present(controller,worldLocation,documentBackground,null,null);
+    public void present(DialogueController controller) {
+        present(controller, null, null, null);
     }
-    public void present(DialogueController controller, String worldLocation,String documentBackground,String inspectionAsset,String objectName) {
+    public void present(DialogueController controller, String documentBackground, String inspectionAsset, String objectName) {
         if (!controller.isActive()) { hide(); return; }
         if (controller.getLine().getText().isBlank()) { hide(); return; }
         root.setVisible(true);
@@ -214,8 +214,6 @@ public final class DialogueUI implements Disposable {
         nameplate.setBounds(layout.textLeft - 8, frameTop() - layout.nameplateHeight / 2,
             Math.min(layout.textWidth, Math.max(84, name.getPrefWidth() + 32)), layout.nameplateHeight);
         nameplate.setVisible(!name.getText().toString().isBlank());
-        hud.showContext(conversation.getTime() == null ? "—" : conversation.getTime(),
-            conversation.getLocation() == null ? worldLocation : conversation.getLocation());
         paginate(Normalizer.normalize(line.getText(), Normalizer.Form.NFC).replace("↑ / ↓","Lên / xuống"));
         buildChoices();
         pageIndex = 0;
@@ -325,7 +323,7 @@ public final class DialogueUI implements Disposable {
             button.setProgrammaticChangeEvents(false);
             button.setChecked(choiceButtons.isEmpty());
             choiceButtons.add(button);
-            button.getLabel().setFontScale(layout.choiceFontScale);
+            UiFont.scale(button.getLabel(), layout.choiceFontScale);
             button.getLabel().setWrap(true);
             button.addListener(new ChangeListener() {
                 @Override public void changed(ChangeEvent event, Actor actor) {

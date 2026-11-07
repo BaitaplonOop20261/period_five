@@ -15,6 +15,8 @@ import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.room304.assets.GameAssets;
 import com.room304.story.*;
+import com.room304.ui.ObjectiveHud;
+import com.room304.ui.UiFont;
 import java.util.*;
 import static com.room304.story.GameState.*;
 
@@ -30,6 +32,7 @@ public final class StoryWorldView implements Disposable {
     private final ShapeRenderer shapes=new ShapeRenderer();
     private final FollowCamera camera=new FollowCamera();
     private final FitViewport hudViewport=new FitViewport(640,480);
+    private final ObjectiveHud objectiveHud;
     private final FitViewport viewport=new FitViewport(640,480,camera);
     private final RoomInteractionSystem selector=new RoomInteractionSystem(List.of());
     private final Rectangle visibleBounds=new Rectangle();
@@ -49,7 +52,8 @@ public final class StoryWorldView implements Disposable {
     private boolean recording,chairShift;
     public StoryWorldView(GameAssets assets,SceneCatalog catalog,StoryContent content,BitmapFont font) {
         this.assets=assets;this.catalog=catalog;this.content=content;this.font=font;
-        try{visuals=StoryVisuals.load(Gdx.files.internal(assets.catalog().path("story.visuals")),assets.catalog(),content,catalog);
+        try{objectiveHud=new ObjectiveHud();
+        visuals=StoryVisuals.load(Gdx.files.internal(assets.catalog().path("story.visuals")),assets.catalog(),content,catalog);
         interactionMarkAnimation=assets.animation("ui.interaction");
         for(var a:catalog.player().animations.entrySet()){Animation<TextureRegion> animation=assets.animation(a.getValue(),catalog.player().mirrorWalkLeft && a.getKey().equals("walk.left"));if(animation!=null)animations.put("linh/"+a.getKey(),animation);}
         for(String npc:catalog.npcIds()) for(var a:catalog.npc(npc).animations.entrySet()) {
@@ -200,7 +204,8 @@ public final class StoryWorldView implements Disposable {
         depthDraws.sort(Comparator.comparingDouble(draw->-draw.y()));
         for(DepthDraw draw:depthDraws)draw.draw().run();
         drawEffects(session);
-        font.setColor(Color.LIGHT_GRAY);font.getData().setScale(.68f);
+        font.setColor(Color.LIGHT_GRAY);
+        UiFont.scale(font, .74f);
         String selected=target();
         if(selected!=null && interactionsEnabled && session.exploring() && selector.getActiveTarget().getKind()!=RoomInteractionSystem.Kind.NPC) {
             SceneCatalog.ObjectDef object=scene.objects.stream().filter(o->o.id.equals(selected)).findFirst().orElse(null);
@@ -221,7 +226,16 @@ public final class StoryWorldView implements Disposable {
             }
         }
         if(!session.overlay().equals("NONE")){font.setColor(session.overlay().equals("CLEAR_LINH")?Color.WHITE:Color.GRAY);font.draw(batch,session.overlay().equals("CLEAR_LINH")?"33. Linh":"Linh",260,390);}
-        if(session.exploring()){font.setColor(Color.WHITE);font.getData().setScale(1);font.draw(batch,scene.name,16,scene.height-16);font.getData().setScale(.8f);font.draw(batch,session.objective(),16,scene.height-43);font.getData().setScale(.65f);font.draw(batch,"WASD / phím hướng · E tương tác · N ghi chú · Esc tạm dừng",16,24);}font.getData().setScale(1);batch.end();
+        if(session.exploring()) {
+            if (interactionsEnabled) {
+                objectiveHud.draw(batch, font, hudViewport.getWorldHeight(), scene.name, session.objective());
+            }
+            font.setColor(Color.WHITE);
+            UiFont.scale(font, .72f);
+            font.draw(batch,"WASD / phím hướng · E tương tác · N ghi chú · Esc tạm dừng",16,24);
+        }
+        UiFont.scale(font, 1);
+        batch.end();
     }
     private void drawInteractionMark(StorySession session,Player player) {
         RoomInteractionSystem.Target target=selector.getActiveTarget();
@@ -324,9 +338,9 @@ public final class StoryWorldView implements Disposable {
     }
     private void drawEffects(StorySession session){
         float elapsed=time-effectTime;
-        if(recording){Texture icon=textures.get(recordAsset);if(icon!=null)batch.draw(icon,420,scene.height-105,icon.getWidth(),icon.getHeight());font.setColor(Color.SALMON);font.getData().setScale(.8f);font.draw(batch,content.text("UI-RECORD-ICON"),420,scene.height-70);font.getData().setScale(1);}
+        if(recording){Texture icon=textures.get(recordAsset);if(icon!=null)batch.draw(icon,420,scene.height-105,icon.getWidth(),icon.getHeight());font.setColor(Color.SALMON);UiFont.scale(font,.8f);font.draw(batch,content.text("UI-RECORD-ICON"),420,scene.height-70);UiFont.scale(font,1);}
         if("memory".equals(effect)){SceneCatalog.ObjectDef door=scene.object("door.hall"),desk=scene.object("lastdesk");Texture art=textures.get(effectAsset);for(int i=0;i<3;i++){float t=Math.min(1,Math.max(0,(elapsed-i*.2f)/2));float x=MathUtils.lerp(desk.x-i*42,door.x+i*12,t),y=MathUtils.lerp(desk.y-28,door.y+32,t);if(art!=null){batch.setColor(1,1,1,.25f*(1-t));batch.draw(art,x,y,art.getWidth(),art.getHeight());batch.setColor(Color.WHITE);}else drawBody(x,y,24,40,"",new Color(.6f,.7f,.8f,.25f*(1-t)),"down");}}
-        if("camera".equals(effect)&&elapsed<.45f){Texture art=textures.get(effectAsset);if(art!=null)batch.draw(art,470,scene.height-120,art.getWidth(),art.getHeight());font.setColor(Color.WHITE);font.getData().setScale(.8f);font.draw(batch,"Đã chụp",470,scene.height-95);font.getData().setScale(1);}
+        if("camera".equals(effect)&&elapsed<.45f){Texture art=textures.get(effectAsset);if(art!=null)batch.draw(art,470,scene.height-120,art.getWidth(),art.getHeight());font.setColor(Color.WHITE);UiFont.scale(font,.8f);font.draw(batch,"Đã chụp",470,scene.height-95);UiFont.scale(font,1);}
         if(scene.id.equals("ROOM_304")&&(chairShift||session.state().knows(Clue.ALTERED_REGISTER))){
             var desk=scene.object("lastdesk");
             Texture chair=textures.get(chairAsset==null?"prop.chair":chairAsset);
@@ -341,11 +355,12 @@ public final class StoryWorldView implements Disposable {
     }
     private void drawActorName(String name,float centerX,float topY) {
         if(name.isEmpty())return;
-        font.setColor(Color.WHITE);font.getData().setScale(.7f);
+        font.setColor(Color.WHITE);
+        UiFont.scale(font, .76f);
         GlyphLayout measured=new GlyphLayout(font,name);
         font.draw(batch,name,centerX-measured.width/2,topY+14);
-        font.getData().setScale(1);
+        UiFont.scale(font, 1);
     }
     public void resize(int width,int height){if(width>0&&height>0){viewport.update(width,height,true);hudViewport.update(width,height,true);}}
-    @Override public void dispose(){if(renderer!=null)renderer.dispose();for(TiledMap cached:mapCache.values())cached.dispose();mapCache.clear();batch.dispose();shapes.dispose();}
+    @Override public void dispose(){if(renderer!=null)renderer.dispose();for(TiledMap cached:mapCache.values())cached.dispose();mapCache.clear();batch.dispose();shapes.dispose();if(objectiveHud!=null)objectiveHud.dispose();}
 }

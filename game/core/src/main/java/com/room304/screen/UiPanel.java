@@ -4,7 +4,6 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
-import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.scenes.scene2d.*;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.*;
@@ -12,6 +11,7 @@ import com.badlogic.gdx.utils.*;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.room304.assets.GameAssets;
 import com.room304.ui.PixelFrame;
+import com.room304.ui.UiFont;
 import java.util.List;
 import java.util.ArrayList;
 import com.room304.story.StoryContent;
@@ -51,13 +51,7 @@ public final class UiPanel implements Disposable {
         stage=new Stage(viewport);
         this.assets=assets;
         this.pauseOverlay=pauseOverlay;
-        FreeTypeFontGenerator generator=new FreeTypeFontGenerator(Gdx.files.internal(assets.catalog().path("font.ui")));
-        try {
-            FreeTypeFontGenerator.FreeTypeFontParameter p=new FreeTypeFontGenerator.FreeTypeFontParameter();p.size=18;
-            StringBuilder chars=new StringBuilder(FreeTypeFontGenerator.DEFAULT_CHARS);
-            for(char c=0x00a0;c<=0x01ff;c++) chars.append(c);for(char c=0x1ea0;c<=0x1ef9;c++) chars.append(c);chars.append("‘’“”…–—↑↓←→×");p.characters=chars.toString();
-            p.minFilter=p.magFilter=Texture.TextureFilter.Linear;font=generator.generateFont(p);
-        } finally { generator.dispose(); }
+        font = UiFont.create(Gdx.files.internal(assets.catalog().path("font.ui")), 18);
         Pixmap image=new Pixmap(1,1,Pixmap.Format.RGBA8888);image.setColor(Color.WHITE);image.fill();pixel=new Texture(image);image.dispose();
         white=new TextureRegionDrawable(pixel);
         Pixmap triangle=new Pixmap(5,7,Pixmap.Format.RGBA8888);triangle.setColor(Color.WHITE);triangle.fillTriangle(0,0,0,6,4,3);
@@ -93,12 +87,12 @@ public final class UiPanel implements Disposable {
         }
         float panelWidth=body.length()>120||title.length()>36?500:344,innerWidth=panelWidth-56;
         Table card=new Table();card.setName("menu-panel");card.setBackground(frame);card.pad(24,28,20,28);
-        Label heading=new Label(title,labels);heading.setName("menu-title");heading.setFontScale(1.3f);heading.setWrap(true);heading.setAlignment(Align.center);heading.setWidth(innerWidth);
+        Label heading=new Label(title,labels);heading.setName("menu-title");UiFont.scale(heading,1.3f);heading.setWrap(true);heading.setAlignment(Align.center);heading.setWidth(innerWidth);
         card.add(heading).width(innerWidth).padBottom(12).row();
         card.add(separator()).width(innerWidth).height(5).padBottom(18).row();
         float fixedHeight=24+20+heading.getPrefHeight()+12+5+18+16+5+12+20;
         if(!body.isBlank()) {
-            Label message=new Label(body,new Label.LabelStyle(font,new Color(.77f,.73f,.65f,1)));message.setFontScale(.8f);message.setWrap(true);message.setAlignment(Align.center);message.setWidth(innerWidth);
+            Label message=new Label(body,new Label.LabelStyle(font,new Color(.84f,.80f,.73f,1)));UiFont.scale(message,.88f);message.setWrap(true);message.setAlignment(Align.center);message.setWidth(innerWidth);
             float bodyHeight=Math.min(110,message.getPrefHeight());
             card.add(scroll(message)).width(innerWidth).height(bodyHeight).padBottom(12).row();fixedHeight+=bodyHeight+12;
         }
@@ -122,13 +116,13 @@ public final class UiPanel implements Disposable {
     public void lobby(String fallbackTitle,List<Option> options) {
         prepare(options);
         if(!hasBackgroundArt) {
-            Label title=new Label(fallbackTitle,labels);title.setWrap(true);title.setFontScale(1.6f);title.setBounds(44,322,305,170);title.setTouchable(Touchable.disabled);root.addActor(title);
+            Label title=new Label(fallbackTitle,labels);title.setWrap(true);UiFont.scale(title,1.6f);title.setBounds(44,322,305,170);title.setTouchable(Touchable.disabled);root.addActor(title);
         }
         Table choices=new Table();choices.setName("lobby-actions");
         for(int i=0;i<options.size();i++)choices.add(menuButton(i,240,true)).width(240).height(38).padBottom(i+1<options.size()?8:0).row();
         choices.pack();optionsPane=scroll(choices);optionsPane.setName("menu-options");optionsPane.setBounds(40,114,240,choices.getPrefHeight());root.addActor(optionsPane);
         Label hint=new Label("Lên / xuống · Chọn    Enter · Xác nhận",new Label.LabelStyle(font,new Color(.84f,.80f,.70f,1)));
-        hint.setFontScale(.62f);hint.setBounds(22,28,480,22);hint.setTouchable(Touchable.disabled);root.addActor(hint);
+        UiFont.scale(hint,.7f);hint.setBounds(22,28,480,22);hint.setTouchable(Touchable.disabled);root.addActor(hint);
     }
     private void prepare(List<Option> options) {
         audioSettings=null;stage.cancelTouchFocus();stage.setScrollFocus(null);command=null;this.options=List.copyOf(options);selected=0;buttons.clear();markers.clear();root.clear();
@@ -136,7 +130,7 @@ public final class UiPanel implements Disposable {
     private TextButton menuButton(int index,float width,boolean lobby) {
         TextButton button=new TextButton(options.get(index).text(),lobby?lobbyButtonStyle:buttonStyle);
         button.setName("menu-option-"+index);button.setProgrammaticChangeEvents(false);
-        Label label=button.getLabel();label.setFontScale(lobby?1.05f:.82f);label.setWrap(true);label.setWidth(width-64);label.setAlignment(lobby?Align.left:Align.center);
+        Label label=button.getLabel();UiFont.scale(label,lobby?1.05f:.9f);label.setWrap(true);label.setWidth(width-64);label.setAlignment(lobby?Align.left:Align.center);
         Image marker=new Image(arrowDrawable);marker.setColor(.96f,.77f,.46f,1);marker.setTouchable(Touchable.disabled);marker.setVisible(index==0);markers.add(marker);
         button.clearChildren();button.pad(6,12,6,12);button.add(marker).size(5,7).padLeft(lobby?12:8).padRight(lobby?18:8);button.add(label).growX();button.add().width(21);
         button.setChecked(index==0);buttons.add(button);
@@ -162,9 +156,9 @@ public final class UiPanel implements Disposable {
             for(Image arrow:List.of(up,down)){arrow.setSize(5,7);arrow.setOrigin(Align.center);arrow.setColor(.90f,.84f,.72f,1);}
             up.setRotation(90);down.setRotation(270);directions.add(up).size(5,7).padRight(5);directions.add(down).size(5,7);keyActor=directions;
         } else {
-            Label keyLabel=new Label(key,new Label.LabelStyle(font,new Color(.90f,.84f,.72f,1)));keyLabel.getStyle().background=keycap;keyLabel.setFontScale(.55f);keyLabel.setAlignment(Align.center);keyActor=keyLabel;
+            Label keyLabel=new Label(key,new Label.LabelStyle(font,new Color(.90f,.84f,.72f,1)));keyLabel.getStyle().background=keycap;UiFont.scale(keyLabel,.62f);keyLabel.setAlignment(Align.center);keyActor=keyLabel;
         }
-        Label hint=new Label(description,new Label.LabelStyle(font,new Color(.76f,.72f,.65f,1)));hint.setFontScale(.55f);
+        Label hint=new Label(description,new Label.LabelStyle(font,new Color(.83f,.79f,.72f,1)));UiFont.scale(hint,.62f);
         Table group=new Table();group.add(keyActor).size(width,18).padRight(5);group.add(hint);group.setTouchable(Touchable.disabled);return group;
     }
     private void select(int index) {
