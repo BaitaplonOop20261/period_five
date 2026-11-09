@@ -38,10 +38,13 @@ public final class DialogueUI implements Disposable {
     private final Image dim;
     private final Image inspection = new Image();
     private final Label inspectionTitle;
+    private final Image avatarFrame;
     private final Image portrait = new Image();
+    private final Image divider;
     private final Table nameplate = new Table();
     private final Label name;
     private final Label text;
+    private final Label enter;
     private final Label hint;
     private final Label placeholder;
     private final Table choices = new Table();
@@ -97,9 +100,6 @@ public final class DialogueUI implements Disposable {
         inspectionTitle.setTouchable(Touchable.disabled);
         inspectionTitle.setVisible(false);
         root.addActor(inspectionTitle);
-        portrait.setScaling(Scaling.fit);
-        portrait.setTouchable(Touchable.disabled);
-        root.addActor(portrait);
 
         Image frame = new Image(com.room304.assets.GameAssets.skinDrawable(skin,"dialogue-frame",assets.frame));
         frame.setName("dialogue-frame");
@@ -107,11 +107,25 @@ public final class DialogueUI implements Disposable {
             frameTop() - layout.frameBottom);
         frame.setTouchable(Touchable.disabled);
         root.addActor(frame);
-        Image divider = new Image(assets.pixel);
+
+        divider = new Image(assets.pixel);
         divider.setColor(.60f, .46f, .27f, .42f);
         divider.setBounds(layout.textLeft, layout.controlsBottom + layout.buttonHeight + 7, layout.textWidth, 1);
         divider.setTouchable(Touchable.disabled);
         root.addActor(divider);
+
+        avatarFrame = new Image(assets.avatarFrameDrawable);
+        avatarFrame.setBounds(28, 24, 94, 122);
+        avatarFrame.setTouchable(Touchable.disabled);
+        avatarFrame.setVisible(false);
+        root.addActor(avatarFrame);
+
+        portrait.setScaling(Scaling.fit);
+        portrait.setAlign(Align.bottom | Align.center);
+        portrait.setTouchable(Touchable.disabled);
+        portrait.setVisible(false);
+        root.addActor(portrait);
+
         Label.LabelStyle bodyStyle = skin!=null&&skin.has("dialogue",Label.LabelStyle.class)?skin.get("dialogue",Label.LabelStyle.class):new Label.LabelStyle(assets.font, new Color(.96f, .94f, .90f, 1));
         text = new Label("", bodyStyle);
         text.setName("dialogue-text");
@@ -132,7 +146,7 @@ public final class DialogueUI implements Disposable {
         nameplate.setTouchable(Touchable.disabled);
         root.addActor(nameplate);
         Label.LabelStyle hintStyle = new Label.LabelStyle(assets.font, new Color(.76f, .72f, .65f, 1));
-        Label enter = new Label("Enter", new Label.LabelStyle(hintStyle));
+        enter = new Label("Enter", new Label.LabelStyle(hintStyle));
         enter.getStyle().background = assets.nameplate;
         UiFont.scale(enter, layout.hintFontScale);
         enter.setAlignment(Align.center);
@@ -203,25 +217,55 @@ public final class DialogueUI implements Disposable {
         boolean usePlaceholder = portraitTexture == null && (speaker != null || portraitPath != null);
         if (usePlaceholder) portraitTexture = assets.texture(layout.fallbackPortrait);
         portrait.setDrawable(portraitTexture);
-        portrait.setVisible(!inspecting && portraitTexture != null);
-        placeholder.setVisible(!inspecting && !layout.fallbackPortrait.isBlank() && (usePlaceholder || assets.sameTextureReference(layout.fallbackPortrait, portraitPath)));
-        float height = speaker == null ? layout.portraitHeight : speaker.getHeight(layout);
-        float maxWidth = speaker == null ? layout.portraitMaxWidth : speaker.getMaxWidth(layout);
-        float center = speaker == null ? layout.portraitCenterX : speaker.getCenterX(layout);
-        float bottom = speaker == null ? layout.portraitBottom : speaker.getBottom(layout);
-        portrait.setBounds(center - maxWidth / 2, bottom, maxWidth, height);
+        boolean isCompact = layout.width <= 640;
+        boolean showPortrait = !inspecting && portraitTexture != null;
+        portrait.setVisible(showPortrait);
+        avatarFrame.setVisible(isCompact && showPortrait);
+        placeholder.setVisible(!isCompact && !inspecting && !layout.fallbackPortrait.isBlank() && (usePlaceholder || assets.sameTextureReference(layout.fallbackPortrait, portraitPath)));
+        float textX, textW;
+        if (isCompact) {
+            textX = showPortrait ? 136 : layout.textLeft;
+            textW = (layout.textLeft + layout.textWidth) - textX;
+            if (showPortrait) {
+                avatarFrame.setBounds(28, 24, 94, 122);
+                portrait.setBounds(31, 26, 88, 118);
+            }
+            divider.setBounds(textX, layout.controlsBottom + layout.buttonHeight + 7, textW, 1);
+            enter.setBounds(textX, layout.controlsBottom + 3, 36, layout.smallLabelHeight);
+            hint.setBounds(textX + 46, layout.controlsBottom + 3,
+                layout.width - layout.controlsRight - layout.controlsWidth - DialogueHud.MENU_WIDTH
+                    - layout.hudButtonGap - textX - 58, layout.smallLabelHeight);
+            text.setBounds(textX, layout.textBottom, textW, textHeight());
+        } else {
+            float height = speaker == null ? layout.portraitHeight : speaker.getHeight(layout);
+            float maxWidth = speaker == null ? layout.portraitMaxWidth : speaker.getMaxWidth(layout);
+            float center = speaker == null ? layout.portraitCenterX : speaker.getCenterX(layout);
+            float bottom = speaker == null ? layout.portraitBottom : speaker.getBottom(layout);
+            portrait.setBounds(center - maxWidth / 2, bottom, maxWidth, height);
+            textX = layout.textLeft;
+            textW = layout.textWidth;
+            divider.setBounds(textX, layout.controlsBottom + layout.buttonHeight + 7, textW, 1);
+            enter.setBounds(textX, layout.controlsBottom + 3, 36, layout.smallLabelHeight);
+            hint.setBounds(textX + 46, layout.controlsBottom + 3,
+                layout.width - layout.controlsRight - layout.controlsWidth - DialogueHud.MENU_WIDTH
+                    - layout.hudButtonGap - textX - 58, layout.smallLabelHeight);
+            text.setBounds(textX, layout.textBottom, textW, textHeight());
+        }
         name.setText(escape(controller.getSpeakerName() == null ? "" : controller.getSpeakerName()));
-        nameplate.setBounds(layout.textLeft - 8, frameTop() - layout.nameplateHeight / 2,
-            Math.min(layout.textWidth, Math.max(84, name.getPrefWidth() + 32)), layout.nameplateHeight);
+        float nameW = Math.min(textW, Math.max(84, name.getPrefWidth() + 32));
+        float nameX = (isCompact && showPortrait)
+            ? Math.max(layout.frameMargin + 4, 28 + (94 - nameW) / 2f)
+            : layout.textLeft - 8;
+        nameplate.setBounds(nameX, frameTop() - layout.nameplateHeight / 2, nameW, layout.nameplateHeight);
         nameplate.setVisible(!name.getText().toString().isBlank());
-        paginate(Normalizer.normalize(line.getText(), Normalizer.Form.NFC).replace("↑ / ↓","Lên / xuống"));
+        paginate(Normalizer.normalize(line.getText(), Normalizer.Form.NFC).replace("↑ / ↓","Lên / xuống"), textW);
         buildChoices();
         pageIndex = 0;
         startPage();
     }
 
     // Split long text at word boundaries, with character-safe fallback for a very long word.
-    private void paginate(String fullText) {
+    private void paginate(String fullText, float wrapWidth) {
         pages.clear();
         String remaining = fullText.strip();
         while (!remaining.isEmpty()) {
@@ -231,7 +275,7 @@ public final class DialogueUI implements Disposable {
                 int middle = (low + high) / 2;
                 int end = remaining.offsetByCodePoints(0, middle);
                 measure.setText(assets.font, escape(remaining.substring(0, end)), Color.WHITE,
-                    layout.textWidth, Align.left, true);
+                    wrapWidth, Align.left, true);
                 if (measure.height <= textHeight()) { fits = middle; low = middle + 1; }
                 else high = middle - 1;
             }
@@ -366,6 +410,7 @@ public final class DialogueUI implements Disposable {
     public String inspectionAsset() { return inspectionReference; }
     private void detachSceneTextures() {
         background.setDrawable(null);portrait.setDrawable(null);inspection.setDrawable(null);
+        avatarFrame.setVisible(false);portrait.setVisible(false);
         inspection.setVisible(false);inspectionTitle.setVisible(false);inspectionReference=null;
     }
     private void hide() {
