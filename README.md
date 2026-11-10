@@ -16,6 +16,8 @@ Art, portrait, TMX và âm thanh tuỳ chọn còn thiếu; runtime dùng hình 
 
 Bản ghép 24/10/2026 giữ nền phòng 304 đã xóa bàn giáo viên cũ, 20 bộ bàn ghế và world 640×480. Bàn giáo viên dùng sprite register tách lớp; nhân vật được vẽ trước/sau bàn theo vị trí. Linh có idle và animation đi bốn hướng; Trang, Đức, Bà Năm, Thầy Hùng có idle và Nga dùng một frame.
 
+Thùng thiết bị nằm bên phải bục giảng, sát tường dưới bảng thông báo; vùng va chạm và tương tác đi cùng thùng. Máy cassette đã được vẽ trong nền phòng 304 nên không chồng thêm sprite lên máy. Khi tương tác vẫn dùng các ảnh cận cảnh riêng cho mở khay, có pin và đang phát băng. Vật có `inBackground` dùng hình sẵn trên bản đồ; chỉ các biến thể trạng thái được cấu hình rõ mới vẽ đè (như tủ mở).
+
 Các bản bố trí 320×240 trước đây vẫn được lưu trong lịch sử Git và tài liệu tham khảo. Tọa độ, collision, spawn và vùng tương tác hiện tại lấy từ config/story-world.json; không áp lại tọa độ cũ vào nền hiện tại.
 
 Camera mặc định bám theo Linh trong cả bốn khu vực với khung nhìn 480×360 và dừng tại mép bản đồ. Mỗi scene trong story-world.json bật "followCamera": true; HUD và hội thoại giữ canvas 640×480 riêng, cố định trên màn hình.

@@ -106,10 +106,13 @@ public final class StoryDesktopChecks {
             width=npc.canvasWidth*npc.scale;x=p.x+npc.footWidth/2-width*npc.anchorX;
             y=p.y+npc.canvasHeight*npc.scale*(1-npc.anchorY)+20;
         } else {var object=screen.world().scene().object(id);x=object.x;y=object.y+object.height+20;width=object.width;}
+        return worldPixels(x,y,width,24);
+    }
+    private static byte[] worldPixels(float x,float y,float width,float height) throws ReflectiveOperationException {
         var field=StoryWorldView.class.getDeclaredField("viewport");field.setAccessible(true);
         var viewport=(com.badlogic.gdx.utils.viewport.Viewport)field.get(screen.world());
         var lower=viewport.project(new com.badlogic.gdx.math.Vector3(x,y,0));
-        var upper=viewport.project(new com.badlogic.gdx.math.Vector3(x+width,y+24,0));
+        var upper=viewport.project(new com.badlogic.gdx.math.Vector3(x+width,y+height,0));
         return com.badlogic.gdx.utils.ScreenUtils.getFrameBufferPixels((int)lower.x,(int)lower.y,(int)Math.ceil(upper.x-lower.x),(int)Math.ceil(upper.y-lower.y),false);
     }
     private static boolean hasInteractionMark(String id) throws ReflectiveOperationException {
@@ -122,12 +125,22 @@ public final class StoryDesktopChecks {
     private static void checkInteractionMarks() throws ReflectiveOperationException {
         walk("player");frame();
         check("player".equals(screen.world().target()),"Cassette player is reachable on its resized table");
+        var cassette=screen.world().scene().object("player");String fallback=cassette.asset;
+        check(cassette.inBackground&&cassette.variants.isEmpty(),"Cassette uses painted map art; close-up variants are separate");
+        try {
+            screen.world().render(screen.session(),screen.player(),false);
+            byte[] painted=worldPixels(cassette.x,cassette.y,cassette.width,cassette.height);
+            cassette.asset=null;screen.world().render(screen.session(),screen.player(),false);
+            check(Arrays.equals(painted,worldPixels(cassette.x,cassette.y,cassette.width,cassette.height)),"World cassette contains only the background image");
+            cassette.asset=fallback;cassette.inBackground=false;screen.world().render(screen.session(),screen.player(),false);
+            check(!Arrays.equals(painted,worldPixels(cassette.x,cassette.y,cassette.width,cassette.height)),"Pixel check detects the former doubled cassette sprite");
+        } finally {cassette.asset=fallback;cassette.inBackground=true;screen.world().render(screen.session(),screen.player(),true);}
         byte[] first=interactionPixels("player");check(hasInteractionMark("player"),"Selected object renders the actual marker pixels");
         check(!hasInteractionMark("crate"),"Only one of the nearby objects receives a marker");
         snapshot("interaction-player-16x9");tick();
         check(!Arrays.equals(first,interactionPixels("player")),"Interaction marker advances through its animation frames");
         frame();check("player".equals(screen.world().target()),"Stationary selection remains stable");
-        walk("crate");frame();check("crate".equals(screen.world().target()),"Crate below podium is reachable");
+        walk("crate");frame();check("crate".equals(screen.world().target()),"Crate beside the right edge of the podium is reachable");
         check(hasInteractionMark("crate")&&!hasInteractionMark("player"),"Marker follows the selected target without leaving the old marker");
         snapshot("interaction-crate-16x9");
         screen.world().render(screen.session(),screen.player(),false);
@@ -392,7 +405,7 @@ public final class StoryDesktopChecks {
             try {
                 for(int i=0;i<8;i++)wallProbe.update(.25f,0,1,true,screen.world().walls(screen.session()),null,List.of(),room.width,room.height);
                 check(wallProbe.getY()<=384 && wallProbe.getY()>=379,"Linh must stop at the red boundary below the board");
-                wallProbe.setPosition(520,320);
+                wallProbe.setPosition(538,320);
                 for(int i=0;i<8;i++)wallProbe.update(.25f,0,1,true,screen.world().walls(screen.session()),null,List.of(),room.width,room.height);
                 check(wallProbe.getY()<=377 && wallProbe.getY()>=372,"Linh must stop at the lower red boundary beside the podium");
                 wallProbe.setPosition(40,310);
@@ -408,6 +421,12 @@ public final class StoryDesktopChecks {
                 for(int i=0;i<8;i++)wallProbe.update(.25f,1,0,true,screen.world().walls(screen.session()),null,List.of(),room.width,room.height);
                 check(wallProbe.getX()+world.player().footWidth<=628,"Linh crosses east wall");
             } finally {wallProbe.dispose();}
+            var crate=room.object("crate");
+            Player crateProbe=new Player(assets,crate.x+18,crate.y-world.player().footHeight-2,world.player());
+            try {
+                for(int i=0;i<8;i++)crateProbe.update(.25f,0,1,false,screen.world().walls(screen.session()),null,List.of(),room.width,room.height);
+                check(crateProbe.getY()+crateProbe.getBounds().height<=crate.y,"Moved crate blocks walking through its base");
+            } finally {crateProbe.dispose();}
             System.out.println("Room304 layout checks passed: all nine props/door reached by walking, all 20 student tables and room walls block movement, 16:9 and 4:3.");
             float x=screen.player().getX();press(Input.Keys.ESCAPE);frame(Input.Keys.D);check(screen.isPaused()&&screen.player().getX()==x,"Pause movement lock");press(Input.Keys.ESCAPE);for(int i=0;i<3;i++)frame();
             walk("trang");frame(Input.Keys.ENTER);check(screen.session().dialogue().isActive(),"Enter opens NPC dialogue");var firstNpcLine=screen.session().dialogue().getLine();for(int i=0;i<3;i++)frame(Input.Keys.ENTER);check(firstNpcLine==screen.session().dialogue().getLine(),"Held interaction Enter must not skip first NPC line");frame();drain();

@@ -182,6 +182,8 @@ public final class StoryWorldView implements Disposable {
         List<DepthDraw> depthDraws=new ArrayList<>();
         for(SceneCatalog.ObjectDef o:scene.objects) {
             String variant=propState(o.id,session.state(),line);
+            // Base art already painted into the map; explicit state overlays (e.g. an open cabinet) still render.
+            if(o.inBackground && (bg!=null || renderer!=null) && !o.variants.containsKey(variant)) continue;
             Texture art=propTexture(o,session.state(),line);
             if(art==null) continue;
             Runnable draw=()->{
