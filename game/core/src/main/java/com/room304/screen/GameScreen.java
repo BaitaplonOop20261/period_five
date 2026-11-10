@@ -21,7 +21,8 @@ public final class GameScreen extends ScreenAdapter {
     private final SceneCatalog catalog;
     private final SaveStore saves;
     private final AudioSettings audio;
-    private final Runnable menu,load;
+    private final Runnable menu;
+    private final Consumer<SaveStore.Loaded> load;
     private final Consumer<Ending> finish;
     private UiPanel panel;
     private DialogueUI dialogueUI;
@@ -38,12 +39,16 @@ public final class GameScreen extends ScreenAdapter {
     private SceneCatalog.ObjectDef inspectedObject;
     private String inspectedBlock, inspectedRoom;
     public GameScreen(GameAssets assets,StoryContent content,SceneCatalog catalog,SaveStore saves,AudioSettings audio,boolean skipOpening,SaveStore.Loaded saved,Runnable menu,Runnable load,Consumer<Ending> finish) {
+        this(assets,content,catalog,saves,audio,skipOpening,saved,menu,loaded->load.run(),finish);
+    }
+    public GameScreen(GameAssets assets,StoryContent content,SceneCatalog catalog,SaveStore saves,AudioSettings audio,boolean skipOpening,SaveStore.Loaded saved,Runnable menu,Consumer<SaveStore.Loaded> load,Consumer<Ending> finish) {
         this.assets=assets;this.content=content;this.catalog=catalog;this.saves=saves;this.audio=audio;this.menu=menu;this.load=load;this.finish=finish;
         try {panel=new UiPanel(assets,true);dialogueUI=new DialogueUI(assets,DialogueLayout.load(assets.catalog().path("story.ui.layout")));
         world=new StoryWorldView(assets,catalog,content,panel.font());
         GameState state=saved==null?new GameState():saved.state();world.enter(state.room());
         SceneCatalog.Point initial=world.scene().spawn("entry");player=new Player(assets,initial.x,initial.y,catalog.player());
         session=new StorySession(content,catalog,state,this::movePlayer);
+        if(saved!=null){ProgressSnapshot.validateForResume(state);session.restorePlaythroughId(saved.playthroughId());}
         if(saved==null) session.start(skipOpening);
         else {if(!world.canStand(saved.x(),saved.y())) throw new IllegalArgumentException("Bản đồ hiện tại không chấp nhận vị trí trong save.");player.setPosition(saved.x(),saved.y());player.restoreFacing(saved.facing());if(world.walls(session).stream().anyMatch(w->w.getBounds().overlaps(player.getBounds())))throw new IllegalArgumentException("Vị trí trong save bị NPC hoặc vật cản chặn.");}
         sound=new StoryAudio(assets,audio,content);world.update(0,session,player);sync();input.capture(Gdx.input);input.modeChanged();
@@ -128,12 +133,17 @@ public final class GameScreen extends ScreenAdapter {
     private void resumePlay(){paused=false;skipFrame=true;input.modeChanged();panel.clearCommands();sync();}
     private void pauseMenu(String message) {
         List<UiPanel.Option> options=new ArrayList<>();options.add(new UiPanel.Option(content.text("UI-RESUME"),this::resumePlay));
-        options.add(new UiPanel.Option("Lưu game",()->{try {saves.save(session,player.getX(),player.getY(),player.facing(),catalog);pauseMenu("Đã lưu tiến độ.");}catch(RuntimeException e){pauseMenu(e.getMessage());}}));
-        if(saves.exists()) options.add(new UiPanel.Option("Tải bản lưu",()->panel.show("Tải bản lưu?","Tiến độ chưa lưu sẽ bị thay thế.",List.of(new UiPanel.Option("Tải",load),new UiPanel.Option("Ở lại",()->pauseMenu(""))))));
+        options.add(new UiPanel.Option("Lưu game",this::saveRequested,session.canSave()));
+        if(saves.exists()||saves.hasBackup())options.add(new UiPanel.Option("Tải bản lưu",()->SaveMenu.show(panel,saves,content,load,()->pauseMenu(""))));
         options.add(new UiPanel.Option(content.text("UI-HELP"),()->panel.help(content,()->pauseMenu(""))));options.add(new UiPanel.Option(content.text("UI-AUDIO"),()->panel.audio(content,audio,()->pauseMenu(""))));
         options.add(new UiPanel.Option(content.text("UI-MENU"),()->panel.show(content.text("UI-LEAVE-TITLE"),"Tiến độ chưa lưu sẽ mất; bản lưu hiện có được giữ lại.",List.of(new UiPanel.Option("Ở lại",()->pauseMenu("")),new UiPanel.Option("Về menu",menu)))));
-        panel.show(content.text("UI-PAUSE-TITLE"),message,options);
+        panel.show(content.text("UI-PAUSE-TITLE"),message.isBlank()?session.saveUnavailableReason():message,options);
     }
+    private void saveRequested(){
+        if(saves.overwritesAnotherRun(session))panel.show("Ghi đè bản lưu?","Bản lưu của lượt chơi trước sẽ được thay thế; bản chính hợp lệ trước đó được giữ làm bản sao.",List.of(new UiPanel.Option("Ở lại",()->pauseMenu("")),new UiPanel.Option("Lưu đè",this::saveNow)));
+        else saveNow();
+    }
+    private void saveNow(){try{saves.save(session,player.getX(),player.getY(),player.facing(),catalog);pauseMenu("Đã lưu tiến độ.\n"+SaveMenu.summary(saves.load(),content));}catch(RuntimeException e){pauseMenu(e.getMessage());}}
     public void error(String message){paused=true;pauseMenu(message);sync();}
     @Override public void resize(int w,int h){world.resize(w,h);dialogueUI.resize(w,h);panel.resize(w,h);if(w>0&&h>0)fadeViewport.update(w,h,true);}
     @Override public void pause(){pausePlay();}

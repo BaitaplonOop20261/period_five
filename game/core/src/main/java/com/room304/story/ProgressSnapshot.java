@@ -26,7 +26,7 @@ public final class ProgressSnapshot {
         d.clues = s.clues.stream().map(Enum::name).toArray(String[]::new);
         d.events = s.events.stream().map(Enum::name).toArray(String[]::new);
         d.completed = s.completed.toArray(String[]::new);
-        Json json = new Json(); json.setOutputType(JsonWriter.OutputType.json);
+        Json json = new Json(); json.setUsePrototypes(false); json.setOutputType(JsonWriter.OutputType.json);
         return json.toJson(d);
     }
     public static GameState decode(String text, String source) {
@@ -55,6 +55,32 @@ public final class ProgressSnapshot {
         for (String name : names) if (!target.add(Enum.valueOf(type, name))) throw new IllegalArgumentException("Duplicate " + name);
     }
     private static void require(boolean condition, String reason) { if (!condition) throw new IllegalArgumentException(reason); }
+    /** Stronger than a general snapshot: a fresh session must resume without a missing callback. */
+    public static void validateForResume(GameState s) {
+        validate(s);
+        require(s.ending==Ending.NONE&&s.requestedEnding==Ending.NONE&&s.reached(Event.INITIAL_SCENE_DONE),"File lưu không nằm ở mốc khám phá");
+        require(!s.reached(Event.RETREAT_TRIAL_DONE)||s.reached(Event.HUNG_INTRO_DONE),"Chưa hoàn tất cảnh gặp thầy Hùng");
+        require(!s.knows(Clue.SIGNED_ADDENDUM)||s.reached(Event.FINAL_WARNING_DONE),"Chưa hoàn tất cảnh cảnh báo");
+        require(!s.reached(Event.FINAL_PREPARED),"Không thể lưu giữa lựa chọn kết thúc");
+        require(!s.completed.contains(StoryDirector.Action.LOCK_REGISTER.contentId())||s.reached(Event.RETREAT_TRIAL_DONE),"Bước khóa sổ chưa hoàn tất");
+        require(!s.knows(Clue.ALTERED_REGISTER)||s.book==BookLocation.CARRIED,"Vị trí sổ không thuộc mốc khám phá");
+        require(s.tape==(s.has(Item.CASSETTE)?TapeLocation.CARRIED:TapeLocation.CRATE),"Băng còn trong cảnh đang chạy");
+        require(s.records==RecordsLocation.GUARD_ROOM,"Hồ sơ còn trong cảnh kết thúc");
+        require(s.battery==(s.knows(Clue.CASSETTE_CONTENT)?BatteryLocation.PLAYER:s.has(Item.BATTERY_PACK)?BatteryLocation.CARRIED:BatteryLocation.GUARD_ROOM),"Vị trí pin không thuộc mốc khám phá");
+        require(s.supplement==(s.knows(Clue.SIGNED_ADDENDUM)?SupplementLocation.CARRIED:SupplementLocation.NONE),"Bản bổ sung còn trong cảnh đang chạy");
+        for(StoryDirector.Action action:StoryDirector.Action.values()){
+            Boolean effect=switch(action){
+                case OPENING->s.reached(Event.OPENING_DONE);case PHOTO->s.knows(Clue.CLASS_PHOTO);case OPEN_REGISTER->s.knows(Clue.ALTERED_REGISTER);
+                case VERIFY_LOOP->s.reached(Event.LOOP_CONFIRMED);case MEET_DUC->s.reached(Event.DUC_MET);case REVEAL_GUARD_DOOR->s.reached(Event.GUARD_DOOR_REVEALED);
+                case RECEIVE_KEY->s.reached(Event.NAM_MET);case LOCK_REGISTER,VERIFY_EXIT->s.reached(Event.RETREAT_TRIAL_DONE);case MEET_HUNG->s.reached(Event.HUNG_INTRO_DONE);
+                case REOPEN_REGISTER->s.reached(Event.INVESTIGATION_STARTED);case READ_RECORDS->s.knows(Clue.EVACUATION_AND_REPORT);case FAMILY_PHOTO->s.reached(Event.DUC_PHOTO_SEEN);
+                case READ_NEWSLETTER->s.reached(Event.NEWSLETTER_READ);case TAKE_TAPE->s.has(Item.CASSETTE);case CHECK_POWER->s.reached(Event.RECORDER_CHECKED);
+                case RECEIVE_BATTERIES->s.has(Item.BATTERY_PACK);case HEAR_TAPE->s.knows(Clue.CASSETTE_CONTENT);case CONFESS->s.reached(Event.HUNG_CONFESSION_DONE);
+                case SIGN->s.knows(Clue.SIGNED_ADDENDUM);case WARNING->s.reached(Event.FINAL_WARNING_DONE);default->null;
+            };
+            if(effect!=null)require(effect==s.completed.contains(action.contentId()),"Tiến độ không khớp bước "+action.contentId());
+        }
+    }
     private static void validate(GameState s) {
         require(s.book != BookLocation.DESK_HUNG && (s.requestedEnding == Ending.NONE || s.ending != Ending.NONE), "Unstable scene boundary");
         require(!s.reached(Event.INITIAL_SCENE_DONE)||s.reached(Event.OPENING_DONE),"Initial room before opening");

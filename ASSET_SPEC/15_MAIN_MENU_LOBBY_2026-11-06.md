@@ -2,9 +2,9 @@
 
 `game/assets/ui/menu.png` là ảnh nền pixel art và logo tĩnh “CĂN PHÒNG 304 — BUỔI ĐIỂM DANH CUỐI CÙNG”, tạo bằng công cụ ImageGen tích hợp từ mẫu đã được người dùng duyệt. Ảnh trường học và logo là hình mới tạo; ảnh Dead Cells do người dùng cung cấp chỉ được tham khảo bố cục menu bên trái và nền lớn, không đưa logo, nhân vật hay artwork Dead Cells vào game.
 
-Các nút không nằm trong ảnh: `MenuScreen` gọi `UiPanel.lobby` để vẽ và xử lý **Play → Cài đặt → Hướng dẫn → Thoát** bằng Scene2D. Cài đặt mở mục Âm thanh/Quay lại; âm thanh dùng controller đã có. Esc quay lại từng trang. Canvas lobby 960×540 dùng FitViewport để giữ ảnh và vùng bấm cùng tỉ lệ; thoại/pause giữ canvas riêng 640×480. Menu ending vẫn dùng modal.
+Các nút không nằm trong ảnh: `MenuScreen` gọi `UiPanel.lobby` để vẽ và xử lý **Tiếp tục → Chơi mới → Cài đặt → Hướng dẫn → Thoát** bằng Scene2D. Tiếp tục chỉ hiện khi có bản lưu đọc được; nếu bản chính lỗi có mục Phục hồi bản lưu. Cài đặt mở mục Âm thanh/Quay lại; âm thanh dùng controller đã có. Esc quay lại từng trang. Canvas lobby 960×540 dùng FitViewport để giữ ảnh và vùng bấm cùng tỉ lệ; thoại/pause giữ canvas riêng 640×480. Menu ending vẫn dùng modal.
 
-Play luôn bắt đầu lượt mới, có mở màn. Phiên bản này không hiện Continue kể cả khi có save; file save được giữ, lưu/tải qua pause vẫn còn. Tham số save/load của constructor MenuScreen giữ tương thích cho bản Continue sau.
+Chơi mới bắt đầu lượt mới có mở màn, giữ file lưu cũ đến khi người chơi lưu đè. Màn tải hiển thị thông tin slot chính/backup và xác nhận trước khi bỏ tiến độ trong RAM. Bản cập nhật save 10/11/2026 bổ sung Continue, phục hồi backup và thông tin bản lưu bên dưới menu; ảnh nền/logo giữ nguyên.
 
 Manifest dùng ID `background.menu`, path `ui/menu.png`, filter Nearest và optional fallback có chữ nếu thiếu ảnh. AssetManager sở hữu texture; UI mượn texture, không giải phóng ảnh dùng chung. Không tạo font/texture khi vẽ mỗi frame.
 

@@ -294,7 +294,7 @@ public final class StoryDesktopChecks {
         MenuScreen main=new MenuScreen(assets,content,audio,save,skip->{check(!skip,"Play starts with opening");starts.incrementAndGet();},()->loaded.set(true),()->{},Ending.NONE);
         try {
             main.show();keys=Set.of();var stage=(com.badlogic.gdx.scenes.scene2d.Stage)Gdx.input.getInputProcessor();
-            String[] labels={"Play","Cài đặt","Hướng dẫn","Thoát"};
+            String[] labels={"Tiếp tục","Chơi mới","Cài đặt","Hướng dẫn","Thoát"};
             for(int[] size:new int[][]{{960,540},{1280,720},{800,600},{640,480},{1280,960}}) {
                 Gdx.graphics.setWindowedMode(size[0],size[1]);Gdx.input=scripted;main.resize(size[0],size[1]);main.render(0);
                 check(stage.getViewport().getWorldWidth()==960&&stage.getViewport().getWorldHeight()==540,"Lobby keeps 16:9 art canvas");
@@ -304,31 +304,31 @@ public final class StoryDesktopChecks {
                     check(button.getText().toString().equals(labels[i]),"Lobby option order: "+labels[i]);
                     check(b.x>=0&&b.x+b.width<320&&b.y>=0&&b.y+b.height<325,"Lobby buttons fit below title in left third");
                 }
-                check(stage.getRoot().findActor("menu-option-4")==null,"Existing save must not add Continue in this version");
+                check(stage.getRoot().findActor("save-summary")!=null,"Existing save summary appears in lobby");
                 if(size[0]==960||size[0]==1280&&size[1]==720||size[0]==800)snapshot("lobby-"+size[0]+"x"+size[1]);
             }
             Gdx.graphics.setWindowedMode(960,540);Gdx.input=scripted;main.resize(960,540);main.render(0);
-            menuPress(main,Input.Keys.UP);check(((com.badlogic.gdx.scenes.scene2d.ui.TextButton)stage.getRoot().findActor("menu-option-3")).isChecked(),"Lobby keyboard wraps to Exit");menuPress(main,Input.Keys.DOWN);
-            click(stage,"menu-option-1");main.render(0);main.render(0);
+            menuPress(main,Input.Keys.UP);check(((com.badlogic.gdx.scenes.scene2d.ui.TextButton)stage.getRoot().findActor("menu-option-4")).isChecked(),"Lobby keyboard wraps to Exit");menuPress(main,Input.Keys.DOWN);
+            click(stage,"menu-option-2");main.render(0);main.render(0);
             check(((com.badlogic.gdx.scenes.scene2d.ui.Label)stage.getRoot().findActor("menu-title")).getText().toString().equals("Cài đặt"),"Settings appears above Help and opens by mouse");
             click(stage,"menu-option-0");main.render(0);main.render(0);menuPress(main,Input.Keys.RIGHT);
             check(Math.abs(audio.master-.8f)<.001f,"Lobby Settings contains working Audio controls");snapshot("lobby-settings-audio");
             menuPress(main,Input.Keys.ESCAPE);menuPress(main,Input.Keys.ESCAPE);
             check(stage.getRoot().findActor("lobby-actions")!=null,"Esc returns from Audio through Settings to lobby");
-            click(stage,"menu-option-2");main.render(0);main.render(0);
+            click(stage,"menu-option-3");main.render(0);main.render(0);
             check(((com.badlogic.gdx.scenes.scene2d.ui.Label)stage.getRoot().findActor("menu-title")).getText().toString().equals("Hướng dẫn"),"Lobby Help opens by mouse");menuPress(main,Input.Keys.ESCAPE);
-            click(stage,"menu-option-0");main.render(0);main.render(0);check(starts.get()==1,"Play starts by mouse");
-            menuPress(main,Input.Keys.ENTER);check(starts.get()==2&&!loaded.get(),"Play starts by keyboard even when a save exists");
+            click(stage,"menu-option-1");main.render(0);main.render(0);check(starts.get()==0,"New game asks before starting");
+            click(stage,"menu-option-1");main.render(0);main.render(0);check(starts.get()==1&&!loaded.get(),"Confirmed new game starts by mouse");
             check(Arrays.equals(saved,Files.readAllBytes(save.path())),"Lobby Play must preserve the existing save file");
         } finally {main.dispose();}
-        System.out.println("Lobby passed: original title art, Play/Settings/Help/Exit order, no Continue with existing save, five sizes, keyboard/mouse, nested Audio, Esc and save preservation.");
+        System.out.println("Lobby passed: Continue/New game/Settings/Help/Exit, metadata, five sizes, confirmations and save preservation.");
     }
     private static void checkAll() throws Exception {
         original=Gdx.input;scripted=(Input)Proxy.newProxyInstance(Input.class.getClassLoader(),new Class<?>[]{Input.class},(proxy,method,args)->{if(method.getName().equals("isKeyPressed")||method.getName().equals("isKeyJustPressed"))return keys.contains((Integer)args[0]);return method.invoke(original,args);});Gdx.input=scripted;
         assets=new GameAssets();assets.validateRequired();AssetCatalog manifest=assets.catalog();content=StoryContent.load(Gdx.files.internal(manifest.path("story.content")));world=SceneCatalog.load(Gdx.files.internal(manifest.path("story.world")),manifest);
         Path folder=Files.createTempDirectory("room304-story-save-");save=new SaveStore(folder.resolve("slot.json"));
         try {
-            Room304Game app = new Room304Game();
+            Room304Game app = new Room304Game(save);
             try {
                 app.create();
                 check(app.getScreen() instanceof MenuScreen, "Menu startup");
@@ -419,17 +419,57 @@ public final class StoryDesktopChecks {
             checkTmx(folder);
             world.npc("trang").animations.put("idle.down","npc.trang.idle");world.npc("trang").canvasWidth=40;world.npc("trang").anchorX=.4f;world.player().animations.put("pose.phone","player.idle");
             begin(true,null);check(assets.loadedCount()>0,"Existing demo sheets load through story profile config");
-            ready();press(Input.Keys.ESCAPE);for(int i=0;i<3;i++)press(Input.Keys.DOWN);press(Input.Keys.ENTER);press(Input.Keys.ENTER);press(Input.Keys.ENTER);check(!screen.isPaused()&&screen.session().block().equals("FINAL"),"Help during final choice must preserve pending choice");snapshot("final-choices-16x9");choice("C6-01-CHOICE03");check(screen.session().ended()&&screen.session().state().ending()==Ending.A,"A runtime ending");System.out.println("Desktop A complete");
+            ready();press(Input.Keys.ESCAPE);check(((com.badlogic.gdx.scenes.scene2d.ui.TextButton)((com.badlogic.gdx.scenes.scene2d.Stage)Gdx.input.getInputProcessor()).getRoot().findActor("menu-option-1")).isDisabled(),"Save disabled during final choice");for(int i=0;i<2;i++)press(Input.Keys.DOWN);press(Input.Keys.ENTER);press(Input.Keys.ENTER);press(Input.Keys.ENTER);check(!screen.isPaused()&&screen.session().block().equals("FINAL"),"Help during final choice must preserve pending choice");snapshot("final-choices-16x9");choice("C6-01-CHOICE03");check(screen.session().ended()&&screen.session().state().ending()==Ending.A,"A runtime ending");System.out.println("Desktop A complete");
             begin(true,null);decision();choice("C3-04-CHOICE01");check(screen.session().ended()&&screen.session().state().ending()==Ending.B,"B runtime ending");System.out.println("Desktop B complete");
             Path cFile=folder.resolve("c-world.json");Files.writeString(cFile,Gdx.files.internal(manifest.path("story.world")).readString().replace("\"enableC\": false","\"enableC\": true"));world=SceneCatalog.load(new FileHandle(cFile.toFile()),manifest);
             begin(true,null);ready();choice("C6-01-CHOICE05");check(screen.dialogueUI().selectedChoiceId().equals("C-01-CHOICE02"),"C cancel selected first");choice("C-01-CHOICE02");choice("C6-01-CHOICE05");choice("C-01-CHOICE01");check(screen.session().ended()&&screen.session().state().ending()==Ending.C,"C runtime ending");System.out.println("Desktop C complete");
             Gdx.graphics.setWindowedMode(800,600);System.out.println("Input proxy after window resize: "+(Gdx.input==scripted));Gdx.input=scripted;screen.resize(800,600);for(int i=0;i<3;i++)frame();java.util.concurrent.atomic.AtomicBoolean replaySkip=new java.util.concurrent.atomic.AtomicBoolean();MenuScreen end=new MenuScreen(assets,content,new AudioSettings(),save,replaySkip::set,()->{},()->{},Ending.C);try{end.show();end.resize(800,600);end.render(0);snapshot("ending-4x3");menuPress(end,Input.Keys.ENTER);menuPress(end,Input.Keys.DOWN);menuPress(end,Input.Keys.ENTER);check(replaySkip.get(),"Replay skip button callback");}finally{end.dispose();}
             checkLobbyUi();
+            checkSaveRouting();
             check(visualChecks.containsAll(Set.of("open-register","haunt","record","memory","seated")),"Missing runtime visual coverage: "+visualChecks);System.out.println("Runtime visual bindings passed: open register, playback, real animation profiles, haunt/memory/C seated, unchanged physics.");
             Files.deleteIfExists(cFile);
-        }finally{if(screen!=null)screen.dispose();assets.dispose();Gdx.input=original;Files.deleteIfExists(save.path());Files.deleteIfExists(folder.resolve("c-world.json"));Files.deleteIfExists(folder.resolve("geometry.tmx"));
+        }finally{if(screen!=null)screen.dispose();assets.dispose();Gdx.input=original;Files.deleteIfExists(save.path());Files.deleteIfExists(save.backupPath());Files.deleteIfExists(folder.resolve("c-world.json"));Files.deleteIfExists(folder.resolve("geometry.tmx"));
             // OneDrive can mark a newly created fixture directory read-only on Windows.
             var dos=Files.getFileAttributeView(folder,java.nio.file.attribute.DosFileAttributeView.class);if(dos!=null)dos.setReadOnly(false);
             Files.deleteIfExists(folder);}
+    }
+
+    private static void appPress(Room304Game app,int key){keys=Set.of(key);app.render();keys=Set.of();app.render();}
+    private static void loadFromMenu(Room304Game app){
+        appPress(app,Input.Keys.ENTER); // Preview.
+        snapshot(save.inspect(false).valid()?"save-preview":"save-recovery");
+        appPress(app,Input.Keys.ENTER); // Confirmation defaults to Stay.
+        appPress(app,Input.Keys.DOWN);appPress(app,Input.Keys.ENTER);
+    }
+    private static void checkSaveRouting() throws Exception {
+        byte[] primary=Files.readAllBytes(save.path());byte[] backup=Files.readAllBytes(save.backupPath());
+        Room304Game app=new Room304Game(save);keys=Set.of();
+        try {
+            app.create();loadFromMenu(app);
+            check(app.getScreen() instanceof GameScreen,"Continue loads through deferred app routing");
+            GameScreen restored=(GameScreen)app.getScreen();
+            check(restored.session().exploring()&&restored.session().playthroughId().equals(save.load().playthroughId()),"Load restores exploration and run identity");
+            appPress(app,Input.Keys.ESCAPE);appPress(app,Input.Keys.DOWN);appPress(app,Input.Keys.ENTER);
+            check(save.load().playthroughId().equals(restored.session().playthroughId()),"Saving the same run requires no overwrite prompt");
+            byte[] oldRun=Files.readAllBytes(save.path());String oldId=save.load().playthroughId();
+            app.requestNewGame(true);app.render();GameScreen previous=screen;screen=(GameScreen)app.getScreen();
+            try{drain();}finally{screen=previous;}
+            appPress(app,Input.Keys.ESCAPE);appPress(app,Input.Keys.DOWN);appPress(app,Input.Keys.ENTER);
+            check(Arrays.equals(oldRun,Files.readAllBytes(save.path())),"Another run must not overwrite before confirmation");
+            appPress(app,Input.Keys.ENTER); // Stay.
+            appPress(app,Input.Keys.DOWN);appPress(app,Input.Keys.ENTER);appPress(app,Input.Keys.DOWN);appPress(app,Input.Keys.ENTER);
+            check(!oldId.equals(save.load().playthroughId())&&oldId.equals(save.loadBackup().playthroughId()),"Confirmed overwrite preserves previous run in backup");
+            Files.writeString(save.path(),"{broken");byte[] recovery=Files.readAllBytes(save.backupPath());
+            app.requestMenu();app.render();loadFromMenu(app);
+            check(app.getScreen() instanceof GameScreen,"Recovery opens backup through app routing");
+            check(Files.readString(save.path()).equals("{broken")&&Arrays.equals(recovery,Files.readAllBytes(save.backupPath())),"Recovery does not overwrite either slot");
+            appPress(app,Input.Keys.ESCAPE);appPress(app,Input.Keys.DOWN);appPress(app,Input.Keys.ENTER);
+            check(save.inspect(false).valid()&&Arrays.equals(recovery,Files.readAllBytes(save.backupPath())),"Saving recovered run repairs primary and preserves good backup");
+            var json=new com.badlogic.gdx.utils.Json();var invalid=json.fromJson(SaveStore.Data.class,Files.readString(save.path()));invalid.x=99999;
+            Files.writeString(save.path(),json.toJson(invalid));app.requestMenu();app.render();var before=app.getScreen();loadFromMenu(app);
+            check(app.getScreen()==before&&Gdx.input.getInputProcessor()!=null,"Rejected geometry preserves menu and input processor");
+            appPress(app,Input.Keys.ENTER);check(app.getScreen() instanceof MenuScreen,"Error Back remains interactive");
+            System.out.println("Save UI passed: Continue, backup recovery, same-run saving, corrupt-primary repair and failed-load menu input.");
+        } finally {app.dispose();Files.write(save.path(),primary);Files.write(save.backupPath(),backup);}
     }
 }

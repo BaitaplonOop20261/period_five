@@ -29,6 +29,7 @@ public final class StoryRuntimeChecks {
         checkRemainingBlocks(fixtures,assets,catalog);
         checkInvalidSnapshots();
         checkSaves(fixtures);
+        SaveChecks.run(fixtures);
         StorySession disabled=ready(false);disabled.interact("desk");drain(disabled);assert disabled.dialogue().getLine().getChoices().stream().noneMatch(o->o.getId().equals("C6-01-CHOICE05"));
         Path enabledFile=Files.createTempFile(fixtures,"world-c-",".json");SceneCatalog original=world;
         try {
@@ -74,7 +75,7 @@ public final class StoryRuntimeChecks {
             if(familyLate){s.interact("duc");drain(s);choice(s,"CHO-DUC-FAMILY");assert s.state().room()==RoomId.ROOM_304&&!s.present("duc")&&s.state().reached(Event.DUC_PHOTO_SEEN);go(s,RoomId.CLASSROOM);}
             if(!recordsFirst){s.interact("hung");drain(s);choice(s,"C5-01-CHOICE04");assert !s.state().knows(Clue.SIGNED_ADDENDUM);go(s,RoomId.GUARD_ROOM);s.interact("records");drain(s);go(s,RoomId.CLASSROOM);}
             s.interact("hung");drain(s);choice(s,"C5-01-CHOICE04");assert s.state().reached(Event.FINAL_WARNING_DONE)&&s.exploring();
-            GameState restored=ProgressSnapshot.decode(ProgressSnapshot.encode(s.state()),"permutation "+variant);assert restored.completedSteps().equals(s.state().completedSteps());
+            ProgressSnapshot.validateForResume(s.state());GameState restored=ProgressSnapshot.decode(ProgressSnapshot.encode(s.state()),"permutation "+variant);assert restored.completedSteps().equals(s.state().completedSteps());
             s.interact("hung");drain(s);choice(s,"C5-01-CHOICE02");choice(s,"C5-01-CHOICE06");go(s,RoomId.ROOM_304);s.interact("desk");drain(s);choice(s,exitB?"C6-01-CHOICE04":"C6-01-CHOICE03");assert s.ended()&&s.state().ending()==(exitB?Ending.B:Ending.A);
         }
     }
@@ -106,9 +107,9 @@ public final class StoryRuntimeChecks {
             store.save(restored,p.x,p.y,"up",world);assert store.load(world).state().has(Item.CASSETTE);
             StorySession mature=ready(false);SceneCatalog.Point checkpoint=world.scene(mature.state().room()).spawn("entry");store.save(mature,checkpoint.x,checkpoint.y,"up",world);var matureLoad=store.load(world);StorySession continued=new StorySession(content,world,matureLoad.state(),(room,spawn)->world.scene(room).spawn(spawn),visited::add);continued.interact("desk");drain(continued);choice(continued,"C6-01-CHOICE03");assert continued.ended()&&continued.state().ending()==Ending.A;
             Files.writeString(file,"{broken");try{store.load(world);throw new AssertionError("Corrupt save accepted");}catch(IllegalArgumentException expected){}
-            Files.writeString(file,original.replace("\"version\":1","\"version\":99"));try{store.load(world);throw new AssertionError("Future save accepted");}catch(IllegalArgumentException expected){}
+            Files.writeString(file,original.replace("\"version\":2","\"version\":99"));try{store.load(world);throw new AssertionError("Future save accepted");}catch(IllegalArgumentException expected){}
             com.badlogic.gdx.utils.Json json=new com.badlogic.gdx.utils.Json();SaveStore.Data outside=json.fromJson(SaveStore.Data.class,original);outside.x=99999;Files.writeString(file,json.toJson(outside));try{store.load(world);throw new AssertionError("Outside save accepted");}catch(IllegalArgumentException expected){}
-        }finally{Files.deleteIfExists(file);Files.deleteIfExists(folder);}
+        }finally{Files.deleteIfExists(file);Files.deleteIfExists(store.backupPath());Files.deleteIfExists(folder);}
     }
     public static void drain(StorySession s) {
         for(int i=0;i<3000 && s.dialogue().isActive();i++) {

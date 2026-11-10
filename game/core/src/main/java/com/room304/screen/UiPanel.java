@@ -18,7 +18,9 @@ import com.room304.story.StoryContent;
 
 /** Functional menus and overlays. Commands are queued and run by the caller after drawing. */
 public final class UiPanel implements Disposable {
-    public record Option(String text,Runnable action) {}
+    public record Option(String text,Runnable action,boolean enabled) {
+        public Option(String text,Runnable action){this(text,action,true);}
+    }
     private final Stage stage;
     private final BitmapFont font;
     private final Texture pixel;
@@ -59,6 +61,7 @@ public final class UiPanel implements Disposable {
         Color dark=new Color(.105f,.092f,.085f,1),gold=new Color(.70f,.55f,.33f,1),bright=new Color(.96f,.77f,.46f,1);
         TextButton.TextButtonStyle fallback=new TextButton.TextButtonStyle();fallback.font=font;fallback.fontColor=new Color(.94f,.91f,.85f,1);
         fallback.checkedFontColor=fallback.overFontColor=bright;
+        fallback.disabledFontColor=new Color(.43f,.41f,.37f,1);
         fallback.up=new PixelFrame(white.getRegion(),dark,new Color(.46f,.37f,.24f,1),false);
         fallback.checked=fallback.over=new PixelFrame(white.getRegion(),new Color(.25f,.19f,.12f,1),bright,false);
         fallback.down=new PixelFrame(white.getRegion(),new Color(.16f,.12f,.08f,1),gold,false);
@@ -114,28 +117,35 @@ public final class UiPanel implements Disposable {
     }
     /** Title art stays behind native, interactive left-side navigation. */
     public void lobby(String fallbackTitle,List<Option> options) {
+        lobby(fallbackTitle,options,"");
+    }
+    public void lobby(String fallbackTitle,List<Option> options,String detail) {
         prepare(options);
         if(!hasBackgroundArt) {
             Label title=new Label(fallbackTitle,labels);title.setWrap(true);UiFont.scale(title,1.6f);title.setBounds(44,322,305,170);title.setTouchable(Touchable.disabled);root.addActor(title);
         }
         Table choices=new Table();choices.setName("lobby-actions");
-        for(int i=0;i<options.size();i++)choices.add(menuButton(i,240,true)).width(240).height(38).padBottom(i+1<options.size()?8:0).row();
+        for(int i=0;i<options.size();i++)choices.add(menuButton(i,240,true)).width(240).height(34).padBottom(i+1<options.size()?5:0).row();
         choices.pack();optionsPane=scroll(choices);optionsPane.setName("menu-options");optionsPane.setBounds(40,114,240,choices.getPrefHeight());root.addActor(optionsPane);
         Label hint=new Label("Lên / xuống · Chọn    Enter · Xác nhận",new Label.LabelStyle(font,new Color(.84f,.80f,.70f,1)));
         UiFont.scale(hint,.7f);hint.setBounds(22,28,480,22);hint.setTouchable(Touchable.disabled);root.addActor(hint);
+        Label summary=new Label(detail,labels);summary.setName("save-summary");UiFont.scale(summary,.65f);summary.setWrap(true);
+        summary.setBounds(40,62,260,44);summary.setTouchable(Touchable.disabled);root.addActor(summary);
     }
     private void prepare(List<Option> options) {
         audioSettings=null;stage.cancelTouchFocus();stage.setScrollFocus(null);command=null;this.options=List.copyOf(options);selected=0;buttons.clear();markers.clear();root.clear();
+        while(selected<options.size()-1&&!options.get(selected).enabled())selected++;
     }
     private TextButton menuButton(int index,float width,boolean lobby) {
         TextButton button=new TextButton(options.get(index).text(),lobby?lobbyButtonStyle:buttonStyle);
         button.setName("menu-option-"+index);button.setProgrammaticChangeEvents(false);
+        button.setDisabled(!options.get(index).enabled());
         Label label=button.getLabel();UiFont.scale(label,lobby?1.05f:.9f);label.setWrap(true);label.setWidth(width-64);label.setAlignment(lobby?Align.left:Align.center);
-        Image marker=new Image(arrowDrawable);marker.setColor(.96f,.77f,.46f,1);marker.setTouchable(Touchable.disabled);marker.setVisible(index==0);markers.add(marker);
+        Image marker=new Image(arrowDrawable);marker.setColor(.96f,.77f,.46f,1);marker.setTouchable(Touchable.disabled);marker.setVisible(index==selected);markers.add(marker);
         button.clearChildren();button.pad(6,12,6,12);button.add(marker).size(5,7).padLeft(lobby?12:8).padRight(lobby?18:8);button.add(label).growX();button.add().width(21);
-        button.setChecked(index==0);buttons.add(button);
-        button.addListener(new InputListener(){@Override public boolean mouseMoved(InputEvent event,float x,float y){select(index);return false;}});
-        button.addListener(new ChangeListener(){@Override public void changed(ChangeEvent event,Actor actor){select(index);if(command==null)command=UiPanel.this.options.get(index).action();}});
+        button.setChecked(index==selected);buttons.add(button);
+        button.addListener(new InputListener(){@Override public boolean mouseMoved(InputEvent event,float x,float y){if(!button.isDisabled())select(index);return false;}});
+        button.addListener(new ChangeListener(){@Override public void changed(ChangeEvent event,Actor actor){if(button.isDisabled())return;select(index);if(command==null)command=UiPanel.this.options.get(index).action();}});
         return button;
     }
     private ScrollPane scroll(Actor content) {
@@ -167,12 +177,12 @@ public final class UiPanel implements Disposable {
     }
     public void key(int direction,boolean confirm) {
         if(options.isEmpty()) return;
-        if(direction!=0) {select(Math.floorMod(selected+direction,options.size()));optionsPane.scrollTo(buttons.get(selected).getX(),buttons.get(selected).getY(),buttons.get(selected).getWidth(),buttons.get(selected).getHeight());}
-        if(confirm && command==null) command=options.get(selected).action();
+        if(direction!=0) {int next=selected;for(int i=0;i<options.size();i++){next=Math.floorMod(next+direction,options.size());if(options.get(next).enabled())break;}select(next);optionsPane.scrollTo(buttons.get(selected).getX(),buttons.get(selected).getY(),buttons.get(selected).getWidth(),buttons.get(selected).getHeight());}
+        if(confirm && command==null && options.get(selected).enabled()) command=options.get(selected).action();
     }
     public void help(StoryContent content,Runnable back) {
         StringBuilder text=new StringBuilder();for(int i=1;i<=5;i++) text.append(content.text("UI-HELP-0"+i)).append("\n");
-        text.append("Esc → Lưu game: lưu tại mốc khám phá. Tiếp tục từ menu để tải lại.");
+        text.append("Esc → Lưu game: lưu khi khám phá. Tiếp tục ở menu chính để tải lại; có thể mở bản sao lưu trong màn tải. Chơi mới giữ bản lưu cũ cho đến khi bạn lưu đè.");
         show(content.text("UI-HELP-TITLE"),text.toString().replace("↑ / ↓","Lên / xuống").replace("Esc →","Esc >"),List.of(new Option(content.text("UI-BACK"),back)));
     }
     public void audio(StoryContent content,AudioSettings settings,Runnable back) {

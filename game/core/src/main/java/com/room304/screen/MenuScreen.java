@@ -16,9 +16,15 @@ public final class MenuScreen extends ScreenAdapter {
     private final AudioSettings audio;
     private final Consumer<Boolean> start;
     private final Runnable menu;
+    private final SaveStore saves;
+    private final Consumer<SaveStore.Loaded> load;
     private Runnable back;
     private final GameState.Ending ending;
     public MenuScreen(GameAssets assets,StoryContent content,AudioSettings audio,SaveStore saves,Consumer<Boolean> start,Runnable load,Runnable menu,GameState.Ending ending) {
+        this(assets,content,audio,saves,start,saved->load.run(),menu,ending);
+    }
+    public MenuScreen(GameAssets assets,StoryContent content,AudioSettings audio,SaveStore saves,Consumer<Boolean> start,Consumer<SaveStore.Loaded> load,Runnable menu,GameState.Ending ending) {
+        this.saves=saves;this.load=load;
         this.panel=ending==GameState.Ending.NONE?new UiPanel(assets,new FitViewport(960,540)):new UiPanel(assets);this.content=content;this.audio=audio;this.start=start;this.menu=menu;this.ending=ending;
         try{var config=new com.badlogic.gdx.utils.JsonReader().parse(Gdx.files.internal(assets.catalog().path("story.visuals")));panel.background(config.get("menus").getString(ending==GameState.Ending.NONE?"MENU":ending.name(),null));
         home("");}catch(RuntimeException e){panel.dispose();throw e;}
@@ -33,17 +39,27 @@ public final class MenuScreen extends ScreenAdapter {
         } else if(!message.isBlank()) {
             back=()->home("");panel.show(content.text("UI-TITLE"),message,List.of(new UiPanel.Option(content.text("UI-BACK"),back)));
         } else {
-            panel.lobby(content.text("UI-TITLE"),List.of(new UiPanel.Option(content.text("UI-PLAY"),()->start.accept(false)),
-                new UiPanel.Option(content.text("UI-SETTINGS"),this::settings),new UiPanel.Option(content.text("UI-HELP"),this::help),
-                new UiPanel.Option(content.text("UI-EXIT"),()->Gdx.app.exit())));
+            List<UiPanel.Option> options=new ArrayList<>();SaveStore.Slot slot=saves.inspect(false);
+            if(slot.valid())options.add(new UiPanel.Option("Tiếp tục",this::loadMenu));
+            else if(saves.exists()||saves.hasBackup())options.add(new UiPanel.Option("Phục hồi bản lưu",this::loadMenu));
+            options.add(new UiPanel.Option("Chơi mới",this::newGame));
+            options.add(new UiPanel.Option(content.text("UI-SETTINGS"),this::settings));options.add(new UiPanel.Option(content.text("UI-HELP"),this::help));
+            options.add(new UiPanel.Option(content.text("UI-EXIT"),()->Gdx.app.exit()));
+            panel.lobby(content.text("UI-TITLE"),options,slot.valid()?SaveMenu.summary(slot.loaded(),content):"");
         }
         input.modeChanged();
+    }
+    private void loadMenu(){back=()->home("");SaveMenu.show(panel,saves,content,load,back);input.modeChanged();}
+    private void newGame(){
+        if(!saves.exists()&&!saves.hasBackup()){start.accept(false);return;}
+        back=()->home("");panel.show("Chơi mới?","Bắt đầu lượt mới. Bản lưu cũ được giữ cho đến khi bạn lưu đè.",List.of(new UiPanel.Option("Ở lại",back),new UiPanel.Option("Bắt đầu",()->start.accept(false))));input.modeChanged();
     }
     private void settings(){back=()->home("");panel.show(content.text("UI-SETTINGS"),"",List.of(new UiPanel.Option(content.text("UI-AUDIO"),this::audio),new UiPanel.Option(content.text("UI-BACK"),back)));input.modeChanged();}
     private void audio(){back=this::settings;panel.audio(content,audio,back);input.modeChanged();}
     private void help(){back=()->home("");panel.help(content,back);input.modeChanged();}
     private void replay(){back=()->home("");panel.show(content.text("UI-REPLAY-TITLE"),content.text("UI-REPLAY-BODY"),List.of(new UiPanel.Option(content.text("UI-REPLAY-WATCH"),()->start.accept(false)),new UiPanel.Option(content.text("UI-REPLAY-SKIP"),()->start.accept(true)),new UiPanel.Option(content.text("UI-REPLAY-BACK"),back)));input.modeChanged();}
     @Override public void show(){input.capture(Gdx.input);input.modeChanged();Gdx.input.setInputProcessor(panel.stage());}
+    public void error(String message){home(message);Gdx.input.setInputProcessor(panel.stage());}
     @Override public void render(float delta){ScreenUtils.clear(.02f,.025f,.04f,1);input.capture(Gdx.input);if(input.pressed(Input.Keys.ESCAPE)&&back!=null)back.run();panel.key(input.choiceDirection(),input.pressed(Input.Keys.ENTER));panel.adjustAudio((input.pressed(Input.Keys.RIGHT)?1:0)-(input.pressed(Input.Keys.LEFT)?1:0));panel.draw(delta);panel.executeCommand();}
     @Override public void resize(int w,int h){panel.resize(w,h);}
     @Override public void hide(){if(Gdx.input.getInputProcessor()==panel.stage()) Gdx.input.setInputProcessor(null);panel.clearCommands();}

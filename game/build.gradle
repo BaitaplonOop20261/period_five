@@ -28,7 +28,7 @@ allprojects {
 // Both modules share one generated asset list. Write only when the task executes.
 def assetsFolder = layout.projectDirectory.dir('assets').asFile
 def assetsFile = new File(assetsFolder, 'assets.txt')
-def assetFiles = fileTree(assetsFolder) { exclude 'assets.txt' }
+def assetFiles = fileTree(assetsFolder) { exclude 'assets.txt', 'saves/**' }
 tasks.register('generateAssetList') {
   inputs.files(assetFiles).withPathSensitivity(PathSensitivity.RELATIVE)
   outputs.file(assetsFile)

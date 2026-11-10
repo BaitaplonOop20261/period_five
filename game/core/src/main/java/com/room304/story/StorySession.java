@@ -20,6 +20,9 @@ public final class StorySession {
     private float elapsed;
     private boolean ended, notes, gathered, ngaVisible;
     private String overlay="NONE";
+    private String playthroughId=UUID.randomUUID().toString();
+    public String playthroughId(){return playthroughId;}
+    public void restorePlaythroughId(String id){playthroughId=UUID.fromString(id).toString();}
     public String overlay() {return overlay;}
     public StorySession(StoryContent content,SceneCatalog world,GameState state,BiConsumer<RoomId,String> movePlayer) {
         this(content,world,state,movePlayer,id -> {});
@@ -37,6 +40,7 @@ public final class StorySession {
     public boolean isNotes() { return notes; }
     public boolean exploring() { return !dialogue.isActive() && !director.blocksExploration() && !ended; }
     public boolean canSave() { return exploring() && !notes && state().reached(Event.INITIAL_SCENE_DONE); }
+    public String saveUnavailableReason(){return canSave()?"":"Hoàn tất hội thoại, ghi chú hoặc cảnh đang chạy để lưu.";}
     public List<String> visibleNpcs() {
         List<String> ids = new ArrayList<>(world.visibleNpcs(state()));
         if (block != null && block.startsWith("C4-01") && state().room() == RoomId.ROOM_304 && !ids.contains("duc")) ids.add("duc");
