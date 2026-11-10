@@ -7,6 +7,7 @@ import com.badlogic.gdx.utils.JsonReader;
 import com.badlogic.gdx.utils.JsonValue;
 import com.badlogic.gdx.utils.Disposable;
 import com.room304.assets.*;
+import com.room304.dialogue.*;
 import com.room304.screen.AudioSettings;
 import com.room304.story.*;
 import java.util.*;
@@ -22,10 +23,12 @@ public final class StoryAudio implements Disposable {
     private final Map<String,List<Binding>> bindings=new HashMap<>();
     private final Map<String,String> ambience=new HashMap<>();
     private final List<Playing> clips=new ArrayList<>();
-    private String currentLine,currentAmbience,stepAsset;
+    private DialogueLine currentLine;
+    private Binding spokenBinding,interactionBinding;
+    private String currentAmbience,stepAsset;
     private float stepDistance,travel,duck=1;
     private Sound step;private long stepId=-1;
-    private Music music;private boolean wasPaused;
+    private Music music;private boolean wasPaused,wasTextComplete;
     public StoryAudio(GameAssets assets,AudioSettings settings,StoryContent content){
         this(Gdx.files.internal(assets.catalog().path("story.audio")),assets.catalog(),assets::sound,assets::music,settings,content);
     }
@@ -41,13 +44,24 @@ public final class StoryAudio implements Disposable {
                 List<Binding> values=bindings.computeIfAbsent(cue,k->new ArrayList<>());if(values.stream().anyMatch(b->b.asset().equals(asset)))throw new IllegalArgumentException("Duplicate audio binding "+cue+"/"+asset);
                 values.add(new Binding(asset,channel,v.getBoolean("loop",false),decorative));
             }
+            JsonValue dialogue=data.get("dialogue");if(dialogue!=null){
+                String spoken=dialogue.getString("spoken"),other=dialogue.getString("other"),channel=dialogue.getString("channel","fx");
+                type(assets,spoken,"sound");type(assets,other,"sound");if(!Set.of("voice","fx").contains(channel))throw new IllegalArgumentException("Invalid dialogue audio channel "+channel);
+                spokenBinding=new Binding(spoken,channel,true,false);interactionBinding=new Binding(other,channel,true,false);
+            }
             JsonValue steps=data.get("footsteps");if(steps!=null){stepAsset=steps.getString("asset");type(assets,stepAsset,"sound");stepDistance=steps.getFloat("distance");if(!Float.isFinite(stepDistance)||stepDistance<=0)throw new IllegalArgumentException("Invalid footstep distance");}
         }catch(RuntimeException e){throw new IllegalArgumentException("Invalid story audio "+config.path()+": "+e.getMessage(),e);}
     }
     private static void type(AssetCatalog assets,String id,String expected){if(!assets.entry(id).type().equals(expected))throw new IllegalArgumentException("Expected "+expected+": "+id);}
+    private static boolean isNaturalDialogue(DialogueController dialogue,DialogueLine line){
+        if("call".equals(line.getSpeakerId()))return false;
+        String speaker=dialogue.getSpeakerName();
+        return speaker!=null&&!speaker.isBlank()&&!"Giọng điểm danh".equals(speaker);
+    }
     private float volume(Binding b){return settings.level(b.channel())*(b.decorative()? .4f+(duck-.25f)*.8f:1);}
-    public void update(StorySession session,boolean paused,float delta){update(session,paused,delta,0);}
-    public void update(StorySession session,boolean paused,float delta,float distance){
+    public void update(StorySession session,boolean paused,float delta){update(session,paused,delta,0,false);}
+    public void update(StorySession session,boolean paused,float delta,float distance){update(session,paused,delta,distance,false);}
+    public void update(StorySession session,boolean paused,float delta,float distance,boolean textComplete){
         if(!Float.isFinite(delta)||delta<0||!Float.isFinite(distance)||distance<0)throw new IllegalArgumentException("Invalid audio update");
         boolean reading=session.dialogue().isActive()&&!session.dialogue().getLine().getText().isBlank();if(!paused)duck=reading?.25f:Math.min(1,duck+delta*3);
         String desired=ambience.get(session.state().room().name()+"/"+session.state().phenomenon().name());
@@ -55,10 +69,16 @@ public final class StoryAudio implements Disposable {
         if("C1-04-HAUNT".equals(session.block()))desired=null;
         if(!Objects.equals(desired,currentAmbience)){if(music!=null)music.stop();currentAmbience=desired;music=desired==null?null:musicAssets.apply(desired);if(music!=null){music.setLooping(true);if(!paused)music.play();}}
         if(music!=null){music.setVolume(settings.level("music")*duck);if(paused&&!wasPaused)music.pause();else if(!paused&&!music.isPlaying())music.play();}
-        String line=session.dialogue().isActive()?session.dialogue().getLine().getId():null;
-        if(!paused&&!Objects.equals(line,currentLine)){
-            stopClips();currentLine=line;
-            for(Binding b:bindings.getOrDefault(line,List.of())){Sound sound=sounds.apply(b.asset());if(sound!=null){long id=b.loop()?sound.loop(volume(b)):sound.play(volume(b));if(id>=0)clips.add(new Playing(sound,id,b));}}
+        DialogueLine active=session.dialogue().isActive()?session.dialogue().getLine():null;
+        if(!paused){
+            if(active!=currentLine){
+                stopClips();currentLine=active;wasTextComplete=textComplete;
+                if(!textComplete)playLine(session,active);
+            }else if(active!=null){
+                if(textComplete&&!wasTextComplete)stopClips();
+                else if(!textComplete&&wasTextComplete)playLine(session,active);
+                wasTextComplete=textComplete;
+            }
         }
         for(Playing p:clips){p.sound().setVolume(p.id(),volume(p.binding()));if(paused&&!wasPaused)p.sound().pause(p.id());else if(!paused&&wasPaused)p.sound().resume(p.id());}
         if(stepAsset!=null){
@@ -67,6 +87,14 @@ public final class StoryAudio implements Disposable {
             if(step!=null&&stepId>=0){step.setVolume(stepId,settings.level("fx")*(.4f+(duck-.25f)*.8f));if(paused&&!wasPaused)step.pause(stepId);else if(!paused&&wasPaused)step.resume(stepId);}
         }
         wasPaused=paused;
+    }
+    private void playLine(StorySession session,DialogueLine active){
+        List<Binding> list=active==null||active.getId()==null?List.of():bindings.getOrDefault(active.getId(),List.of());
+        if(list.isEmpty()&&active!=null&&!active.getText().isBlank()){
+            Binding fallback=isNaturalDialogue(session.dialogue(),active)?spokenBinding:interactionBinding;
+            if(fallback!=null)list=List.of(fallback);
+        }
+        for(Binding b:list){Sound sound=sounds.apply(b.asset());if(sound!=null){long id=b.loop()?sound.loop(volume(b)):sound.play(volume(b));if(id>=0)clips.add(new Playing(sound,id,b));}}
     }
     private void stopClips(){for(Playing p:clips)p.sound().stop(p.id());clips.clear();}
     @Override public void dispose(){if(music!=null)music.stop();stopClips();if(step!=null&&stepId>=0)step.stop(stepId);}

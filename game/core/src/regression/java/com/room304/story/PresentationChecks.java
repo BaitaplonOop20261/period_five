@@ -62,6 +62,26 @@ final class PresentationChecks {
             Files.writeString(audioConfig,config.replace(cue,"NO-SUCH-CUE"));reject(()->new StoryAudio(new FileHandle(audioConfig.toFile()),catalog,sounds::get,id->loop,settings,content));
             Files.writeString(audioConfig,config.replace("\"distance\":10","\"distance\":0"));reject(()->new StoryAudio(new FileHandle(audioConfig.toFile()),catalog,sounds::get,id->loop,settings,content));
         }finally{Files.deleteIfExists(fakeManifest);Files.deleteIfExists(audioConfig);}
+        Backend spoken=new Backend(),interaction=new Backend();
+        Map<String,Sound> packagedSounds=Map.of("audio.sfx.dialogue",(Sound)spoken.proxy(Sound.class),"audio.sfx.interaction",(Sound)interaction.proxy(Sound.class));
+        StorySession packagedSession=new StorySession(content,world,new GameState(),(r,s)->{});packagedSession.start(false);
+        StoryAudio packagedAudio=new StoryAudio(new FileHandle(assetRoot.resolve(assets.path("story.audio")).toFile()),assets,packagedSounds::get,id->null,new AudioSettings(),content);
+        try{
+            packagedAudio.update(packagedSession,false,.01f,0,false);assert interaction.plays==1&&spoken.plays==0&&interaction.playing : "Opening title text must use interaction SFX";
+            packagedAudio.update(packagedSession,false,.01f,0,true);assert interaction.stops==1&&!interaction.playing : "Dialogue SFX must stop as soon as text finishes typing";
+            packagedAudio.update(packagedSession,false,.01f,0,true);assert interaction.plays==1&&interaction.stops==1 : "Completed text must stay silent until next line";
+            while(packagedSession.dialogue().isActive()){packagedSession.update(5);packagedSession.advance();packagedAudio.update(packagedSession,false,.01f,0,false);}
+            assert spoken.plays>0&&interaction.plays>1 : "Opening and C1-01 must play both character dialogue and tutorial/instruction SFX";
+            int prevSpoken=spoken.plays,prevSpokenStops=spoken.stops,prevInteraction=interaction.plays;
+            packagedSession.interact("trang");packagedAudio.update(packagedSession,false,.01f,0,false);
+            assert spoken.plays==prevSpoken+1&&interaction.plays==prevInteraction&&spoken.playing : "Dynamic NPC reminder must play character dialogue SFX";
+            packagedAudio.update(packagedSession,false,.01f,0,true);
+            assert spoken.stops==prevSpokenStops+1&&!spoken.playing : "Dynamic NPC reminder SFX must stop when text completes";
+            packagedSession.advance();packagedAudio.update(packagedSession,false,.01f,0,false);
+            packagedSession.toggleNotes();packagedAudio.update(packagedSession,false,.01f,0,false);
+            assert interaction.plays==prevInteraction+1&&spoken.plays==prevSpoken+1 : "Notes menu must play interaction/guidance SFX";
+            packagedSession.toggleNotes();packagedAudio.update(packagedSession,false,.01f,0,false);
+        }finally{packagedAudio.dispose();}
         System.out.println("Presentation checks passed: document/pose refs, invalid bindings, concurrent voice/FX, MIX-01, pause/mute/restore, distance footsteps, borrowed ownership.");
     }
     private static void checkInspections(Path root,AssetCatalog assets,SceneCatalog world)throws Exception {

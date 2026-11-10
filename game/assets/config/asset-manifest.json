@@ -790,6 +790,18 @@
       "type": "texture",
       "required": true,
       "filter": "Nearest"
+    },
+    {
+      "id": "audio.sfx.dialogue",
+      "path": "audio/sfx/NPCs_and_Player_Dialogue.wav",
+      "type": "sound",
+      "required": true
+    },
+    {
+      "id": "audio.sfx.interaction",
+      "path": "audio/sfx/Object_Interactions.wav",
+      "type": "sound",
+      "required": true
     }
   ]
 }

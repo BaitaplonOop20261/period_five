@@ -1,5 +1,2195 @@
 {
   "version": 1,
   "ambience": {},
-  "bindings": []
+  "dialogue": {
+    "spoken": "audio.sfx.dialogue",
+    "other": "audio.sfx.interaction",
+    "channel": "fx"
+  },
+  "bindings": [
+    {
+      "cue": "C0-01-MAIN-TXT01",
+      "asset": "audio.sfx.interaction",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C0-01-MAIN-TXT02",
+      "asset": "audio.sfx.interaction",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C0-01-MAIN-TXT03",
+      "asset": "audio.sfx.interaction",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C0-02-MAIN-E01",
+      "asset": "audio.sfx.interaction",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C0-02-MAIN-T02",
+      "asset": "audio.sfx.interaction",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C0-02-MAIN-T02__1",
+      "asset": "audio.sfx.interaction",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C0-02-MAIN-T02__2",
+      "asset": "audio.sfx.interaction",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C0-02-MAIN-D03",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C0-02-MAIN-D04",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C0-03-MAIN-D02",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C0-03-MAIN-D03",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C0-03-MAIN-D04",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C0-03-MAIN-D05",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C0-03-MAIN-D06",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C0-03-MAIN-D08",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C0-03-MAIN-TXT09",
+      "asset": "audio.sfx.interaction",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C1-01-MAIN-D01",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C1-01-MAIN-D02",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C1-01-MAIN-D03",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C1-01-MAIN-D04",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C1-01-MAIN-D05",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C1-01-MAIN-T06",
+      "asset": "audio.sfx.interaction",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C1-01-MAIN-T06__1",
+      "asset": "audio.sfx.interaction",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C1-01-MAIN-T06__2",
+      "asset": "audio.sfx.interaction",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C1-01-MAIN-T06__3",
+      "asset": "audio.sfx.interaction",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C1-01-MAIN-T06__4",
+      "asset": "audio.sfx.interaction",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C1-01-EXIT-D01",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C1-02-WITH-T01",
+      "asset": "audio.sfx.interaction",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C1-02-WITH-T01__1",
+      "asset": "audio.sfx.interaction",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C1-02-WITH-T01__2",
+      "asset": "audio.sfx.interaction",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C1-02-WITH-D02",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C1-02-WITH-D03",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C1-02-WITH-D04",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C1-02-WITH-D05",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C1-02-WITH-D06",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C1-02-WITHREAD-D01",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C1-02-WITHREAD-D02",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C1-02-ALONE-T01",
+      "asset": "audio.sfx.interaction",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C1-02-ALONE-T01__1",
+      "asset": "audio.sfx.interaction",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C1-02-ALONE-T01__2",
+      "asset": "audio.sfx.interaction",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C1-02-ALONE-D02",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C1-02-ALONE-D03",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C1-02-ALONEREAD-D01",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C1-03-WITH-D01",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C1-03-WITH-D02",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C1-03-WITH-D03",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C1-03-ALONE-D01",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C1-03-ALONE-D02",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C1-04-READ-T02",
+      "asset": "audio.sfx.interaction",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C1-04-READ-T02__1",
+      "asset": "audio.sfx.interaction",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C1-04-READ-T02__2",
+      "asset": "audio.sfx.interaction",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C1-04-READ-T02__3",
+      "asset": "audio.sfx.interaction",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C1-04-READ-T02__4",
+      "asset": "audio.sfx.interaction",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C1-04-READ-D03",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C1-04-READ-D04",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C1-04-READ-D05",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C1-04-READ-D06",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C1-04-READ-D07",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C1-04-READ-D08",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C1-04-PHOTO-D01",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C1-04-HAUNT-E01",
+      "asset": "audio.sfx.interaction",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C1-04-HAUNT-E02",
+      "asset": "audio.sfx.interaction",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C1-04-HAUNT-E03",
+      "asset": "audio.sfx.interaction",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C1-04-HAUNT-D04",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C1-04-HAUNT-D05",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C1-04-HAUNT-D06",
+      "asset": "audio.sfx.interaction",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C1-04-HAUNT-D09",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C1-04-HAUNT-D10",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C2-01-MAIN-D02",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C2-01-MAIN-D03",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C2-01-MAIN-D04",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C2-01-MAIN-D06",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C2-01-MAIN-D08",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C2-01-MAIN-D09",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C2-01-MAIN-D10",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C2-02-MAIN-D01",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C2-02-MAIN-D02",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C2-02-MAIN-D03",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C2-02-MAIN-D04",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C2-02-MAIN-D05",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C2-02-MAIN-D06",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C2-02-MAIN-D07",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C2-02-MAIN-D08",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C2-02-MAIN-D09",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C2-02-PHOTO-D01",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C2-02-PHOTO-D02",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C2-02-NAM-D01",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C2-02-NAM-D02",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C2-03-DOC-T01",
+      "asset": "audio.sfx.interaction",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C2-03-DOC-T01__1",
+      "asset": "audio.sfx.interaction",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C2-03-DOC-T01__2",
+      "asset": "audio.sfx.interaction",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C2-03-WITH-D01",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C2-03-WITH-D02",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C2-03-DUC-D01",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C2-03-ALONE-D01",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C2-04-MAIN-E01",
+      "asset": "audio.sfx.interaction",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C2-04-MAIN-T02",
+      "asset": "audio.sfx.interaction",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C2-04-MAIN-D03",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C2-04-MAIN-D04",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C2-04-MAIN-D05",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C2-04-MAIN-D06",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C2-04-MAIN-D07",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C3-01-MAIN-D01",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C3-01-MAIN-D02",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C3-01-MAIN-D03",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C3-01-MAIN-D04",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C3-01-MAIN-D05",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C3-01-MAIN-D06",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C3-01-MAIN-D07",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C3-01-MAIN-D08",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C3-01-MAIN-D09",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C3-01-MAIN-D10",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C3-01-MAIN-D11",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C3-01-MAIN-D12",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C3-02-MAIN-D01",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C3-02-MAIN-E02",
+      "asset": "audio.sfx.interaction",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C3-02-MAIN-D03",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C3-02-MAIN-D04",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C3-02-MAIN-D06",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C3-02-MAIN-D07",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C3-02-MAIN-E08",
+      "asset": "audio.sfx.interaction",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C3-02-MAIN-D09",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C3-02-MAIN-D10",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C3-02-MAIN-D11",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C3-03-MAIN-D02",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C3-03-MAIN-D03",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C3-03-MAIN-D04",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C3-03-MAIN-D05",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C3-03-MAIN-D06",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C3-03-MAIN-D07",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C3-03-MAIN-D08",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C3-03-MAIN-D09",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C3-04-MAIN-E01",
+      "asset": "audio.sfx.interaction",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C3-04-MAIN-D02",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C3-04-MAIN-D03",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C3-04-MAIN-D04",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C3-04-MAIN-D05",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C3-04-STAY-D01",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C3-04-STAY-D02",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C3-04-STAY-D03",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C3-04-STAY-D04",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C3-04-STAY-D05",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C3-04-CONFIRMBOX-TXT01",
+      "asset": "audio.sfx.interaction",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C3-04-CONFIRM-E01",
+      "asset": "audio.sfx.interaction",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C3-04-CONFIRM-D02",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C3-04-CONFIRM-D03",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C3-05-MAIN-D01",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C3-05-MAIN-D02",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C3-05-MAIN-D03",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C3-05-MAIN-D04",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C3-05-MAIN-T05",
+      "asset": "audio.sfx.interaction",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C3-05-MAIN-T05__1",
+      "asset": "audio.sfx.interaction",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C3-05-MAIN-T05__2",
+      "asset": "audio.sfx.interaction",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C3-05-MAIN-T05__3",
+      "asset": "audio.sfx.interaction",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C3-05-MAIN-T05__4",
+      "asset": "audio.sfx.interaction",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C3-05-MAIN-T05__5",
+      "asset": "audio.sfx.interaction",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C3-05-MAIN-T05__6",
+      "asset": "audio.sfx.interaction",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C3-05-MAIN-T05__7",
+      "asset": "audio.sfx.interaction",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C3-05-MAIN-T05__8",
+      "asset": "audio.sfx.interaction",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C3-05-MAIN-D06",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C3-05-MAIN-D07",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C3-05-MAIN-D08",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C3-05-MAIN-D09",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C3-05-MAIN-D10",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C3-05-UNHEARD-D01",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C3-05-UNHEARD-D02",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C3-05-HEARD-D01",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C3-05-HEARD-D02",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C4-01-TRANS-D01",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C4-01-MAIN-D01",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C4-01-MAIN-T02",
+      "asset": "audio.sfx.interaction",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C4-01-MAIN-D03",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C4-01-MAIN-D04",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C4-01-MAIN-D05",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C4-01-MAIN-D06",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C4-01-COUNT-T01",
+      "asset": "audio.sfx.interaction",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C4-01-COUNT-T01__1",
+      "asset": "audio.sfx.interaction",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C4-01-COUNT-T01__2",
+      "asset": "audio.sfx.interaction",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C4-01-COUNT-D02",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C4-01-COUNT-D03",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C4-01-PLACE-D01",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C4-01-PLACE-D02",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C4-01-FIND-D01",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C4-01-FIND-D02",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C4-01-FIND-D03",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C4-01-OWNED-D01",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C4-01-HEARD-D01",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C4-02-MAIN-T01",
+      "asset": "audio.sfx.interaction",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C4-02-MAIN-T01__1",
+      "asset": "audio.sfx.interaction",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C4-02-MAIN-T01__2",
+      "asset": "audio.sfx.interaction",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C4-02-MAIN-T01__3",
+      "asset": "audio.sfx.interaction",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C4-02-MAIN-T01__4",
+      "asset": "audio.sfx.interaction",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C4-02-MAIN-T01__5",
+      "asset": "audio.sfx.interaction",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C4-02-MAIN-D02",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C4-02-DUC1-D01",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C4-02-LABEL-D01",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C4-02-DUC2-D01",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C4-02-DUC2-D02",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C4-02-ALONE-D01",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C4-03-MAIN-D02",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C4-03-MAIN-T03",
+      "asset": "audio.sfx.interaction",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C4-03-WITH-D01",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C4-03-WITH-D02",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C4-03-ALONE-D01",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C4-04-MAIN-D01",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C4-04-MAIN-D02",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C4-04-MAIN-D04",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C4-04-MAIN-D05",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C4-04-MAIN-D06",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C4-05-MAIN-D02",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C4-05-MAIN-D03",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C4-05-MAIN-TXT04",
+      "asset": "audio.sfx.interaction",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C4-05-MAIN-D06",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C4-05-MAIN-D07",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C4-05-MAIN-D08",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C4-05-MAIN-E09",
+      "asset": "audio.sfx.interaction",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C4-05-MAIN-E10",
+      "asset": "audio.sfx.interaction",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C4-05-MAIN-D11",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C4-05-MAIN-D12",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C4-05-MAIN-E13",
+      "asset": "audio.sfx.interaction",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C4-05-MAIN-E14",
+      "asset": "audio.sfx.interaction",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C4-05-MAIN-D15",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C4-05-MAIN-D16",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C4-05-MAIN-D17",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C4-05-RECORDS-D01",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C4-05-NORECORDS-D01",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C5-01-OPEN-D01",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C5-01-OPEN-D02",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C5-01-AFTER-D01",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C5-01-SIGNED-D01",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C5-01-MENU-TXT01",
+      "asset": "audio.sfx.interaction",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C5-02-DENY-D01",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C5-02-DENY-D02",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C5-02-DENY-D03",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C5-02-DENY-D04",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C5-02-PHOTO-D01",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C5-02-PHOTO-D02",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C5-02-PHOTO-D03",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C5-02-HINT-D01",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C5-02-REPEAT-D01",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C5-02-REPEAT-D02",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C5-02-CONFIRMED-D01",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C5-02-CONFIRMED-D02",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C5-03-DENY-D01",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C5-03-DENY-D02",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C5-03-DENY-D03",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C5-03-DENY-D04",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C5-03-DENY-D05",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C5-03-DENY-D06",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C5-03-REPEAT-D01",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C5-03-UNHEARD-D01",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C5-03-HEARD-D01",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C5-03-CONFIRMED-D01",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C5-03-CONFIRMED-D02",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C5-04-MAIN-D01",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C5-04-MAIN-D03",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C5-04-MAIN-D04",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C5-04-MAIN-D05",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C5-04-MAIN-D07",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C5-04-MAIN-D08",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C5-04-REPORT-D01",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C5-04-NOREPORT-D01",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C5-04-CONFESS-D02",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C5-04-CONFESS-D04",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C5-04-CONFESS-D05",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C5-04-CONFESS-D06",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C5-04-CONFESS-D07",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C5-04-CONFESS-D08",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C5-04-CONFESS-D09",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C5-04-CONFESS-D10",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C5-04-CONFESS-D11",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C5-04-CONFESS-D12",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C5-04-CONFESS-D13",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C5-04-CONFESS-D14",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C5-04-CONFESS-D15",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C5-05-MISSINGPHOTO-D01",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C5-05-MISSINGRECORDS-D01",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C5-05-FULL-D02",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C5-05-FULL-D03",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C5-05-FULL-D04",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C5-05-FULL-D05",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C5-05-FULL-D06",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C5-05-FULL-E07",
+      "asset": "audio.sfx.interaction",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C5-05-FULL-T08",
+      "asset": "audio.sfx.interaction",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C5-05-FULL-T08__1",
+      "asset": "audio.sfx.interaction",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C5-05-FULL-T08__2",
+      "asset": "audio.sfx.interaction",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C5-05-FULL-T08__3",
+      "asset": "audio.sfx.interaction",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C5-05-FULL-T08__4",
+      "asset": "audio.sfx.interaction",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C5-05-FULL-T08__5",
+      "asset": "audio.sfx.interaction",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C5-05-FULL-T08__6",
+      "asset": "audio.sfx.interaction",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C5-05-FULL-D09",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C5-05-FULL-D10",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C5-06-MAIN-D01",
+      "asset": "audio.sfx.interaction",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C5-06-MAIN-TXT03",
+      "asset": "audio.sfx.interaction",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C5-06-MAIN-D04",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C5-06-MAIN-D05",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C5-06-MAIN-D06",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C5-06-MAIN-D08",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C5-06-MAIN-D09",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C5-06-MAIN-D10",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C6-01-MISS-PHOTO-D01",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C6-01-MISS-RECORDS-D01",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C6-01-MISS-TAPE-D01",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C6-01-MISS-CONFESS-D01",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C6-01-MISS-SIGNED-D01",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C6-01-GATHER-D01",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C6-01-GATHER-D03",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C6-01-GATHER-D05",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C6-01-GATHER-D06",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C6-01-GATHER-D07",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C6-01-GATHER-D08",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C6-01-GATHER-D09",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C6-01-GATHER-E10",
+      "asset": "audio.sfx.interaction",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C6-01-GATHER-D11",
+      "asset": "audio.sfx.interaction",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C6-01-FINALMENU-TXT01",
+      "asset": "audio.sfx.interaction",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "A-01-MAIN-D02",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "A-01-MAIN-E03",
+      "asset": "audio.sfx.interaction",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "A-01-MAIN-D04",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "A-01-MAIN-D06",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "A-01-MAIN-D07",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "A-02-MAIN-D01",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "A-02-MAIN-D02",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "A-02-MAIN-D03",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "A-02-MAIN-D04",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "A-02-MAIN-D05",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "A-02-MAIN-D06",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "A-02-MAIN-D07",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "A-02-MAIN-E08",
+      "asset": "audio.sfx.interaction",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "A-02-MAIN-T09",
+      "asset": "audio.sfx.interaction",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "A-02-MAIN-TXT10",
+      "asset": "audio.sfx.interaction",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "A-02-MAIN-TXT11",
+      "asset": "audio.sfx.interaction",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "B-01-EARLY-D01",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "B-01-EARLY-D02",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "B-01-EARLY-D03",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "B-01-HEARD-D01",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "B-01-HEARD-D02",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "B-01-HEARD-D03",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "B-01-FULL-D01",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "B-01-FULL-D02",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "B-01-FULL-D03",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "B-01-ALREADY-D01",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "B-01-LOCK-D01",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "B-01-LOCK-E02",
+      "asset": "audio.sfx.interaction",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "B-01-EXIT-D02",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "B-02-MAIN-D02",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "B-02-MAIN-E03",
+      "asset": "audio.sfx.interaction",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "B-02-MAIN-D04",
+      "asset": "audio.sfx.interaction",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "B-02-MAIN-TXT06",
+      "asset": "audio.sfx.interaction",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "B-02-MAIN-TXT07",
+      "asset": "audio.sfx.interaction",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C-01-MAIN-TXT01",
+      "asset": "audio.sfx.interaction",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C-02-MAIN-D01",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C-02-MAIN-TXT03",
+      "asset": "audio.sfx.interaction",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C-02-MAIN-D04",
+      "asset": "audio.sfx.interaction",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C-02-MAIN-E05",
+      "asset": "audio.sfx.interaction",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C-02-MAIN-D06",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C-02-MAIN-D07",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C-02-MAIN-D08",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C-02-MAIN-E09",
+      "asset": "audio.sfx.interaction",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C-02-MAIN-D10",
+      "asset": "audio.sfx.dialogue",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C-02-MAIN-E11",
+      "asset": "audio.sfx.interaction",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C-02-MAIN-TXT12",
+      "asset": "audio.sfx.interaction",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C-02-MAIN-TXT13",
+      "asset": "audio.sfx.interaction",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C-02-MAIN-TXT15",
+      "asset": "audio.sfx.interaction",
+      "channel": "fx",
+      "loop": true
+    },
+    {
+      "cue": "C-02-MAIN-TXT16",
+      "asset": "audio.sfx.interaction",
+      "channel": "fx",
+      "loop": true
+    }
+  ]
 }
