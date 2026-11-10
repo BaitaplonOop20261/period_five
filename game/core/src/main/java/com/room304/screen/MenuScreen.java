@@ -40,21 +40,25 @@ public final class MenuScreen extends ScreenAdapter {
             back=()->home("");panel.show(content.text("UI-TITLE"),message,List.of(new UiPanel.Option(content.text("UI-BACK"),back)));
         } else {
             List<UiPanel.Option> options=new ArrayList<>();SaveStore.Slot slot=saves.inspect(false);
-            if(slot.valid())options.add(new UiPanel.Option("Tiếp tục",this::loadMenu));
-            else if(saves.exists()||saves.hasBackup())options.add(new UiPanel.Option("Phục hồi bản lưu",this::loadMenu));
-            options.add(new UiPanel.Option("Chơi mới",this::newGame));
+            boolean hasSave=saves.exists()||saves.hasBackup();
+            options.add(new UiPanel.Option(hasSave?"Chơi tiếp":"Chơi",this::play));
             options.add(new UiPanel.Option(content.text("UI-SETTINGS"),this::settings));options.add(new UiPanel.Option(content.text("UI-HELP"),this::help));
             options.add(new UiPanel.Option(content.text("UI-EXIT"),()->Gdx.app.exit()));
+            if(!saves.exists())slot=saves.inspect(true);
             panel.lobby(content.text("UI-TITLE"),options,slot.valid()?SaveMenu.summary(slot.loaded(),content):"");
         }
         input.modeChanged();
     }
-    private void loadMenu(){back=()->home("");SaveMenu.show(panel,saves,content,load,back);input.modeChanged();}
-    private void newGame(){
+    private void play(){
         if(!saves.exists()&&!saves.hasBackup()){start.accept(false);return;}
-        back=()->home("");panel.show("Chơi mới?","Bắt đầu lượt mới. Bản lưu cũ được giữ cho đến khi bạn lưu đè.",List.of(new UiPanel.Option("Ở lại",back),new UiPanel.Option("Bắt đầu",()->start.accept(false))));input.modeChanged();
+        SaveMenu.confirmLoad(panel,saves,load,()->home(""),this::navigateBack,!saves.exists());
     }
-    private void settings(){back=()->home("");panel.show(content.text("UI-SETTINGS"),"",List.of(new UiPanel.Option(content.text("UI-AUDIO"),this::audio),new UiPanel.Option(content.text("UI-BACK"),back)));input.modeChanged();}
+    private void navigateBack(Runnable action){back=action;input.modeChanged();}
+    private void settings(){back=()->home("");panel.show(content.text("UI-SETTINGS"),"",List.of(
+        new UiPanel.Option(content.text("UI-AUDIO"),this::audio),new UiPanel.Option("Bản lưu",this::saves),
+        new UiPanel.Option("Khôi phục backup",()->SaveMenu.confirmLoad(panel,saves,load,this::settings,this::navigateBack,true),saves.hasBackup()),
+        new UiPanel.Option(content.text("UI-BACK"),back)));input.modeChanged();}
+    private void saves(){SaveMenu.manage(panel,saves,content,this::settings,this::navigateBack);}
     private void audio(){back=this::settings;panel.audio(content,audio,back);input.modeChanged();}
     private void help(){back=()->home("");panel.help(content,back);input.modeChanged();}
     private void replay(){back=()->home("");panel.show(content.text("UI-REPLAY-TITLE"),content.text("UI-REPLAY-BODY"),List.of(new UiPanel.Option(content.text("UI-REPLAY-WATCH"),()->start.accept(false)),new UiPanel.Option(content.text("UI-REPLAY-SKIP"),()->start.accept(true)),new UiPanel.Option(content.text("UI-REPLAY-BACK"),back)));input.modeChanged();}

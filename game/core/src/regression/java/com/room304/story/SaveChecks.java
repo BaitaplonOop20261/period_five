@@ -49,6 +49,12 @@ final class SaveChecks {
             assert migrated.importLegacy(old,world)&&!migrated.importLegacy(old,world);
             assert migrated.load().state().has(Item.CASSETTE)&&Arrays.equals(oldBytes,Files.readAllBytes(old));
             assert Files.readString(migrated.path()).contains("\"version\":2");
+            migrated.delete(false);assert !migrated.exists()&&!migrated.importLegacy(old,world):"Deleted slot must not reappear from legacy save";
+            assert Arrays.equals(oldBytes,Files.readAllBytes(old));
+            migrated.save(s,point.x,point.y,"up",world);migrated.save(s,point.x,point.y,"left",world);
+            String kept=Files.readString(migrated.path());migrated.delete(true);
+            assert !migrated.hasBackup()&&kept.equals(Files.readString(migrated.path())):"Deleting backup must preserve primary";
+            migrated.delete(false);migrated.delete(true);assert !migrated.exists()&&!migrated.hasBackup();
             assert SaveStore.userPath("Windows 11",Map.of("LOCALAPPDATA",dir.toString()),"unused").equals(dir.resolve("Room304/saves/room304.json"));
             assert SaveStore.userPath("Linux",Map.of(),dir.toString()).equals(dir.resolve(".room304/saves/room304.json"));
 

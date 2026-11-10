@@ -22,7 +22,6 @@ public final class GameScreen extends ScreenAdapter {
     private final SaveStore saves;
     private final AudioSettings audio;
     private final Runnable menu;
-    private final Consumer<SaveStore.Loaded> load;
     private final Consumer<Ending> finish;
     private UiPanel panel;
     private DialogueUI dialogueUI;
@@ -38,11 +37,8 @@ public final class GameScreen extends ScreenAdapter {
     private String mode="";
     private SceneCatalog.ObjectDef inspectedObject;
     private String inspectedBlock, inspectedRoom;
-    public GameScreen(GameAssets assets,StoryContent content,SceneCatalog catalog,SaveStore saves,AudioSettings audio,boolean skipOpening,SaveStore.Loaded saved,Runnable menu,Runnable load,Consumer<Ending> finish) {
-        this(assets,content,catalog,saves,audio,skipOpening,saved,menu,loaded->load.run(),finish);
-    }
-    public GameScreen(GameAssets assets,StoryContent content,SceneCatalog catalog,SaveStore saves,AudioSettings audio,boolean skipOpening,SaveStore.Loaded saved,Runnable menu,Consumer<SaveStore.Loaded> load,Consumer<Ending> finish) {
-        this.assets=assets;this.content=content;this.catalog=catalog;this.saves=saves;this.audio=audio;this.menu=menu;this.load=load;this.finish=finish;
+    public GameScreen(GameAssets assets,StoryContent content,SceneCatalog catalog,SaveStore saves,AudioSettings audio,boolean skipOpening,SaveStore.Loaded saved,Runnable menu,Consumer<Ending> finish) {
+        this.assets=assets;this.content=content;this.catalog=catalog;this.saves=saves;this.audio=audio;this.menu=menu;this.finish=finish;
         try {panel=new UiPanel(assets,true);dialogueUI=new DialogueUI(assets,DialogueLayout.load(assets.catalog().path("story.ui.layout")));
         world=new StoryWorldView(assets,catalog,content,panel.font());
         GameState state=saved==null?new GameState():saved.state();world.enter(state.room());
@@ -134,7 +130,6 @@ public final class GameScreen extends ScreenAdapter {
     private void pauseMenu(String message) {
         List<UiPanel.Option> options=new ArrayList<>();options.add(new UiPanel.Option(content.text("UI-RESUME"),this::resumePlay));
         options.add(new UiPanel.Option("Lưu game",this::saveRequested,session.canSave()));
-        if(saves.exists()||saves.hasBackup())options.add(new UiPanel.Option("Tải bản lưu",()->SaveMenu.show(panel,saves,content,load,()->pauseMenu(""))));
         options.add(new UiPanel.Option(content.text("UI-HELP"),()->panel.help(content,()->pauseMenu(""))));options.add(new UiPanel.Option(content.text("UI-AUDIO"),()->panel.audio(content,audio,()->pauseMenu(""))));
         options.add(new UiPanel.Option(content.text("UI-MENU"),()->panel.show(content.text("UI-LEAVE-TITLE"),"Tiến độ chưa lưu sẽ mất; bản lưu hiện có được giữ lại.",List.of(new UiPanel.Option("Ở lại",()->pauseMenu("")),new UiPanel.Option("Về menu",menu)))));
         panel.show(content.text("UI-PAUSE-TITLE"),message.isBlank()?session.saveUnavailableReason():message,options);

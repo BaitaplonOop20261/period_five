@@ -6,7 +6,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.function.Consumer;
 
-/** Shared save preview/recovery UI; reading a backup never overwrites either file. */
+/** Lobby-only save management. Deleting and loading always require explicit confirmation. */
 final class SaveMenu {
     private SaveMenu(){}
     static String summary(SaveStore.Loaded saved,StoryContent content){
@@ -14,27 +14,41 @@ final class SaveMenu {
         String time=saved.savedAt()==0?"Bản lưu cũ":DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm").withZone(ZoneId.systemDefault()).format(Instant.ofEpochMilli(saved.savedAt()));
         return room+" · "+time+(saved.objectiveId()==null?"":"\n"+content.text(saved.objectiveId()));
     }
-    static void show(UiPanel panel,SaveStore saves,StoryContent content,Consumer<SaveStore.Loaded> load,Runnable back){
-        SaveStore.Slot primary=saves.inspect(false),backup=saves.inspect(true);
-        List<UiPanel.Option> options=new ArrayList<>();
-        StringBuilder body=new StringBuilder();
-        if(primary.valid()){
-            body.append("Bản chính: ").append(summary(primary.loaded(),content));
-            options.add(new UiPanel.Option("Tải bản chính",()->confirm(panel,saves,content,load,back,false)));
-        }else body.append(saves.exists()?"Bản chính không đọc được hoặc không tương thích.":"Chưa có bản lưu chính.");
-        if(backup.valid()){
-            body.append("\n\nBản sao: ").append(summary(backup.loaded(),content));
-            options.add(new UiPanel.Option("Khôi phục bản sao",()->confirm(panel,saves,content,load,back,true)));
-        }else if(saves.hasBackup())body.append("\n\nBản sao cũng không đọc được hoặc không tương thích.");
-        options.add(new UiPanel.Option("Quay lại",back));
-        panel.show("Bản lưu",body.toString(),options);
+    static void manage(UiPanel panel,SaveStore saves,StoryContent content,Runnable back,Consumer<Runnable> navigation){
+        navigation.accept(back);
+        List<UiPanel.Option> options=new ArrayList<>();StringBuilder body=new StringBuilder();
+        if(saves.exists()){
+            appendSlot(body,"Bản chính",saves.inspect(false),content);
+            options.add(new UiPanel.Option("Xóa bản chính",()->confirmDelete(panel,saves,content,back,navigation,false)));
+        }
+        if(saves.hasBackup()){
+            if(!body.isEmpty())body.append("\n\n");
+            appendSlot(body,"Backup",saves.inspect(true),content);
+            options.add(new UiPanel.Option("Xóa backup",()->confirmDelete(panel,saves,content,back,navigation,true)));
+        }
+        if(body.isEmpty())body.append("Chưa có bản lưu.");
+        options.add(new UiPanel.Option("Quay lại",back));panel.show("Bản lưu",body.toString(),options);
     }
-    private static void confirm(UiPanel panel,SaveStore saves,StoryContent content,Consumer<SaveStore.Loaded> load,Runnable back,boolean backup){
-        panel.show(backup?"Khôi phục bản sao?":"Tải bản lưu?","Tiến độ chưa lưu sẽ bị thay thế."+(backup?" Bản sao được mở để chơi tiếp; lưu lại khi muốn thay bản chính.":""),
-            List.of(new UiPanel.Option("Ở lại",()->show(panel,saves,content,load,back)),
-                new UiPanel.Option("Tải",()->{
-                    try{load.accept(backup?saves.loadBackup():saves.load());}
-                    catch(RuntimeException e){panel.show("Không thể tải","Bản lưu không đọc được hoặc không tương thích. Hãy quay lại để chọn bản khác.",List.of(new UiPanel.Option("Quay lại",back)));}
-                })));
+    private static void appendSlot(StringBuilder body,String label,SaveStore.Slot slot,StoryContent content){
+        body.append(label).append(": ").append(slot.valid()?summary(slot.loaded(),content):"Không đọc được hoặc không tương thích.");
+    }
+    private static void confirmDelete(UiPanel panel,SaveStore saves,StoryContent content,Runnable back,Consumer<Runnable> navigation,boolean backup){
+        Runnable cancel=()->manage(panel,saves,content,back,navigation);navigation.accept(cancel);
+        panel.show(backup?"Xóa backup?":"Xóa bản chính?","Bản lưu đã chọn sẽ bị xóa. Thao tác này không thể hoàn tác.",
+            List.of(new UiPanel.Option("Hủy",cancel),new UiPanel.Option("Xóa",()->{
+                try{saves.delete(backup);cancel.run();}
+                catch(RuntimeException e){failure(panel,"Không thể xóa","Không thể xóa bản lưu đã chọn. Hãy thử lại.",cancel,navigation);}
+            })));
+    }
+    static void confirmLoad(UiPanel panel,SaveStore saves,Consumer<SaveStore.Loaded> load,Runnable back,Consumer<Runnable> navigation,boolean backup){
+        navigation.accept(back);
+        panel.show(backup?"Khôi phục backup?":"Chơi tiếp?","Bạn có muốn chơi tiếp từ "+(backup?"bản backup không?":"bản lưu chính không?"),
+            List.of(new UiPanel.Option("Hủy",back),new UiPanel.Option("Chơi tiếp",()->{
+                try{load.accept(backup?saves.loadBackup():saves.load());}
+                catch(RuntimeException e){failure(panel,"Không thể tải","Bản lưu không đọc được hoặc không tương thích. Bạn có thể kiểm tra trong Cài đặt.",back,navigation);}
+            })));
+    }
+    private static void failure(UiPanel panel,String title,String message,Runnable back,Consumer<Runnable> navigation){
+        navigation.accept(back);panel.show(title,message,List.of(new UiPanel.Option("Quay lại",back)));
     }
 }

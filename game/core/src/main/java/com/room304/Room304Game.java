@@ -27,11 +27,11 @@ public class Room304Game extends Game {
         catch(RuntimeException e){assets.dispose();throw e;}
     }
     private MenuScreen createMenu(Ending ending){return new MenuScreen(assets,content,audio,saves,skip->requestNewGame(skip),this::requestLoaded,()->requestMenu(),ending);}
-    public void requestNewGame(boolean skipOpening){requestedScreen=()->{try{replace(new GameScreen(assets,content,world,saves,audio,skipOpening,null,this::requestMenu,this::requestLoaded,this::requestEnding));}catch(RuntimeException e){reportError(e);}};}
+    public void requestNewGame(boolean skipOpening){requestedScreen=()->{try{replace(new GameScreen(assets,content,world,saves,audio,skipOpening,null,this::requestMenu,this::requestEnding));}catch(RuntimeException e){reportError(e);}};}
     public void requestMenu(){requestedScreen=()->replace(createMenu(Ending.NONE));}
     private void requestEnding(Ending ending){requestedScreen=()->replace(createMenu(ending));}
-    public void requestLoad(){try{requestLoaded(saves.load());}catch(RuntimeException e){reportError(e);}}
-    private void requestLoaded(SaveStore.Loaded saved){requestedScreen=()->{try{replace(new GameScreen(assets,content,world,saves,audio,false,saved,this::requestMenu,this::requestLoaded,this::requestEnding));}catch(RuntimeException e){reportError(e);}};}
+    public void requestLoad(){if(!(getScreen() instanceof MenuScreen))return;try{requestLoaded(saves.load());}catch(RuntimeException e){reportError(e);}}
+    private void requestLoaded(SaveStore.Loaded saved){if(!(getScreen() instanceof MenuScreen))return;requestedScreen=()->{if(!(getScreen() instanceof MenuScreen))return;try{replace(new GameScreen(assets,content,world,saves,audio,false,saved,this::requestMenu,this::requestEnding));}catch(RuntimeException e){reportError(e);}};}
     private void reportError(RuntimeException e){if(getScreen() instanceof MenuScreen m)m.error(e.getMessage());else if(getScreen() instanceof GameScreen g)g.error(e.getMessage());}
     private void replace(Screen next){Screen previous=getScreen();setScreen(next);if(previous!=null)previous.dispose();}
     @Override public void render(){super.render();Runnable command=requestedScreen;requestedScreen=null;if(command!=null)command.run();}

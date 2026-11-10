@@ -182,7 +182,7 @@ public final class UiPanel implements Disposable {
     }
     public void help(StoryContent content,Runnable back) {
         StringBuilder text=new StringBuilder();for(int i=1;i<=5;i++) text.append(content.text("UI-HELP-0"+i)).append("\n");
-        text.append("Esc → Lưu game: lưu khi khám phá. Tiếp tục ở menu chính để tải lại; có thể mở bản sao lưu trong màn tải. Chơi mới giữ bản lưu cũ cho đến khi bạn lưu đè.");
+        text.append("Esc → Lưu game: lưu khi khám phá. Chỉ tải ở màn hình chờ bằng Chơi tiếp. Cài đặt ngoài màn hình chờ có Bản lưu để xem/xóa và Khôi phục backup. Xóa các bản lưu để bắt đầu lượt mới.");
         show(content.text("UI-HELP-TITLE"),text.toString().replace("↑ / ↓","Lên / xuống").replace("Esc →","Esc >"),List.of(new Option(content.text("UI-BACK"),back)));
     }
     public void audio(StoryContent content,AudioSettings settings,Runnable back) {

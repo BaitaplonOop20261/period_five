@@ -25,11 +25,12 @@ public final class SaveStore {
         public Loaded(GameState state,float x,float y,String facing){this(state,x,y,facing,UUID.randomUUID().toString(),0,null);}
     }
     public record Slot(Loaded loaded,String error){public boolean valid(){return loaded!=null;}}
-    private final Path file,backup;
+    private final Path file,backup,migrationMarker;
     public SaveStore(Path file){
         this.file=file.toAbsolutePath().normalize();
         String name=this.file.getFileName().toString();
         backup=this.file.resolveSibling(name.endsWith(".json")?name.substring(0,name.length()-5)+".backup.json":name+".backup");
+        migrationMarker=this.file.resolveSibling(name+".migration-done");
     }
     public static Path defaultPath(){return userPath(System.getProperty("os.name"),System.getenv(),System.getProperty("user.home"));}
     static Path userPath(String os,Map<String,String> environment,String home){
@@ -41,6 +42,14 @@ public final class SaveStore {
     public Path backupPath(){return backup;}
     public boolean exists(){return Files.isRegularFile(file);}
     public boolean hasBackup(){return Files.isRegularFile(backup);}
+    /** Only called after a user confirms deleting this specific slot. */
+    public void delete(boolean useBackup){
+        // A deleted migrated slot must not be silently imported again on the next launch.
+        if(!Files.exists(migrationMarker))write(migrationMarker,"1\n");
+        Path target=useBackup?backup:file;
+        try{Files.deleteIfExists(target);}
+        catch(IOException e){throw new IllegalStateException("Không thể xóa bản lưu đã chọn.",e);}
+    }
     public Slot inspect(boolean useBackup){
         try{return new Slot(read(useBackup?backup:file),null);}
         catch(RuntimeException e){return new Slot(null,e.getMessage());}
@@ -81,8 +90,8 @@ public final class SaveStore {
     }
     /** Import only into an empty destination; the old slot is never deleted or rewritten. */
     public boolean importLegacy(Path legacy,SceneCatalog world){
-        if(Files.exists(file)||Files.exists(backup)||!Files.isRegularFile(legacy))return false;
-        Loaded saved=read(legacy);validatePosition(saved.state(),saved.x(),saved.y(),world);write(file,encode(saved));return true;
+        if(Files.exists(migrationMarker)||Files.exists(file)||Files.exists(backup)||!Files.isRegularFile(legacy))return false;
+        Loaded saved=read(legacy);validatePosition(saved.state(),saved.x(),saved.y(),world);write(file,encode(saved));write(migrationMarker,"1\n");return true;
     }
     public Loaded load(){return read(file);}
     public Loaded loadBackup(){return read(backup);}

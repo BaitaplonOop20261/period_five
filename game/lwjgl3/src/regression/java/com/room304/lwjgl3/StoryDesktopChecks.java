@@ -77,7 +77,7 @@ public final class StoryDesktopChecks {
         frame(approachFromLeft?Input.Keys.D:approachFromRight?Input.Keys.A:approachFromAbove?Input.Keys.S:Input.Keys.W);frame();check(id.equals(screen.world().target()),"Wrong E target "+id+" / "+screen.world().target());
     }
     private static void interact(String id){check(screen.session().exploring(),"Interaction outside exploration "+id);walk(id);press(interactions%2==0?Input.Keys.ENTER:Input.Keys.E);interactions++;drain();}
-    private static void begin(boolean skip,SaveStore.Loaded saved){if(screen!=null)screen.dispose();screen=new GameScreen(assets,content,world,save,new AudioSettings(),skip,saved,()->{},()->{},e->{});screen.resize(960,540);screen.show();drain();}
+    private static void begin(boolean skip,SaveStore.Loaded saved){if(screen!=null)screen.dispose();screen=new GameScreen(assets,content,world,save,new AudioSettings(),skip,saved,()->{},e->{});screen.resize(960,540);screen.show();drain();}
     private static void decision(){interact("desk");interact("door.hall");interact("stairs");interact("duc");choice("C2-02-CHOICE03");interact("guard.wall");interact("cabinet");}
     private static void investigate(){decision();choice("C3-04-CHOICE02");choice("C3-04-CHOICE03");}
     private static void guard(){interact("door.hall");interact("guard.wall");}
@@ -294,7 +294,7 @@ public final class StoryDesktopChecks {
         MenuScreen main=new MenuScreen(assets,content,audio,save,skip->{check(!skip,"Play starts with opening");starts.incrementAndGet();},()->loaded.set(true),()->{},Ending.NONE);
         try {
             main.show();keys=Set.of();var stage=(com.badlogic.gdx.scenes.scene2d.Stage)Gdx.input.getInputProcessor();
-            String[] labels={"Tiếp tục","Chơi mới","Cài đặt","Hướng dẫn","Thoát"};
+            String[] labels={"Chơi tiếp","Cài đặt","Hướng dẫn","Thoát"};
             for(int[] size:new int[][]{{960,540},{1280,720},{800,600},{640,480},{1280,960}}) {
                 Gdx.graphics.setWindowedMode(size[0],size[1]);Gdx.input=scripted;main.resize(size[0],size[1]);main.render(0);
                 check(stage.getViewport().getWorldWidth()==960&&stage.getViewport().getWorldHeight()==540,"Lobby keeps 16:9 art canvas");
@@ -308,20 +308,21 @@ public final class StoryDesktopChecks {
                 if(size[0]==960||size[0]==1280&&size[1]==720||size[0]==800)snapshot("lobby-"+size[0]+"x"+size[1]);
             }
             Gdx.graphics.setWindowedMode(960,540);Gdx.input=scripted;main.resize(960,540);main.render(0);
-            menuPress(main,Input.Keys.UP);check(((com.badlogic.gdx.scenes.scene2d.ui.TextButton)stage.getRoot().findActor("menu-option-4")).isChecked(),"Lobby keyboard wraps to Exit");menuPress(main,Input.Keys.DOWN);
-            click(stage,"menu-option-2");main.render(0);main.render(0);
+            menuPress(main,Input.Keys.UP);check(((com.badlogic.gdx.scenes.scene2d.ui.TextButton)stage.getRoot().findActor("menu-option-3")).isChecked(),"Lobby keyboard wraps to Exit");menuPress(main,Input.Keys.DOWN);
+            click(stage,"menu-option-1");main.render(0);main.render(0);
             check(((com.badlogic.gdx.scenes.scene2d.ui.Label)stage.getRoot().findActor("menu-title")).getText().toString().equals("Cài đặt"),"Settings appears above Help and opens by mouse");
             click(stage,"menu-option-0");main.render(0);main.render(0);menuPress(main,Input.Keys.RIGHT);
             check(Math.abs(audio.master-.8f)<.001f,"Lobby Settings contains working Audio controls");snapshot("lobby-settings-audio");
             menuPress(main,Input.Keys.ESCAPE);menuPress(main,Input.Keys.ESCAPE);
             check(stage.getRoot().findActor("lobby-actions")!=null,"Esc returns from Audio through Settings to lobby");
-            click(stage,"menu-option-3");main.render(0);main.render(0);
+            click(stage,"menu-option-2");main.render(0);main.render(0);
             check(((com.badlogic.gdx.scenes.scene2d.ui.Label)stage.getRoot().findActor("menu-title")).getText().toString().equals("Hướng dẫn"),"Lobby Help opens by mouse");menuPress(main,Input.Keys.ESCAPE);
-            click(stage,"menu-option-1");main.render(0);main.render(0);check(starts.get()==0,"New game asks before starting");
-            click(stage,"menu-option-1");main.render(0);main.render(0);check(starts.get()==1&&!loaded.get(),"Confirmed new game starts by mouse");
-            check(Arrays.equals(saved,Files.readAllBytes(save.path())),"Lobby Play must preserve the existing save file");
+            click(stage,"menu-option-0");main.render(0);main.render(0);check(!loaded.get()&&starts.get()==0,"Continue asks before loading");
+            check(stage.getRoot().findActor("menu-option-2")==null,"Continue has only Cancel and Confirm, no backup selection");
+            click(stage,"menu-option-1");main.render(0);main.render(0);check(loaded.get()&&starts.get()==0,"Confirmed Continue loads instead of starting new");
+            check(Arrays.equals(saved,Files.readAllBytes(save.path())),"Continue must preserve the save file");
         } finally {main.dispose();}
-        System.out.println("Lobby passed: Continue/New game/Settings/Help/Exit, metadata, five sizes, confirmations and save preservation.");
+        System.out.println("Lobby passed: Play/Continue, Settings/Help/Exit, metadata, five sizes, direct confirmation and save preservation.");
     }
     private static void checkAll() throws Exception {
         original=Gdx.input;scripted=(Input)Proxy.newProxyInstance(Input.class.getClassLoader(),new Class<?>[]{Input.class},(proxy,method,args)->{if(method.getName().equals("isKeyPressed")||method.getName().equals("isKeyJustPressed"))return keys.contains((Integer)args[0]);return method.invoke(original,args);});Gdx.input=scripted;
@@ -414,12 +415,12 @@ public final class StoryDesktopChecks {
             press(Input.Keys.ESCAPE);press(Input.Keys.DOWN);press(Input.Keys.ENTER);check(save.exists(),"Pause Save command writes file");press(Input.Keys.ENTER);check(!screen.isPaused(),"Resume after saving");
             save.save(screen.session(),screen.player().getX(),screen.player().getY(),screen.player().facing(),world);SaveStore.Loaded loaded=save.load(world);begin(false,loaded);check(screen.session().state().reached(Event.INITIAL_SCENE_DONE),"Load initial exploration");
             var blockedNpc=world.npcPosition(loaded.state(),"trang");
-            try{GameScreen invalid=new GameScreen(assets,content,world,save,new AudioSettings(),false,new SaveStore.Loaded(loaded.state(),blockedNpc.x,blockedNpc.y,loaded.facing()),()->{},()->{},e->{});invalid.dispose();throw new AssertionError("NPC-blocked saved position accepted");}catch(IllegalArgumentException expected){check(expected.getMessage().contains("NPC"),"Clear NPC-blocked load error");}
+            try{GameScreen invalid=new GameScreen(assets,content,world,save,new AudioSettings(),false,new SaveStore.Loaded(loaded.state(),blockedNpc.x,blockedNpc.y,loaded.facing()),()->{},e->{});invalid.dispose();throw new AssertionError("NPC-blocked saved position accepted");}catch(IllegalArgumentException expected){check(expected.getMessage().contains("NPC"),"Clear NPC-blocked load error");}
             check(screen.session().exploring(),"Failed load must preserve prior live screen");
             checkTmx(folder);
             world.npc("trang").animations.put("idle.down","npc.trang.idle");world.npc("trang").canvasWidth=40;world.npc("trang").anchorX=.4f;world.player().animations.put("pose.phone","player.idle");
             begin(true,null);check(assets.loadedCount()>0,"Existing demo sheets load through story profile config");
-            ready();press(Input.Keys.ESCAPE);check(((com.badlogic.gdx.scenes.scene2d.ui.TextButton)((com.badlogic.gdx.scenes.scene2d.Stage)Gdx.input.getInputProcessor()).getRoot().findActor("menu-option-1")).isDisabled(),"Save disabled during final choice");for(int i=0;i<2;i++)press(Input.Keys.DOWN);press(Input.Keys.ENTER);press(Input.Keys.ENTER);press(Input.Keys.ENTER);check(!screen.isPaused()&&screen.session().block().equals("FINAL"),"Help during final choice must preserve pending choice");snapshot("final-choices-16x9");choice("C6-01-CHOICE03");check(screen.session().ended()&&screen.session().state().ending()==Ending.A,"A runtime ending");System.out.println("Desktop A complete");
+            ready();press(Input.Keys.ESCAPE);check(((com.badlogic.gdx.scenes.scene2d.ui.TextButton)((com.badlogic.gdx.scenes.scene2d.Stage)Gdx.input.getInputProcessor()).getRoot().findActor("menu-option-1")).isDisabled(),"Save disabled during final choice");press(Input.Keys.DOWN);press(Input.Keys.ENTER);press(Input.Keys.ENTER);press(Input.Keys.ENTER);check(!screen.isPaused()&&screen.session().block().equals("FINAL"),"Help during final choice must preserve pending choice");snapshot("final-choices-16x9");choice("C6-01-CHOICE03");check(screen.session().ended()&&screen.session().state().ending()==Ending.A,"A runtime ending");System.out.println("Desktop A complete");
             begin(true,null);decision();choice("C3-04-CHOICE01");check(screen.session().ended()&&screen.session().state().ending()==Ending.B,"B runtime ending");System.out.println("Desktop B complete");
             Path cFile=folder.resolve("c-world.json");Files.writeString(cFile,Gdx.files.internal(manifest.path("story.world")).readString().replace("\"enableC\": false","\"enableC\": true"));world=SceneCatalog.load(new FileHandle(cFile.toFile()),manifest);
             begin(true,null);ready();choice("C6-01-CHOICE05");check(screen.dialogueUI().selectedChoiceId().equals("C-01-CHOICE02"),"C cancel selected first");choice("C-01-CHOICE02");choice("C6-01-CHOICE05");choice("C-01-CHOICE01");check(screen.session().ended()&&screen.session().state().ending()==Ending.C,"C runtime ending");System.out.println("Desktop C complete");
@@ -431,45 +432,99 @@ public final class StoryDesktopChecks {
         }finally{if(screen!=null)screen.dispose();assets.dispose();Gdx.input=original;Files.deleteIfExists(save.path());Files.deleteIfExists(save.backupPath());Files.deleteIfExists(folder.resolve("c-world.json"));Files.deleteIfExists(folder.resolve("geometry.tmx"));
             // OneDrive can mark a newly created fixture directory read-only on Windows.
             var dos=Files.getFileAttributeView(folder,java.nio.file.attribute.DosFileAttributeView.class);if(dos!=null)dos.setReadOnly(false);
-            Files.deleteIfExists(folder);}
+            try(var files=Files.list(folder)){for(Path fixture:files.toList())Files.delete(fixture);}Files.deleteIfExists(folder);}
     }
 
     private static void appPress(Room304Game app,int key){keys=Set.of(key);app.render();keys=Set.of();app.render();}
-    private static void loadFromMenu(Room304Game app){
-        appPress(app,Input.Keys.ENTER); // Preview.
-        snapshot(save.inspect(false).valid()?"save-preview":"save-recovery");
-        appPress(app,Input.Keys.ENTER); // Confirmation defaults to Stay.
+    private static com.badlogic.gdx.scenes.scene2d.Stage appStage(){return (com.badlogic.gdx.scenes.scene2d.Stage)Gdx.input.getInputProcessor();}
+    private static String appTitle(){return ((com.badlogic.gdx.scenes.scene2d.ui.Label)appStage().getRoot().findActor("menu-title")).getText().toString();}
+    private static String optionText(int index){return ((com.badlogic.gdx.scenes.scene2d.ui.TextButton)appStage().getRoot().findActor("menu-option-"+index)).getText().toString();}
+    private static void appClick(Room304Game app,int index){keys=Set.of();click(appStage(),"menu-option-"+index);app.render();app.render();}
+    private static void confirmPlay(Room304Game app){
+        appPress(app,Input.Keys.ENTER);
+        check(appStage().getRoot().findActor("menu-option-2")==null,"Play confirmation must not offer another slot");
+        snapshot(save.exists()?"continue-primary":"continue-backup");
         appPress(app,Input.Keys.DOWN);appPress(app,Input.Keys.ENTER);
     }
+    private static void checkPauseSaveActions(Room304Game app){
+        appPress(app,Input.Keys.ESCAPE);
+        for(int i=0;i<5;i++){
+            String text=optionText(i);
+            check(!text.contains("Tải")&&!text.equals("Bản lưu")&&!text.contains("backup"),"Pause must not expose loading or save management");
+        }
+        check(appStage().getRoot().findActor("menu-option-5")==null,"Pause has only Resume/Save/Help/Audio/Menu");
+    }
     private static void checkSaveRouting() throws Exception {
-        byte[] primary=Files.readAllBytes(save.path());byte[] backup=Files.readAllBytes(save.backupPath());
+        byte[] primary=Files.readAllBytes(save.path()),backup=Files.readAllBytes(save.backupPath());
+        var json=new com.badlogic.gdx.utils.Json();json.setUsePrototypes(false);
+        var backupData=json.fromJson(SaveStore.Data.class,new String(backup,java.nio.charset.StandardCharsets.UTF_8));
+        backupData.playthroughId=UUID.randomUUID().toString();backupData.facing="left";
+        Files.writeString(save.backupPath(),json.toJson(backupData));byte[] recovery=Files.readAllBytes(save.backupPath());
+        String primaryId=save.load().playthroughId();
         Room304Game app=new Room304Game(save);keys=Set.of();
         try {
-            app.create();loadFromMenu(app);
-            check(app.getScreen() instanceof GameScreen,"Continue loads through deferred app routing");
+            app.create();
+            check(optionText(0).equals("Chơi tiếp")&&optionText(1).equals("Cài đặt"),"A saved game has one Continue action");
+            check(appStage().getRoot().findActor("menu-option-4")==null,"No extra New Game action");
+            appPress(app,Input.Keys.ENTER);check(appTitle().equals("Chơi tiếp?"),"Primary gets direct confirmation");appPress(app,Input.Keys.ESCAPE);
+            check(Arrays.equals(primary,Files.readAllBytes(save.path())),"Cancel leaves primary unchanged");
+            confirmPlay(app);check(app.getScreen() instanceof GameScreen,"Continue loads through app");
             GameScreen restored=(GameScreen)app.getScreen();
-            check(restored.session().exploring()&&restored.session().playthroughId().equals(save.load().playthroughId()),"Load restores exploration and run identity");
-            appPress(app,Input.Keys.ESCAPE);appPress(app,Input.Keys.DOWN);appPress(app,Input.Keys.ENTER);
-            check(save.load().playthroughId().equals(restored.session().playthroughId()),"Saving the same run requires no overwrite prompt");
-            byte[] oldRun=Files.readAllBytes(save.path());String oldId=save.load().playthroughId();
-            app.requestNewGame(true);app.render();GameScreen previous=screen;screen=(GameScreen)app.getScreen();
-            try{drain();}finally{screen=previous;}
-            appPress(app,Input.Keys.ESCAPE);appPress(app,Input.Keys.DOWN);appPress(app,Input.Keys.ENTER);
-            check(Arrays.equals(oldRun,Files.readAllBytes(save.path())),"Another run must not overwrite before confirmation");
-            appPress(app,Input.Keys.ENTER); // Stay.
-            appPress(app,Input.Keys.DOWN);appPress(app,Input.Keys.ENTER);appPress(app,Input.Keys.DOWN);appPress(app,Input.Keys.ENTER);
-            check(!oldId.equals(save.load().playthroughId())&&oldId.equals(save.loadBackup().playthroughId()),"Confirmed overwrite preserves previous run in backup");
-            Files.writeString(save.path(),"{broken");byte[] recovery=Files.readAllBytes(save.backupPath());
-            app.requestMenu();app.render();loadFromMenu(app);
-            check(app.getScreen() instanceof GameScreen,"Recovery opens backup through app routing");
-            check(Files.readString(save.path()).equals("{broken")&&Arrays.equals(recovery,Files.readAllBytes(save.backupPath())),"Recovery does not overwrite either slot");
-            appPress(app,Input.Keys.ESCAPE);appPress(app,Input.Keys.DOWN);appPress(app,Input.Keys.ENTER);
-            check(save.inspect(false).valid()&&Arrays.equals(recovery,Files.readAllBytes(save.backupPath())),"Saving recovered run repairs primary and preserves good backup");
-            var json=new com.badlogic.gdx.utils.Json();var invalid=json.fromJson(SaveStore.Data.class,Files.readString(save.path()));invalid.x=99999;
-            Files.writeString(save.path(),json.toJson(invalid));app.requestMenu();app.render();var before=app.getScreen();loadFromMenu(app);
-            check(app.getScreen()==before&&Gdx.input.getInputProcessor()!=null,"Rejected geometry preserves menu and input processor");
-            appPress(app,Input.Keys.ENTER);check(app.getScreen() instanceof MenuScreen,"Error Back remains interactive");
-            System.out.println("Save UI passed: Continue, backup recovery, same-run saving, corrupt-primary repair and failed-load menu input.");
+            check(restored.session().exploring()&&restored.session().playthroughId().equals(primaryId),"Primary is preferred even when backup exists");
+            checkPauseSaveActions(app);
+            app.requestLoad();app.render();check(app.getScreen()==restored,"Public Load cannot replace an active game");
+            appClick(app,3);check(appTitle().equals("Âm thanh"),"In-game audio has no save management");
+            appPress(app,Input.Keys.ESCAPE); // Resume.
+            app.requestMenu();app.render();
+
+            appClick(app,1);check(appTitle().equals("Cài đặt"),"Lobby settings");
+            check(optionText(1).equals("Bản lưu")&&optionText(2).equals("Khôi phục backup"),"Save options are in lobby settings");
+            appClick(app,1);check(appTitle().equals("Bản lưu"),"Save list opens");
+            check(optionText(0).equals("Xóa bản chính")&&optionText(1).equals("Xóa backup"),"Save list only offers scoped deletion");
+            snapshot("save-management");
+            appClick(app,0);check(appTitle().equals("Xóa bản chính?"),"Deleting primary asks confirmation");
+            appPress(app,Input.Keys.ESCAPE);check(appTitle().equals("Bản lưu"),"Esc cancels deletion one level");
+            check(Arrays.equals(primary,Files.readAllBytes(save.path()))&&Arrays.equals(recovery,Files.readAllBytes(save.backupPath())),"Canceled deletion leaves both slots intact");
+            appClick(app,0);appPress(app,Input.Keys.ENTER);check(save.exists(),"Default Cancel preserves primary");
+            appClick(app,0);appPress(app,Input.Keys.DOWN);appPress(app,Input.Keys.ENTER);
+            check(!save.exists()&&save.hasBackup(),"Confirmed delete removes only primary");
+            appPress(app,Input.Keys.ESCAPE);check(appTitle().equals("Cài đặt"),"Esc from saves returns to Settings");
+            appPress(app,Input.Keys.ESCAPE);check(optionText(0).equals("Chơi tiếp"),"Backup alone still offers Continue");
+            appPress(app,Input.Keys.ENTER);check(appTitle().equals("Khôi phục backup?"),"Backup-only Continue asks about backup");
+            appPress(app,Input.Keys.ESCAPE);confirmPlay(app);
+            check(app.getScreen() instanceof GameScreen&&((GameScreen)app.getScreen()).session().playthroughId().equals(backupData.playthroughId),"Backup-only Continue loads backup");
+            check(!save.exists()&&Arrays.equals(recovery,Files.readAllBytes(save.backupPath())),"Loading backup never writes a primary");
+            var backupScreen=app.getScreen();app.requestLoad();app.render();check(app.getScreen()==backupScreen,"No primary is read while playing");
+            app.requestMenu();app.render();appClick(app,1);appClick(app,2);
+            check(appTitle().equals("Khôi phục backup?"),"Dedicated restore asks confirmation");
+            appPress(app,Input.Keys.ENTER);check(appTitle().equals("Cài đặt"),"Cancel restore returns to Settings");
+            appClick(app,2);appPress(app,Input.Keys.DOWN);appPress(app,Input.Keys.ENTER);
+            check(app.getScreen() instanceof GameScreen&&((GameScreen)app.getScreen()).session().playthroughId().equals(backupData.playthroughId),"Dedicated restore loads backup");
+
+            app.requestMenu();app.render();appClick(app,1);appClick(app,1);appClick(app,0);
+            check(appTitle().equals("Xóa backup?"),"Backup deletion asks confirmation");
+            appPress(app,Input.Keys.DOWN);appPress(app,Input.Keys.ENTER);check(!save.exists()&&!save.hasBackup(),"Deleting backup can empty the list");
+            check(appTitle().equals("Bản lưu")&&optionText(0).equals("Quay lại"),"Empty list remains usable");
+            appPress(app,Input.Keys.ESCAPE);
+            var disabled=(com.badlogic.gdx.scenes.scene2d.ui.TextButton)appStage().getRoot().findActor("menu-option-2");
+            check(disabled.isDisabled(),"Restore is disabled without backup");appClick(app,2);check(appTitle().equals("Cài đặt"),"Mouse cannot activate disabled Restore");
+            appPress(app,Input.Keys.DOWN);appPress(app,Input.Keys.DOWN);
+            check(((com.badlogic.gdx.scenes.scene2d.ui.TextButton)appStage().getRoot().findActor("menu-option-3")).isChecked(),"Keyboard skips disabled Restore");
+            snapshot("settings-no-backup");appPress(app,Input.Keys.ESCAPE);
+            check(optionText(0).equals("Chơi"),"No saves shows Play only");snapshot("lobby-no-save");
+            appPress(app,Input.Keys.ENTER);check(app.getScreen() instanceof GameScreen,"Play starts directly when no saves exist");
+
+            // A corrupt primary must fail explicitly, never fall back to backup without asking.
+            Files.writeString(save.path(),"{broken");Files.write(save.backupPath(),recovery);app.requestMenu();app.render();
+            confirmPlay(app);check(app.getScreen() instanceof MenuScreen&&appTitle().equals("Không thể tải"),"Existing corrupt primary does not silently load backup");
+            appPress(app,Input.Keys.ENTER);appClick(app,1);appClick(app,2);appPress(app,Input.Keys.DOWN);appPress(app,Input.Keys.ENTER);
+            check(app.getScreen() instanceof GameScreen,"Settings recovery works with corrupt primary");
+            check(Files.readString(save.path()).equals("{broken")&&Arrays.equals(recovery,Files.readAllBytes(save.backupPath())),"Recovery is read only");
+            var invalid=json.fromJson(SaveStore.Data.class,new String(primary,java.nio.charset.StandardCharsets.UTF_8));invalid.x=99999;
+            Files.writeString(save.path(),json.toJson(invalid));app.requestMenu();app.render();var before=app.getScreen();confirmPlay(app);
+            check(app.getScreen()==before&&Gdx.input.getInputProcessor()!=null,"Invalid geometry preserves menu and input");
+            appPress(app,Input.Keys.ENTER);check(optionText(0).equals("Chơi tiếp"),"Error Back returns to lobby");
+            System.out.println("Save UI passed: primary priority, backup-only Continue, no in-game loading, lobby-only management, confirmed deletion and disabled recovery.");
         } finally {app.dispose();Files.write(save.path(),primary);Files.write(save.backupPath(),backup);}
     }
 }
