@@ -342,8 +342,8 @@
           "height": 28
         },
         {
-          "x": 293,
-          "y": 310,
+          "x": 480,
+          "y": 355,
           "width": 54,
           "height": 10
         },
@@ -562,16 +562,12 @@
           "range": 44,
           "asset": "prop.player",
           "name": "Máy cassette",
+          "inBackground": true,
           "inspection": "inspection.player",
           "inspectionVariants": {
             "open": "inspection.player_open",
             "playing": "inspection.player_playing",
             "powered": "inspection.player_powered"
-          },
-          "variants": {
-            "open": "prop.player_open",
-            "powered": "prop.player_powered",
-            "playing": "prop.player_playing"
           },
           "depthSortY": 290,
           "interactionArea": {
@@ -585,8 +581,8 @@
           "id": "crate",
           "type": "PROP",
           "label": "UI-CRATE",
-          "x": 293,
-          "y": 310,
+          "x": 480,
+          "y": 355,
           "width": 54,
           "height": 28,
           "range": 44,
@@ -599,7 +595,7 @@
           "variants": {
             "open": "prop.crate_open"
           },
-          "depthSortY": 310
+          "depthSortY": 355
         },
         {
           "id": "cabinet",

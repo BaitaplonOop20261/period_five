@@ -77,7 +77,7 @@ public final class StoryDesktopChecks {
         frame(approachFromLeft?Input.Keys.D:approachFromRight?Input.Keys.A:approachFromAbove?Input.Keys.S:Input.Keys.W);frame();check(id.equals(screen.world().target()),"Wrong E target "+id+" / "+screen.world().target());
     }
     private static void interact(String id){check(screen.session().exploring(),"Interaction outside exploration "+id);walk(id);press(interactions%2==0?Input.Keys.ENTER:Input.Keys.E);interactions++;drain();}
-    private static void begin(boolean skip,SaveStore.Loaded saved){if(screen!=null)screen.dispose();screen=new GameScreen(assets,content,world,save,new AudioSettings(),skip,saved,()->{},()->{},e->{});screen.resize(960,540);screen.show();drain();}
+    private static void begin(boolean skip,SaveStore.Loaded saved){if(screen!=null)screen.dispose();screen=new GameScreen(assets,content,world,save,new AudioSettings(),skip,saved,()->{},e->{});screen.resize(960,540);screen.show();drain();}
     private static void decision(){interact("desk");interact("door.hall");interact("stairs");interact("duc");choice("C2-02-CHOICE03");interact("guard.wall");interact("cabinet");}
     private static void investigate(){decision();choice("C3-04-CHOICE02");choice("C3-04-CHOICE03");}
     private static void guard(){interact("door.hall");interact("guard.wall");}
@@ -106,10 +106,13 @@ public final class StoryDesktopChecks {
             width=npc.canvasWidth*npc.scale;x=p.x+npc.footWidth/2-width*npc.anchorX;
             y=p.y+npc.canvasHeight*npc.scale*(1-npc.anchorY)+20;
         } else {var object=screen.world().scene().object(id);x=object.x;y=object.y+object.height+20;width=object.width;}
+        return worldPixels(x,y,width,24);
+    }
+    private static byte[] worldPixels(float x,float y,float width,float height) throws ReflectiveOperationException {
         var field=StoryWorldView.class.getDeclaredField("viewport");field.setAccessible(true);
         var viewport=(com.badlogic.gdx.utils.viewport.Viewport)field.get(screen.world());
         var lower=viewport.project(new com.badlogic.gdx.math.Vector3(x,y,0));
-        var upper=viewport.project(new com.badlogic.gdx.math.Vector3(x+width,y+24,0));
+        var upper=viewport.project(new com.badlogic.gdx.math.Vector3(x+width,y+height,0));
         return com.badlogic.gdx.utils.ScreenUtils.getFrameBufferPixels((int)lower.x,(int)lower.y,(int)Math.ceil(upper.x-lower.x),(int)Math.ceil(upper.y-lower.y),false);
     }
     private static boolean hasInteractionMark(String id) throws ReflectiveOperationException {
@@ -122,12 +125,22 @@ public final class StoryDesktopChecks {
     private static void checkInteractionMarks() throws ReflectiveOperationException {
         walk("player");frame();
         check("player".equals(screen.world().target()),"Cassette player is reachable on its resized table");
+        var cassette=screen.world().scene().object("player");String fallback=cassette.asset;
+        check(cassette.inBackground&&cassette.variants.isEmpty(),"Cassette uses painted map art; close-up variants are separate");
+        try {
+            screen.world().render(screen.session(),screen.player(),false);
+            byte[] painted=worldPixels(cassette.x,cassette.y,cassette.width,cassette.height);
+            cassette.asset=null;screen.world().render(screen.session(),screen.player(),false);
+            check(Arrays.equals(painted,worldPixels(cassette.x,cassette.y,cassette.width,cassette.height)),"World cassette contains only the background image");
+            cassette.asset=fallback;cassette.inBackground=false;screen.world().render(screen.session(),screen.player(),false);
+            check(!Arrays.equals(painted,worldPixels(cassette.x,cassette.y,cassette.width,cassette.height)),"Pixel check detects the former doubled cassette sprite");
+        } finally {cassette.asset=fallback;cassette.inBackground=true;screen.world().render(screen.session(),screen.player(),true);}
         byte[] first=interactionPixels("player");check(hasInteractionMark("player"),"Selected object renders the actual marker pixels");
         check(!hasInteractionMark("crate"),"Only one of the nearby objects receives a marker");
         snapshot("interaction-player-16x9");tick();
         check(!Arrays.equals(first,interactionPixels("player")),"Interaction marker advances through its animation frames");
         frame();check("player".equals(screen.world().target()),"Stationary selection remains stable");
-        walk("crate");frame();check("crate".equals(screen.world().target()),"Crate below podium is reachable");
+        walk("crate");frame();check("crate".equals(screen.world().target()),"Crate beside the right edge of the podium is reachable");
         check(hasInteractionMark("crate")&&!hasInteractionMark("player"),"Marker follows the selected target without leaving the old marker");
         snapshot("interaction-crate-16x9");
         screen.world().render(screen.session(),screen.player(),false);
@@ -294,7 +307,7 @@ public final class StoryDesktopChecks {
         MenuScreen main=new MenuScreen(assets,content,audio,save,skip->{check(!skip,"Play starts with opening");starts.incrementAndGet();},()->loaded.set(true),()->{},Ending.NONE);
         try {
             main.show();keys=Set.of();var stage=(com.badlogic.gdx.scenes.scene2d.Stage)Gdx.input.getInputProcessor();
-            String[] labels={"Play","Cài đặt","Hướng dẫn","Thoát"};
+            String[] labels={"Chơi tiếp","Cài đặt","Hướng dẫn","Thoát"};
             for(int[] size:new int[][]{{960,540},{1280,720},{800,600},{640,480},{1280,960}}) {
                 Gdx.graphics.setWindowedMode(size[0],size[1]);Gdx.input=scripted;main.resize(size[0],size[1]);main.render(0);
                 check(stage.getViewport().getWorldWidth()==960&&stage.getViewport().getWorldHeight()==540,"Lobby keeps 16:9 art canvas");
@@ -304,7 +317,7 @@ public final class StoryDesktopChecks {
                     check(button.getText().toString().equals(labels[i]),"Lobby option order: "+labels[i]);
                     check(b.x>=0&&b.x+b.width<320&&b.y>=0&&b.y+b.height<325,"Lobby buttons fit below title in left third");
                 }
-                check(stage.getRoot().findActor("menu-option-4")==null,"Existing save must not add Continue in this version");
+                check(stage.getRoot().findActor("save-summary")!=null,"Existing save summary appears in lobby");
                 if(size[0]==960||size[0]==1280&&size[1]==720||size[0]==800)snapshot("lobby-"+size[0]+"x"+size[1]);
             }
             Gdx.graphics.setWindowedMode(960,540);Gdx.input=scripted;main.resize(960,540);main.render(0);
@@ -317,18 +330,19 @@ public final class StoryDesktopChecks {
             check(stage.getRoot().findActor("lobby-actions")!=null,"Esc returns from Audio through Settings to lobby");
             click(stage,"menu-option-2");main.render(0);main.render(0);
             check(((com.badlogic.gdx.scenes.scene2d.ui.Label)stage.getRoot().findActor("menu-title")).getText().toString().equals("Hướng dẫn"),"Lobby Help opens by mouse");menuPress(main,Input.Keys.ESCAPE);
-            click(stage,"menu-option-0");main.render(0);main.render(0);check(starts.get()==1,"Play starts by mouse");
-            menuPress(main,Input.Keys.ENTER);check(starts.get()==2&&!loaded.get(),"Play starts by keyboard even when a save exists");
-            check(Arrays.equals(saved,Files.readAllBytes(save.path())),"Lobby Play must preserve the existing save file");
+            click(stage,"menu-option-0");main.render(0);main.render(0);check(!loaded.get()&&starts.get()==0,"Continue asks before loading");
+            check(stage.getRoot().findActor("menu-option-2")==null,"Continue has only Cancel and Confirm, no backup selection");
+            click(stage,"menu-option-1");main.render(0);main.render(0);check(loaded.get()&&starts.get()==0,"Confirmed Continue loads instead of starting new");
+            check(Arrays.equals(saved,Files.readAllBytes(save.path())),"Continue must preserve the save file");
         } finally {main.dispose();}
-        System.out.println("Lobby passed: original title art, Play/Settings/Help/Exit order, no Continue with existing save, five sizes, keyboard/mouse, nested Audio, Esc and save preservation.");
+        System.out.println("Lobby passed: Play/Continue, Settings/Help/Exit, metadata, five sizes, direct confirmation and save preservation.");
     }
     private static void checkAll() throws Exception {
         original=Gdx.input;scripted=(Input)Proxy.newProxyInstance(Input.class.getClassLoader(),new Class<?>[]{Input.class},(proxy,method,args)->{if(method.getName().equals("isKeyPressed")||method.getName().equals("isKeyJustPressed"))return keys.contains((Integer)args[0]);return method.invoke(original,args);});Gdx.input=scripted;
         assets=new GameAssets();assets.validateRequired();AssetCatalog manifest=assets.catalog();content=StoryContent.load(Gdx.files.internal(manifest.path("story.content")));world=SceneCatalog.load(Gdx.files.internal(manifest.path("story.world")),manifest);
         Path folder=Files.createTempDirectory("room304-story-save-");save=new SaveStore(folder.resolve("slot.json"));
         try {
-            Room304Game app = new Room304Game();
+            Room304Game app = new Room304Game(save);
             try {
                 app.create();
                 check(app.getScreen() instanceof MenuScreen, "Menu startup");
@@ -391,7 +405,7 @@ public final class StoryDesktopChecks {
             try {
                 for(int i=0;i<8;i++)wallProbe.update(.25f,0,1,true,screen.world().walls(screen.session()),null,List.of(),room.width,room.height);
                 check(wallProbe.getY()<=384 && wallProbe.getY()>=379,"Linh must stop at the red boundary below the board");
-                wallProbe.setPosition(520,320);
+                wallProbe.setPosition(538,320);
                 for(int i=0;i<8;i++)wallProbe.update(.25f,0,1,true,screen.world().walls(screen.session()),null,List.of(),room.width,room.height);
                 check(wallProbe.getY()<=377 && wallProbe.getY()>=372,"Linh must stop at the lower red boundary beside the podium");
                 wallProbe.setPosition(40,310);
@@ -407,6 +421,12 @@ public final class StoryDesktopChecks {
                 for(int i=0;i<8;i++)wallProbe.update(.25f,1,0,true,screen.world().walls(screen.session()),null,List.of(),room.width,room.height);
                 check(wallProbe.getX()+world.player().footWidth<=628,"Linh crosses east wall");
             } finally {wallProbe.dispose();}
+            var crate=room.object("crate");
+            Player crateProbe=new Player(assets,crate.x+18,crate.y-world.player().footHeight-2,world.player());
+            try {
+                for(int i=0;i<8;i++)crateProbe.update(.25f,0,1,false,screen.world().walls(screen.session()),null,List.of(),room.width,room.height);
+                check(crateProbe.getY()+crateProbe.getBounds().height<=crate.y,"Moved crate blocks walking through its base");
+            } finally {crateProbe.dispose();}
             System.out.println("Room304 layout checks passed: all nine props/door reached by walking, all 20 student tables and room walls block movement, 16:9 and 4:3.");
             float x=screen.player().getX();press(Input.Keys.ESCAPE);frame(Input.Keys.D);check(screen.isPaused()&&screen.player().getX()==x,"Pause movement lock");press(Input.Keys.ESCAPE);for(int i=0;i<3;i++)frame();
             walk("trang");frame(Input.Keys.ENTER);check(screen.session().dialogue().isActive(),"Enter opens NPC dialogue");var firstNpcLine=screen.session().dialogue().getLine();for(int i=0;i<3;i++)frame(Input.Keys.ENTER);check(firstNpcLine==screen.session().dialogue().getLine(),"Held interaction Enter must not skip first NPC line");frame();drain();
@@ -414,22 +434,116 @@ public final class StoryDesktopChecks {
             press(Input.Keys.ESCAPE);press(Input.Keys.DOWN);press(Input.Keys.ENTER);check(save.exists(),"Pause Save command writes file");press(Input.Keys.ENTER);check(!screen.isPaused(),"Resume after saving");
             save.save(screen.session(),screen.player().getX(),screen.player().getY(),screen.player().facing(),world);SaveStore.Loaded loaded=save.load(world);begin(false,loaded);check(screen.session().state().reached(Event.INITIAL_SCENE_DONE),"Load initial exploration");
             var blockedNpc=world.npcPosition(loaded.state(),"trang");
-            try{GameScreen invalid=new GameScreen(assets,content,world,save,new AudioSettings(),false,new SaveStore.Loaded(loaded.state(),blockedNpc.x,blockedNpc.y,loaded.facing()),()->{},()->{},e->{});invalid.dispose();throw new AssertionError("NPC-blocked saved position accepted");}catch(IllegalArgumentException expected){check(expected.getMessage().contains("NPC"),"Clear NPC-blocked load error");}
+            try{GameScreen invalid=new GameScreen(assets,content,world,save,new AudioSettings(),false,new SaveStore.Loaded(loaded.state(),blockedNpc.x,blockedNpc.y,loaded.facing()),()->{},e->{});invalid.dispose();throw new AssertionError("NPC-blocked saved position accepted");}catch(IllegalArgumentException expected){check(expected.getMessage().contains("NPC"),"Clear NPC-blocked load error");}
             check(screen.session().exploring(),"Failed load must preserve prior live screen");
             checkTmx(folder);
             world.npc("trang").animations.put("idle.down","npc.trang.idle");world.npc("trang").canvasWidth=40;world.npc("trang").anchorX=.4f;world.player().animations.put("pose.phone","player.idle");
             begin(true,null);check(assets.loadedCount()>0,"Existing demo sheets load through story profile config");
-            ready();press(Input.Keys.ESCAPE);for(int i=0;i<3;i++)press(Input.Keys.DOWN);press(Input.Keys.ENTER);press(Input.Keys.ENTER);press(Input.Keys.ENTER);check(!screen.isPaused()&&screen.session().block().equals("FINAL"),"Help during final choice must preserve pending choice");snapshot("final-choices-16x9");choice("C6-01-CHOICE03");check(screen.session().ended()&&screen.session().state().ending()==Ending.A,"A runtime ending");System.out.println("Desktop A complete");
+            ready();press(Input.Keys.ESCAPE);check(((com.badlogic.gdx.scenes.scene2d.ui.TextButton)((com.badlogic.gdx.scenes.scene2d.Stage)Gdx.input.getInputProcessor()).getRoot().findActor("menu-option-1")).isDisabled(),"Save disabled during final choice");press(Input.Keys.DOWN);press(Input.Keys.ENTER);press(Input.Keys.ENTER);press(Input.Keys.ENTER);check(!screen.isPaused()&&screen.session().block().equals("FINAL"),"Help during final choice must preserve pending choice");snapshot("final-choices-16x9");choice("C6-01-CHOICE03");check(screen.session().ended()&&screen.session().state().ending()==Ending.A,"A runtime ending");System.out.println("Desktop A complete");
             begin(true,null);decision();choice("C3-04-CHOICE01");check(screen.session().ended()&&screen.session().state().ending()==Ending.B,"B runtime ending");System.out.println("Desktop B complete");
             Path cFile=folder.resolve("c-world.json");Files.writeString(cFile,Gdx.files.internal(manifest.path("story.world")).readString().replace("\"enableC\": false","\"enableC\": true"));world=SceneCatalog.load(new FileHandle(cFile.toFile()),manifest);
             begin(true,null);ready();choice("C6-01-CHOICE05");check(screen.dialogueUI().selectedChoiceId().equals("C-01-CHOICE02"),"C cancel selected first");choice("C-01-CHOICE02");choice("C6-01-CHOICE05");choice("C-01-CHOICE01");check(screen.session().ended()&&screen.session().state().ending()==Ending.C,"C runtime ending");System.out.println("Desktop C complete");
             Gdx.graphics.setWindowedMode(800,600);System.out.println("Input proxy after window resize: "+(Gdx.input==scripted));Gdx.input=scripted;screen.resize(800,600);for(int i=0;i<3;i++)frame();java.util.concurrent.atomic.AtomicBoolean replaySkip=new java.util.concurrent.atomic.AtomicBoolean();MenuScreen end=new MenuScreen(assets,content,new AudioSettings(),save,replaySkip::set,()->{},()->{},Ending.C);try{end.show();end.resize(800,600);end.render(0);snapshot("ending-4x3");menuPress(end,Input.Keys.ENTER);menuPress(end,Input.Keys.DOWN);menuPress(end,Input.Keys.ENTER);check(replaySkip.get(),"Replay skip button callback");}finally{end.dispose();}
             checkLobbyUi();
+            checkSaveRouting();
             check(visualChecks.containsAll(Set.of("open-register","haunt","record","memory","seated")),"Missing runtime visual coverage: "+visualChecks);System.out.println("Runtime visual bindings passed: open register, playback, real animation profiles, haunt/memory/C seated, unchanged physics.");
             Files.deleteIfExists(cFile);
-        }finally{if(screen!=null)screen.dispose();assets.dispose();Gdx.input=original;Files.deleteIfExists(save.path());Files.deleteIfExists(folder.resolve("c-world.json"));Files.deleteIfExists(folder.resolve("geometry.tmx"));
+        }finally{if(screen!=null)screen.dispose();assets.dispose();Gdx.input=original;Files.deleteIfExists(save.path());Files.deleteIfExists(save.backupPath());Files.deleteIfExists(folder.resolve("c-world.json"));Files.deleteIfExists(folder.resolve("geometry.tmx"));
             // OneDrive can mark a newly created fixture directory read-only on Windows.
             var dos=Files.getFileAttributeView(folder,java.nio.file.attribute.DosFileAttributeView.class);if(dos!=null)dos.setReadOnly(false);
-            Files.deleteIfExists(folder);}
+            try(var files=Files.list(folder)){for(Path fixture:files.toList())Files.delete(fixture);}Files.deleteIfExists(folder);}
+    }
+
+    private static void appPress(Room304Game app,int key){keys=Set.of(key);app.render();keys=Set.of();app.render();}
+    private static com.badlogic.gdx.scenes.scene2d.Stage appStage(){return (com.badlogic.gdx.scenes.scene2d.Stage)Gdx.input.getInputProcessor();}
+    private static String appTitle(){return ((com.badlogic.gdx.scenes.scene2d.ui.Label)appStage().getRoot().findActor("menu-title")).getText().toString();}
+    private static String optionText(int index){return ((com.badlogic.gdx.scenes.scene2d.ui.TextButton)appStage().getRoot().findActor("menu-option-"+index)).getText().toString();}
+    private static void appClick(Room304Game app,int index){keys=Set.of();click(appStage(),"menu-option-"+index);app.render();app.render();}
+    private static void confirmPlay(Room304Game app){
+        appPress(app,Input.Keys.ENTER);
+        check(appStage().getRoot().findActor("menu-option-2")==null,"Play confirmation must not offer another slot");
+        snapshot(save.exists()?"continue-primary":"continue-backup");
+        appPress(app,Input.Keys.DOWN);appPress(app,Input.Keys.ENTER);
+    }
+    private static void checkPauseSaveActions(Room304Game app){
+        appPress(app,Input.Keys.ESCAPE);
+        for(int i=0;i<5;i++){
+            String text=optionText(i);
+            check(!text.contains("Tải")&&!text.equals("Bản lưu")&&!text.contains("backup"),"Pause must not expose loading or save management");
+        }
+        check(appStage().getRoot().findActor("menu-option-5")==null,"Pause has only Resume/Save/Help/Audio/Menu");
+    }
+    private static void checkSaveRouting() throws Exception {
+        byte[] primary=Files.readAllBytes(save.path()),backup=Files.readAllBytes(save.backupPath());
+        var json=new com.badlogic.gdx.utils.Json();json.setUsePrototypes(false);
+        var backupData=json.fromJson(SaveStore.Data.class,new String(backup,java.nio.charset.StandardCharsets.UTF_8));
+        backupData.playthroughId=UUID.randomUUID().toString();backupData.facing="left";
+        Files.writeString(save.backupPath(),json.toJson(backupData));byte[] recovery=Files.readAllBytes(save.backupPath());
+        String primaryId=save.load().playthroughId();
+        Room304Game app=new Room304Game(save);keys=Set.of();
+        try {
+            app.create();
+            check(optionText(0).equals("Chơi tiếp")&&optionText(1).equals("Cài đặt"),"A saved game has one Continue action");
+            check(appStage().getRoot().findActor("menu-option-4")==null,"No extra New Game action");
+            appPress(app,Input.Keys.ENTER);check(appTitle().equals("Chơi tiếp?"),"Primary gets direct confirmation");appPress(app,Input.Keys.ESCAPE);
+            check(Arrays.equals(primary,Files.readAllBytes(save.path())),"Cancel leaves primary unchanged");
+            confirmPlay(app);check(app.getScreen() instanceof GameScreen,"Continue loads through app");
+            GameScreen restored=(GameScreen)app.getScreen();
+            check(restored.session().exploring()&&restored.session().playthroughId().equals(primaryId),"Primary is preferred even when backup exists");
+            checkPauseSaveActions(app);
+            app.requestLoad();app.render();check(app.getScreen()==restored,"Public Load cannot replace an active game");
+            appClick(app,3);check(appTitle().equals("Âm thanh"),"In-game audio has no save management");
+            appPress(app,Input.Keys.ESCAPE); // Resume.
+            app.requestMenu();app.render();
+
+            appClick(app,1);check(appTitle().equals("Cài đặt"),"Lobby settings");
+            check(optionText(1).equals("Bản lưu")&&optionText(2).equals("Khôi phục backup"),"Save options are in lobby settings");
+            appClick(app,1);check(appTitle().equals("Bản lưu"),"Save list opens");
+            check(optionText(0).equals("Xóa bản chính")&&optionText(1).equals("Xóa backup"),"Save list only offers scoped deletion");
+            snapshot("save-management");
+            appClick(app,0);check(appTitle().equals("Xóa bản chính?"),"Deleting primary asks confirmation");
+            appPress(app,Input.Keys.ESCAPE);check(appTitle().equals("Bản lưu"),"Esc cancels deletion one level");
+            check(Arrays.equals(primary,Files.readAllBytes(save.path()))&&Arrays.equals(recovery,Files.readAllBytes(save.backupPath())),"Canceled deletion leaves both slots intact");
+            appClick(app,0);appPress(app,Input.Keys.ENTER);check(save.exists(),"Default Cancel preserves primary");
+            appClick(app,0);appPress(app,Input.Keys.DOWN);appPress(app,Input.Keys.ENTER);
+            check(!save.exists()&&save.hasBackup(),"Confirmed delete removes only primary");
+            appPress(app,Input.Keys.ESCAPE);check(appTitle().equals("Cài đặt"),"Esc from saves returns to Settings");
+            appPress(app,Input.Keys.ESCAPE);check(optionText(0).equals("Chơi tiếp"),"Backup alone still offers Continue");
+            appPress(app,Input.Keys.ENTER);check(appTitle().equals("Khôi phục backup?"),"Backup-only Continue asks about backup");
+            appPress(app,Input.Keys.ESCAPE);confirmPlay(app);
+            check(app.getScreen() instanceof GameScreen&&((GameScreen)app.getScreen()).session().playthroughId().equals(backupData.playthroughId),"Backup-only Continue loads backup");
+            check(!save.exists()&&Arrays.equals(recovery,Files.readAllBytes(save.backupPath())),"Loading backup never writes a primary");
+            var backupScreen=app.getScreen();app.requestLoad();app.render();check(app.getScreen()==backupScreen,"No primary is read while playing");
+            app.requestMenu();app.render();appClick(app,1);appClick(app,2);
+            check(appTitle().equals("Khôi phục backup?"),"Dedicated restore asks confirmation");
+            appPress(app,Input.Keys.ENTER);check(appTitle().equals("Cài đặt"),"Cancel restore returns to Settings");
+            appClick(app,2);appPress(app,Input.Keys.DOWN);appPress(app,Input.Keys.ENTER);
+            check(app.getScreen() instanceof GameScreen&&((GameScreen)app.getScreen()).session().playthroughId().equals(backupData.playthroughId),"Dedicated restore loads backup");
+
+            app.requestMenu();app.render();appClick(app,1);appClick(app,1);appClick(app,0);
+            check(appTitle().equals("Xóa backup?"),"Backup deletion asks confirmation");
+            appPress(app,Input.Keys.DOWN);appPress(app,Input.Keys.ENTER);check(!save.exists()&&!save.hasBackup(),"Deleting backup can empty the list");
+            check(appTitle().equals("Bản lưu")&&optionText(0).equals("Quay lại"),"Empty list remains usable");
+            appPress(app,Input.Keys.ESCAPE);
+            var disabled=(com.badlogic.gdx.scenes.scene2d.ui.TextButton)appStage().getRoot().findActor("menu-option-2");
+            check(disabled.isDisabled(),"Restore is disabled without backup");appClick(app,2);check(appTitle().equals("Cài đặt"),"Mouse cannot activate disabled Restore");
+            appPress(app,Input.Keys.DOWN);appPress(app,Input.Keys.DOWN);
+            check(((com.badlogic.gdx.scenes.scene2d.ui.TextButton)appStage().getRoot().findActor("menu-option-3")).isChecked(),"Keyboard skips disabled Restore");
+            snapshot("settings-no-backup");appPress(app,Input.Keys.ESCAPE);
+            check(optionText(0).equals("Chơi"),"No saves shows Play only");snapshot("lobby-no-save");
+            appPress(app,Input.Keys.ENTER);check(app.getScreen() instanceof GameScreen,"Play starts directly when no saves exist");
+
+            // A corrupt primary must fail explicitly, never fall back to backup without asking.
+            Files.writeString(save.path(),"{broken");Files.write(save.backupPath(),recovery);app.requestMenu();app.render();
+            confirmPlay(app);check(app.getScreen() instanceof MenuScreen&&appTitle().equals("Không thể tải"),"Existing corrupt primary does not silently load backup");
+            appPress(app,Input.Keys.ENTER);appClick(app,1);appClick(app,2);appPress(app,Input.Keys.DOWN);appPress(app,Input.Keys.ENTER);
+            check(app.getScreen() instanceof GameScreen,"Settings recovery works with corrupt primary");
+            check(Files.readString(save.path()).equals("{broken")&&Arrays.equals(recovery,Files.readAllBytes(save.backupPath())),"Recovery is read only");
+            var invalid=json.fromJson(SaveStore.Data.class,new String(primary,java.nio.charset.StandardCharsets.UTF_8));invalid.x=99999;
+            Files.writeString(save.path(),json.toJson(invalid));app.requestMenu();app.render();var before=app.getScreen();confirmPlay(app);
+            check(app.getScreen()==before&&Gdx.input.getInputProcessor()!=null,"Invalid geometry preserves menu and input");
+            appPress(app,Input.Keys.ENTER);check(optionText(0).equals("Chơi tiếp"),"Error Back returns to lobby");
+            System.out.println("Save UI passed: primary priority, backup-only Continue, no in-game loading, lobby-only management, confirmed deletion and disabled recovery.");
+        } finally {app.dispose();Files.write(save.path(),primary);Files.write(save.backupPath(),backup);}
     }
 }
