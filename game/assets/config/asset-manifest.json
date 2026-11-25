@@ -802,6 +802,18 @@
       "path": "audio/sfx/Object_Interactions.wav",
       "type": "sound",
       "required": true
+    },
+    {
+      "id": "audio.sfx.door",
+      "path": "audio/sfx/door_slam.wav",
+      "type": "sound",
+      "required": false
+    },
+    {
+      "id": "audio.sfx.door-slam",
+      "path": "audio/sfx/door_slam/door_slam.wav",
+      "type": "sound",
+      "required": false
     }
   ]
 }

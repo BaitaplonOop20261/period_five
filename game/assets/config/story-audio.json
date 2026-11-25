@@ -1,6 +1,7 @@
 {
   "version": 1,
   "ambience": {},
+  "door": "audio.sfx.door",
   "dialogue": {
     "spoken": "audio.sfx.dialogue",
     "other": "audio.sfx.interaction",

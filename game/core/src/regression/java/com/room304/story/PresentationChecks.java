@@ -62,11 +62,21 @@ final class PresentationChecks {
             Files.writeString(audioConfig,config.replace(cue,"NO-SUCH-CUE"));reject(()->new StoryAudio(new FileHandle(audioConfig.toFile()),catalog,sounds::get,id->loop,settings,content));
             Files.writeString(audioConfig,config.replace("\"distance\":10","\"distance\":0"));reject(()->new StoryAudio(new FileHandle(audioConfig.toFile()),catalog,sounds::get,id->loop,settings,content));
         }finally{Files.deleteIfExists(fakeManifest);Files.deleteIfExists(audioConfig);}
-        Backend spoken=new Backend(),interaction=new Backend();
-        Map<String,Sound> packagedSounds=Map.of("audio.sfx.dialogue",(Sound)spoken.proxy(Sound.class),"audio.sfx.interaction",(Sound)interaction.proxy(Sound.class));
+        Backend spoken=new Backend(),interaction=new Backend(),door=new Backend();
+        Map<String,Sound> packagedSounds=Map.of("audio.sfx.dialogue",(Sound)spoken.proxy(Sound.class),"audio.sfx.interaction",(Sound)interaction.proxy(Sound.class),"audio.sfx.door",(Sound)door.proxy(Sound.class));
         StorySession packagedSession=new StorySession(content,world,new GameState(),(r,s)->{});packagedSession.start(false);
         StoryAudio packagedAudio=new StoryAudio(new FileHandle(assetRoot.resolve(assets.path("story.audio")).toFile()),assets,packagedSounds::get,id->null,new AudioSettings(),content);
         try{
+            packagedAudio.playDoor();assert door.plays==1 : "playDoor must invoke door SFX";
+            assert !com.room304.screen.GameScreen.isDoorTarget("guard.wall",packagedSession) : "guard.wall must not trigger door SFX at start of game";
+            assert !com.room304.screen.GameScreen.isDoorTarget("stairs",packagedSession) : "stairs must not trigger door SFX";
+            assert !com.room304.screen.GameScreen.isDoorTarget("gate",packagedSession) : "gate must not trigger door SFX";
+            assert !com.room304.screen.GameScreen.isDoorTarget("door.hung",packagedSession) : "locked door.hung must not trigger door SFX";
+            assert com.room304.screen.GameScreen.isDoorTarget("door.304",packagedSession) : "door.304 must trigger door SFX";
+            assert com.room304.screen.GameScreen.isDoorTarget("door.hall",packagedSession) : "door.hall must trigger door SFX";
+            packagedSession.state().clues.add(Clue.ALTERED_REGISTER);
+            packagedSession.state().events.add(Event.GUARD_DOOR_REVEALED);
+            assert com.room304.screen.GameScreen.isDoorTarget("guard.wall",packagedSession) : "guard.wall must trigger door SFX once revealed";
             packagedAudio.update(packagedSession,false,.01f,0,false);assert interaction.plays==1&&spoken.plays==0&&interaction.playing : "Opening title text must use interaction SFX";
             packagedAudio.update(packagedSession,false,.01f,0,true);assert interaction.stops==1&&!interaction.playing : "Dialogue SFX must stop as soon as text finishes typing";
             packagedAudio.update(packagedSession,false,.01f,0,true);assert interaction.plays==1&&interaction.stops==1 : "Completed text must stay silent until next line";

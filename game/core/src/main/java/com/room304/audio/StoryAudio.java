@@ -25,7 +25,7 @@ public final class StoryAudio implements Disposable {
     private final List<Playing> clips=new ArrayList<>();
     private DialogueLine currentLine;
     private Binding spokenBinding,interactionBinding;
-    private String currentAmbience,stepAsset;
+    private String currentAmbience,stepAsset,doorAsset;
     private float stepDistance,travel,duck=1;
     private Sound step;private long stepId=-1;
     private Music music;private boolean wasPaused,wasTextComplete;
@@ -50,6 +50,8 @@ public final class StoryAudio implements Disposable {
                 spokenBinding=new Binding(spoken,channel,true,false);interactionBinding=new Binding(other,channel,true,false);
             }
             JsonValue steps=data.get("footsteps");if(steps!=null){stepAsset=steps.getString("asset");type(assets,stepAsset,"sound");stepDistance=steps.getFloat("distance");if(!Float.isFinite(stepDistance)||stepDistance<=0)throw new IllegalArgumentException("Invalid footstep distance");}
+            JsonValue door=data.get("door");if(door!=null){doorAsset=door.asString();type(assets,doorAsset,"sound");}
+            else{try{if(assets.entry("audio.sfx.door")!=null)doorAsset="audio.sfx.door";}catch(RuntimeException ignored){}}
         }catch(RuntimeException e){throw new IllegalArgumentException("Invalid story audio "+config.path()+": "+e.getMessage(),e);}
     }
     private static void type(AssetCatalog assets,String id,String expected){if(!assets.entry(id).type().equals(expected))throw new IllegalArgumentException("Expected "+expected+": "+id);}
@@ -97,5 +99,11 @@ public final class StoryAudio implements Disposable {
         for(Binding b:list){Sound sound=sounds.apply(b.asset());if(sound!=null){long id=b.loop()?sound.loop(volume(b)):sound.play(volume(b));if(id>=0)clips.add(new Playing(sound,id,b));}}
     }
     private void stopClips(){for(Playing p:clips)p.sound().stop(p.id());clips.clear();}
+    public void playDoor(){
+        if(doorAsset!=null){
+            Sound sound=sounds.apply(doorAsset);
+            if(sound!=null) sound.play(settings.level("fx")*(.4f+(duck-.25f)*.8f));
+        }
+    }
     @Override public void dispose(){if(music!=null)music.stop();stopClips();if(step!=null&&stepId>=0)step.stop(stepId);}
 }

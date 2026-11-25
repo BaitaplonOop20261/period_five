@@ -114,6 +114,7 @@ public final class GameScreen extends ScreenAdapter {
                 if(target!=null){
                     inspectedObject=world.scene().objects.stream().filter(o->o.id.equals(target)).findFirst().orElse(null);
                     inspectedRoom=world.scene().id;
+                    if(isDoorTarget(target,session)) sound.playDoor();
                     session.interact(target);
                     inspectedBlock=session.block();
                 }
@@ -143,5 +144,14 @@ public final class GameScreen extends ScreenAdapter {
     @Override public void resize(int w,int h){world.resize(w,h);dialogueUI.resize(w,h);panel.resize(w,h);if(w>0&&h>0)fadeViewport.update(w,h,true);}
     @Override public void pause(){pausePlay();}
     @Override public void hide(){if((dialogueUI!=null&&Gdx.input.getInputProcessor()==dialogueUI.getStage())||(panel!=null&&Gdx.input.getInputProcessor()==panel.stage()))Gdx.input.setInputProcessor(null);if(dialogueUI!=null)dialogueUI.clearCommands();if(panel!=null)panel.clearCommands();}
+    public static boolean isDoorTarget(String target,StorySession session){
+        if(target==null||session==null)return false;
+        if("door.304".equals(target)||"door.hall".equals(target))return true;
+        if("door.hung".equals(target))
+            return session.state().knows(GameState.Clue.ALTERED_REGISTER)&&session.state().reached(GameState.Event.RETREAT_TRIAL_DONE);
+        if("guard.wall".equals(target))
+            return session.state().phenomenon()==GameState.Phenomenon.ACTIVE&&session.state().reached(GameState.Event.GUARD_DOOR_REVEALED);
+        return false;
+    }
     @Override public void dispose(){hide();if(session!=null)session.close();if(sound!=null)sound.dispose();if(world!=null)world.dispose();if(player!=null)player.dispose();if(dialogueUI!=null)dialogueUI.dispose();if(panel!=null)panel.dispose();fade.dispose();}
 }
