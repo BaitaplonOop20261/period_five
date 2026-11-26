@@ -24,7 +24,8 @@ public final class StoryDesktopChecks {
     private static GameScreen screen;
     private static Input original,scripted;
     private static Set<Integer> keys=Set.of();
-    private static int frames,interactions;
+    private static int frames,interactions,registerPhotos;
+    private static boolean reachedRegisterTilt;
     private static final Set<String> visualChecks=new HashSet<>();
     private static GameAssets assets;private static StoryContent content;private static SceneCatalog world;private static SaveStore save;
     public static void main(String[] args) {
@@ -38,6 +39,7 @@ public final class StoryDesktopChecks {
     private static void press(int key){frame(key);frame();}
     private static void tick(){screen.render(.25f);frames++;observeVisuals();}
     private static void observeVisuals(){
+        if(screen.session().registerTiltActive()) reachedRegisterTilt=true;
         if(!screen.session().dialogue().isActive()) {
             if(screen.session().exploring() && "GUARD_ROOM".equals(screen.world().scene().id)
                 && "OBJ-09".equals(screen.session().objectiveId()) && visualChecks.add("objective-guard")) {
@@ -46,6 +48,10 @@ public final class StoryDesktopChecks {
             return;
         }
         String id=screen.session().dialogue().getLine().getId();
+        if(!reachedRegisterTilt && "C1-04-READ".equals(screen.session().block())) {
+            String text=screen.session().dialogue().getLine().getText();
+            check(!text.toLowerCase(Locale.ROOT).contains("có mặt"),"The register revealed the original marking before tilting: "+id);
+        }
         if(id!=null && (id.startsWith("C4-02-DUC") || id.startsWith("C3-01-MAIN-D")
             || id.startsWith("C3-05-UNHEARD-D") || id.startsWith("C3-05-HEARD-D"))) {
             check(screen.dialogueUI().inspectionAsset()==null,"NPC conversation must not retain a previous object close-up: "+id);
@@ -56,7 +62,28 @@ public final class StoryDesktopChecks {
         if("A-01-MAIN-E03".equals(id)){check(screen.world().pose("nga").equals("walk.down"),"Memory departure pose");visualChecks.add("memory");}
         if("C-02-MAIN-E09".equals(id)){check(screen.world().pose("linh").equals("pose.seated"),"C seated pose");var p=screen.world().actorPosition("linh",screen.session(),screen.player());check(Math.abs(p.x-screen.player().getX())>1||Math.abs(p.y-screen.player().getY())>1,"C visual placement must not mutate Player physics");visualChecks.add("seated");}
     }
-    private static void drain(){for(int i=0;i<5000;i++){if(!screen.session().dialogue().isActive()){for(int k=0;k<25;k++)frame();return;}if(!screen.session().dialogue().getLine().getChoices().isEmpty()){for(int k=0;k<3;k++)tick();screen.dialogueUI().continueText();frame();return;}tick();if(screen.session().dialogue().isActive())press(Input.Keys.ENTER);}throw new AssertionError("Dialogue stalled "+screen.session().block());}
+    private static void drain(){
+        for(int i=0;i<5000;i++){
+            var session=screen.session();
+            if(session.registerTiltActive()){
+                photographRegister();
+                continue;
+            }
+            if(!session.dialogue().isActive()){
+                for(int k=0;k<25;k++)frame();
+                return;
+            }
+            if(!session.dialogue().getLine().getChoices().isEmpty()){
+                for(int k=0;k<3;k++)tick();
+                screen.dialogueUI().continueText();
+                frame();
+                return;
+            }
+            tick();
+            if(session.dialogue().isActive() && !session.registerTiltActive())press(Input.Keys.ENTER);
+        }
+        throw new AssertionError("Dialogue stalled "+screen.session().block());
+    }
     private static void choice(String id){drain();var options=screen.session().dialogue().getLine().getChoices();int index=-1;for(int i=0;i<options.size();i++)if(options.get(i).getId().equals(id))index=i;check(index>=0,"Choice missing "+id+" / "+screen.session().block());while(!id.equals(screen.dialogueUI().selectedChoiceId()))press(Input.Keys.DOWN);press(Input.Keys.ENTER);drain();}
     private static void walk(String id) {
         Player player=screen.player();SceneCatalog.Scene scene=screen.world().scene();Rectangle target;
@@ -77,8 +104,18 @@ public final class StoryDesktopChecks {
         frame(approachFromLeft?Input.Keys.D:approachFromRight?Input.Keys.A:approachFromAbove?Input.Keys.S:Input.Keys.W);frame();check(id.equals(screen.world().target()),"Wrong E target "+id+" / "+screen.world().target());
     }
     private static void interact(String id){check(screen.session().exploring(),"Interaction outside exploration "+id);walk(id);press(interactions%2==0?Input.Keys.ENTER:Input.Keys.E);interactions++;drain();}
-    private static void begin(boolean skip,SaveStore.Loaded saved){if(screen!=null)screen.dispose();screen=new GameScreen(assets,content,world,save,new AudioSettings(),skip,saved,()->{},e->{});screen.resize(960,540);screen.show();drain();}
-    private static void decision(){interact("desk");interact("door.hall");interact("stairs");interact("duc");choice("C2-02-CHOICE03");interact("guard.wall");interact("cabinet");}
+    private static void begin(boolean skip,SaveStore.Loaded saved){if(screen!=null)screen.dispose();reachedRegisterTilt=false;screen=new GameScreen(assets,content,world,save,new AudioSettings(),skip,saved,()->{},e->{});screen.resize(960,540);screen.show();drain();}
+    private static void decision(){
+        int priorPhotos=registerPhotos;
+        interact("desk");
+        check(registerPhotos==priorPhotos+1 && screen.session().state().knows(Clue.ALTERED_REGISTER),
+            "First reading must require one successful photograph and complete the altered-register clue");
+        if(priorPhotos==0){
+            interact("desk");
+            check(registerPhotos==1,"Reading the same desk again must not replay the tilt challenge");
+        }
+        interact("door.hall");interact("stairs");interact("duc");choice("C2-02-CHOICE03");interact("guard.wall");interact("cabinet");
+    }
     private static void investigate(){decision();choice("C3-04-CHOICE02");choice("C3-04-CHOICE03");}
     private static void guard(){interact("door.hall");interact("guard.wall");}
     private static void room(){interact("door.hall");interact("door.304");}
@@ -209,13 +246,98 @@ public final class StoryDesktopChecks {
         var position=actor.localToStageCoordinates(new com.badlogic.gdx.math.Vector2());
         return new Rectangle(position.x,position.y,actor.getWidth(),actor.getHeight());
     }
-    private static void click(com.badlogic.gdx.scenes.scene2d.Stage stage,String actorName) {
+    private static com.badlogic.gdx.math.Vector2 actorScreenCenter(com.badlogic.gdx.scenes.scene2d.Stage stage,String actorName) {
         var actor=stage.getRoot().findActor(actorName);
         check(actor!=null&&actor.getWidth()>0&&actor.getHeight()>0,"Click target must be laid out: "+actorName);
         var point=actor.localToStageCoordinates(new com.badlogic.gdx.math.Vector2(actor.getWidth()/2,actor.getHeight()/2));
-        stage.stageToScreenCoordinates(point);
+        return stage.stageToScreenCoordinates(point);
+    }
+    private static void click(com.badlogic.gdx.scenes.scene2d.Stage stage,String actorName) {
+        var point=actorScreenCenter(stage,actorName);
         stage.touchDown(Math.round(point.x),Math.round(point.y),0,Input.Buttons.LEFT);
         stage.touchUp(Math.round(point.x),Math.round(point.y),0,Input.Buttons.LEFT);
+    }
+    private static void holdTiltButton(String name) {
+        var stage=appStage();
+        var point=actorScreenCenter(stage,name);
+        int x=Math.round(point.x),y=Math.round(point.y);
+        stage.touchDown(x,y,0,Input.Buttons.LEFT);
+        for(int i=0;i<8;i++)frame();
+        stage.touchUp(x,y,0,Input.Buttons.LEFT);
+        frame();
+    }
+    private static void photographRegister() {
+        var session=screen.session();
+        float hiddenInk=session.registerInkVisibility();
+        check(!session.canPhotographRegister() && hiddenInk==0,"An untilted register must hide the underlying ink");
+        check(!session.state().knows(Clue.ALTERED_REGISTER),"Opening the tilt view must not award the clue");
+        if(registerPhotos==0){
+            frame();
+            snapshot("register-tilt-hidden");
+            checkRegisterControls();
+        }
+        int key=registerPhotos==1?Input.Keys.D:Input.Keys.RIGHT;
+        for(int i=0;i<300 && !session.canPhotographRegister();i++)frame(key);
+        frame();
+        check(session.registerTiltActive() && session.canPhotographRegister() && session.registerInkVisibility()>hiddenInk,
+            "Holding the tilt key must bring out the original ink and enable the camera");
+        if(registerPhotos==0){
+            snapshot("register-tilt-readable");
+            click(appStage(),"photograph");
+            frame();
+        } else {
+            frame(Input.Keys.ENTER);
+        }
+        check(!session.registerTiltActive() && session.dialogue().isActive(),"Photographing must return to the story");
+        check(!session.state().knows(Clue.ALTERED_REGISTER),"The clue must wait for the story beat after photographing");
+        check("C1-04-READ-E09".equals(session.dialogue().getLine().getId()),"Capturing must trigger the shutter immediately");
+        if(registerPhotos>0){
+            for(int i=0;i<60;i++)frame(Input.Keys.ENTER);
+            check("C1-04-READ-D07".equals(session.dialogue().getLine().getId()),
+                "The shutter must finish automatically and holding Enter must leave Linh's discovery on screen");
+        }
+        frame();
+        registerPhotos++;
+    }
+    private static void checkRegisterControls() {
+        var session=screen.session();
+        float x=screen.player().getX(),y=screen.player().getY(),initialAngle=session.registerTilt();
+        String progress=ProgressSnapshot.encode(session.state());
+        check(!session.exploring() && !session.canSave(),"The register is modal");
+        press(Input.Keys.ENTER);
+        press(Input.Keys.E);
+        press(Input.Keys.N);
+        for(int i=0;i<12;i++)frame(Input.Keys.W);
+        frame();
+        click(appStage(),"photograph");
+        frame();
+        check(session.registerTiltActive() && !session.isNotes() && session.registerTilt()==initialAngle,
+            "Confirmation keys and a premature photo must leave the register open at the same angle");
+
+        Gdx.graphics.setWindowedMode(640,480);Gdx.input=scripted;screen.resize(640,480);frame();
+        holdTiltButton("tiltRight");
+        float right=session.registerTilt();
+        check(right>initialAngle,"Holding the right control must tilt the register at 640x480");
+        holdTiltButton("tiltLeft");
+        check(session.registerTilt()<right,"Holding the left control must reverse the tilt");
+        Gdx.graphics.setWindowedMode(960,540);Gdx.input=scripted;screen.resize(960,540);frame();
+        for(int i=0;i<12;i++)frame(Input.Keys.D);
+        float partialAngle=session.registerTilt();
+        frame(Input.Keys.A);
+        check(session.registerTilt()<partialAngle,"A must reverse the tilt set by D");
+        frame();
+        partialAngle=session.registerTilt();
+        float partialInk=session.registerInkVisibility();
+        press(Input.Keys.ESCAPE);
+        check(screen.isPaused(),"Esc opens pause during the register challenge");
+        var saveButton=(com.badlogic.gdx.scenes.scene2d.ui.TextButton)appStage().getRoot().findActor("menu-option-1");
+        check(saveButton.isDisabled(),"The pause menu must disable saving during the register challenge");
+        for(int i=0;i<12;i++)frame(Input.Keys.D);
+        press(Input.Keys.ESCAPE);
+        check(!screen.isPaused() && session.registerTiltActive() && session.registerTilt()==partialAngle
+            && session.registerInkVisibility()==partialInk,"Resuming must preserve the page angle and ink");
+        check(screen.player().getX()==x && screen.player().getY()==y && ProgressSnapshot.encode(session.state()).equals(progress),
+            "Register controls and the pause menu must leave Linh and story progress in place");
     }
     private static void checkDialogueFrame() {
         var ui=screen.dialogueUI();var stage=ui.getStage();

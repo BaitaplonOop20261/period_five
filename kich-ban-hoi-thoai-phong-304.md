@@ -181,11 +181,13 @@ Sau đó thêm dòng:
 
 **Trang:** Có chữ khác bên dưới. Nghiêng sổ ra phía cửa sổ đi.
 
-**Linh:** “Có mặt”… bị viết đè lên.
-
 **Trang:** Chụp cả trang. Đừng tẩy hay sửa gì.
 
-*[Linh chụp toàn bộ trang sổ bằng điện thoại; bản chụp được giữ cùng ghi chú.]*
+*[Người chơi nghiêng sổ về phía cửa sổ. Khi nét mực cũ hiện rõ, Linh chụp toàn bộ trang bằng điện thoại.]*
+
+**Linh:** Ban đầu sổ ghi Nga có mặt. Sao về sau lại sửa thành vắng nhỉ?
+
+**Trang:** Cậu giữ tấm này nhé. Lát gặp bà Năm, mình cho bà xem.
 
 **Nếu đã có manh mối ảnh:**
 
