@@ -421,10 +421,11 @@ Sơ đồ X là hub trước sổ; các mũi tên P/R về X chỉ áp dụng kh
 | C1-04-READ-D03 | Thoại | Linh: Ngày mười một tháng chín. “Số học sinh cần sơ tán: ba mươi hai.” | Giữ khung; người nói hướng về người nghe. | Nền giảm theo MIX-01; chữ luôn hiển thị. | Enter | Không đổi. | C1-04-READ-D04 |
 | C1-04-READ-D04 | Thoại | Trang: Dừng ở dòng cuối một chút. | Giữ khung; người nói hướng về người nghe. | Nền giảm theo MIX-01; chữ luôn hiển thị. | Enter | Không đổi. | C1-04-READ-D05 |
 | C1-04-READ-D05 | Thoại | Linh: Nguyễn Thu Nga. “Vắng.” | Giữ khung; người nói hướng về người nghe. | Nền giảm theo MIX-01; chữ luôn hiển thị. | Enter | Không đổi. | C1-04-READ-D06 |
-| C1-04-READ-D06 | Thoại | Trang: Có chữ khác bên dưới. Nghiêng sổ ra phía cửa sổ đi. | Giữ khung; người nói hướng về người nghe. | Nền giảm theo MIX-01; chữ luôn hiển thị. | Enter | Không đổi. | C1-04-READ-D07 |
-| C1-04-READ-D07 | Thoại | Linh: “Có mặt”… bị viết đè lên. | Giữ khung; người nói hướng về người nghe. | Nền giảm theo MIX-01; chữ luôn hiển thị. | Enter | Không đổi. | C1-04-READ-D08 |
-| C1-04-READ-D08 | Thoại | Trang: Chụp cả trang. Đừng tẩy hay sửa gì. | Giữ khung; người nói hướng về người nghe. | Nền giảm theo MIX-01; chữ luôn hiển thị. | Enter | Không đổi. | C1-04-READ-E09 |
-| C1-04-READ-E09 | Dàn cảnh | Không thêm chữ ngoài phụ đề đã ghi. | Chụp toàn trang, thấy hai lớp mực; chưa quy người sửa. | Tiếng chụp nhỏ. | 0,4 giây | Giữ ảnh chụp tạm trong cảnh; chốt register_read tại nhịp mất âm nền | C1-04-PHOTO nếu photo_seen; ngược lại C1-04-HAUNT |
+| C1-04-READ-D06 | Thoại | Trang: Có chữ khác bên dưới. Nghiêng sổ ra phía cửa sổ đi. | Giữ khung; người nói hướng về người nghe. | Nền giảm theo MIX-01; chữ luôn hiển thị. | Enter | Không đổi. | C1-04-READ-D08 |
+| C1-04-READ-D08 | Thoại | Trang: Chụp cả trang. Đừng tẩy hay sửa gì. | Giữ khung; người nói hướng về người nghe. | Nền giảm theo MIX-01; chữ luôn hiển thị. | Enter | Không đổi. | Nghiêng sổ và chụp → C1-04-READ-E09 |
+| C1-04-READ-E09 | Dàn cảnh | Không thêm chữ ngoài phụ đề đã ghi. | Chụp toàn trang, thấy hai lớp mực; chưa quy người sửa. | Tiếng chụp nhỏ. | 0,4 giây | Giữ ảnh chụp tạm trong cảnh; chốt register_read tại nhịp mất âm nền | C1-04-READ-D07 |
+| C1-04-READ-D07 | Thoại | Linh: Ban đầu sổ ghi Nga có mặt. Sao về sau lại sửa thành vắng nhỉ? | Giữ khung; người nói hướng về người nghe. | Nền giảm theo MIX-01; chữ luôn hiển thị. | Enter | Không đổi. | C1-04-READ-D10 |
+| C1-04-READ-D10 | Thoại | Trang: Cậu giữ tấm này nhé. Lát gặp bà Năm, mình cho bà xem. | Giữ khung; người nói hướng về người nghe. | Nền giảm theo MIX-01; chữ luôn hiển thị. | Enter | Không đổi. | C1-04-PHOTO nếu photo_seen; ngược lại C1-04-HAUNT |
 
 **Khối C1-04-PHOTO** — Đã xem ảnh
 

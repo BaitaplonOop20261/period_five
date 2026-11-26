@@ -296,7 +296,8 @@
     "C1-04-READ-D04": "Trang: Dừng ở dòng cuối một chút.",
     "C1-04-READ-D05": "Linh: Nguyễn Thu Nga. “Vắng.”",
     "C1-04-READ-D06": "Trang: Có chữ khác bên dưới. Nghiêng sổ ra phía cửa sổ đi.",
-    "C1-04-READ-D07": "Linh: “Có mặt”… bị viết đè lên.",
+    "C1-04-READ-D07": "Linh: Ban đầu sổ ghi Nga có mặt. Sao về sau lại sửa thành vắng nhỉ?",
+    "C1-04-READ-D10": "Trang: Cậu giữ tấm này nhé. Lát gặp bà Năm, mình cho bà xem.",
     "C1-04-READ-D08": "Trang: Chụp cả trang. Đừng tẩy hay sửa gì.",
     "C1-04-PHOTO-D01": "Linh: Lớp có ba mươi ba người. Có thể một người nghỉ, nhưng dòng này cần hỏi lại.",
     "C1-04-HAUNT-SFX01": "[Tiếng sân trường và tiếng chim đột ngột ngừng.]",
@@ -1169,6 +1170,13 @@
           "audio": "Tiếng chụp nhỏ.",
           "wait": "0,4 giây",
           "effect": "Giữ ảnh chụp tạm trong cảnh; chốt register_read tại nhịp mất âm nền"
+        },
+        {
+          "id": "C1-04-READ-D10",
+          "visual": "Giữ khung; người nói hướng về người nghe.",
+          "audio": "Nền giảm theo MIX-01; chữ luôn hiển thị.",
+          "wait": "Enter",
+          "effect": "Không đổi."
         }
       ],
       "targets": [
@@ -4855,7 +4863,7 @@
         {
           "id": "C1-04-READ-D07",
           "speaker": "Linh",
-          "text": "“Có mặt”… bị viết đè lên.",
+          "text": "Ban đầu sổ ghi Nga có mặt. Sao về sau lại sửa thành vắng nhỉ?",
           "duration": 0,
           "automatic": false,
           "cue": null,
@@ -4867,6 +4875,16 @@
           "speaker": "",
           "text": "Dưới chữ “vắng” còn nét chữ “có mặt” bị viết đè.",
           "cue": "C1-04-READ-T02"
+        },
+        {
+          "id": "C1-04-READ-D10",
+          "speaker": "Trang",
+          "text": "Cậu giữ tấm này nhé. Lát gặp bà Năm, mình cho bà xem.",
+          "duration": 0,
+          "automatic": false,
+          "cue": null,
+          "speakerId": "trang",
+          "expression": "normal"
         }
       ]
     },

@@ -789,7 +789,14 @@
       "path": "documents/register_open.png",
       "type": "texture",
       "required": true,
-      "filter": "Nearest"
+      "filter": "Linear"
+    },
+    {
+      "id": "document.register_revealed",
+      "path": "documents/register_revealed.png",
+      "type": "texture",
+      "required": true,
+      "filter": "Linear"
     }
   ]
 }

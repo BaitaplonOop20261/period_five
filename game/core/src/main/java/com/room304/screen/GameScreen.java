@@ -101,6 +101,13 @@ public final class GameScreen extends ScreenAdapter {
             inspection=document;
             title="Bản bổ sung đã ký";
         }
+        boolean registerNotes = "REGISTER".equals(session.block()) || "DOC-REGISTER".equals(session.block());
+        if (registerNotes || (StoryWorldView.OPEN_REGISTER_ART.equals(inspection)
+            && (session.state().knows(Clue.ALTERED_REGISTER) || "C1-04-READ-D07".equals(line)
+                || "C1-04-READ-T02__4".equals(line)))) {
+            inspection = "document.register_revealed";
+            title = "Sổ đầu bài";
+        }
         dialogueUI.present(session.dialogue(), document, inspection, title);
     }
     @Override public void show(){sync();}
