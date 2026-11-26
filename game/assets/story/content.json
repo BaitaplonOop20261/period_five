@@ -4790,12 +4790,6 @@
           "cue": null
         },
         {
-          "id": "C1-04-READ-T02__4",
-          "speaker": "",
-          "text": "Dưới chữ “vắng” còn nét chữ “có mặt” bị viết đè.",
-          "cue": "C1-04-READ-T02"
-        },
-        {
           "id": "C1-04-READ-D03",
           "speaker": "Linh",
           "text": "Ngày mười một tháng chín. “Số học sinh cần sơ tán: ba mươi hai.”",
@@ -4836,16 +4830,6 @@
           "expression": "normal"
         },
         {
-          "id": "C1-04-READ-D07",
-          "speaker": "Linh",
-          "text": "“Có mặt”… bị viết đè lên.",
-          "duration": 0,
-          "automatic": false,
-          "cue": null,
-          "speakerId": "linh",
-          "expression": "normal"
-        },
-        {
           "id": "C1-04-READ-D08",
           "speaker": "Trang",
           "text": "Chụp cả trang. Đừng tẩy hay sửa gì.",
@@ -4856,13 +4840,33 @@
           "expression": "normal"
         },
         {
+          "id": "C1-04-READ-TILT",
+          "speaker": "",
+          "text": "33. Nguyễn Thu Nga — vắng"
+        },
+        {
           "id": "C1-04-READ-E09",
           "speaker": "",
           "text": "",
           "duration": 0.4,
           "automatic": true,
-          "cue": "C1-04-READ-E09",
-          "next": "END"
+          "cue": "C1-04-READ-E09"
+        },
+        {
+          "id": "C1-04-READ-D07",
+          "speaker": "Linh",
+          "text": "“Có mặt”… bị viết đè lên.",
+          "duration": 0,
+          "automatic": false,
+          "cue": null,
+          "speakerId": "linh",
+          "expression": "normal"
+        },
+        {
+          "id": "C1-04-READ-T02__4",
+          "speaker": "",
+          "text": "Dưới chữ “vắng” còn nét chữ “có mặt” bị viết đè.",
+          "cue": "C1-04-READ-T02"
         }
       ]
     },

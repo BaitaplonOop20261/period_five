@@ -9,6 +9,10 @@ import static com.room304.story.StoryDirector.Action.*;
 
 /** Runtime story orchestration. One state/director/controller across all rooms; no rendering. */
 public final class StorySession {
+    private static final String REGISTER_TILT_LINE = "C1-04-READ-TILT";
+    private static final float REGISTER_TILT_SPEED = 1.4f;
+    private static final float READABLE_TILT = 0.7f;
+
     public record Note(String id,String title,List<String> text) {}
     private final StoryContent content;
     private final SceneCatalog world;
@@ -18,6 +22,7 @@ public final class StorySession {
     private final java.util.function.Consumer<String> onBlock;
     private String block, cue, objectiveOverride;
     private float elapsed;
+    private float registerTilt;
     private boolean ended, notes, gathered, ngaVisible;
     private String overlay="NONE";
     private String playthroughId=UUID.randomUUID().toString();
@@ -72,20 +77,42 @@ public final class StorySession {
     }
     private void enteredLine() {
         elapsed=0;cue=dialogue.isActive()?dialogue.getLine().getCue():null;
+        registerTilt = 0f;
         if(cue==null)return;
         switch(cue){case "C5-06-MAIN-E02"->overlay="FAINT_LINH";case "C5-06-MAIN-E07"->overlay="NONE";case "C-02-MAIN-E02"->overlay="CLEAR_LINH";case "C6-01-GATHER-E02"->gathered=true;case "C6-01-GATHER-E10"->ngaVisible=true;default->{}}
     }
     public void update(float delta) {
         if (!Float.isFinite(delta) || delta < 0) throw new IllegalArgumentException("Invalid story delta");
-        if (!dialogue.isActive()) return;
+        if (!dialogue.isActive() || registerTiltActive()) return;
         elapsed += delta;
         if (dialogue.getLine().isAutomatic() && elapsed >= dialogue.getLine().getDuration()) advance();
     }
     public void advance() {
-        if (!dialogue.isActive() || !dialogue.getLine().getChoices().isEmpty() || elapsed < dialogue.getLine().getDuration()) return;
+        if (!dialogue.isActive() || registerTiltActive() || !dialogue.getLine().getChoices().isEmpty() || elapsed < dialogue.getLine().getDuration()) return;
+        finishLine();
+    }
+    private void finishLine() {
         String finished=dialogue.getLine().getCue();
         if (finished != null) afterBeat(finished);
         dialogue.advance(); enteredLine();
+    }
+    public boolean registerTiltActive() {
+        return dialogue.isActive() && REGISTER_TILT_LINE.equals(dialogue.getLine().getId());
+    }
+    public float registerTilt() { return registerTilt; }
+    public float registerInkVisibility() {
+        return Math.clamp(registerTilt / READABLE_TILT, 0f, 1f);
+    }
+    public void tiltRegister(float direction, float delta) {
+        if (!registerTiltActive() || !Float.isFinite(direction) || !Float.isFinite(delta) || delta <= 0f) return;
+        float step = Math.clamp(direction, -1f, 1f) * REGISTER_TILT_SPEED * delta;
+        registerTilt = Math.clamp(registerTilt + step, -1f, 1f);
+    }
+    public boolean canPhotographRegister() { return registerTiltActive() && registerTilt >= READABLE_TILT; }
+    public boolean photographRegister() {
+        if (!canPhotographRegister()) return false;
+        finishLine();
+        return true;
     }
     public void choose(String id) { dialogue.choose(id); enteredLine(); }
     public void close() { dialogue.close(); director.cancel(); cue=null; }

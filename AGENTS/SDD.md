@@ -141,7 +141,7 @@ Sổ là vật đặc biệt quản lý bằng `bookLocation`, không đồng th
 | Mở màn `C0-01..03` | Hoàn tất/bỏ qua → `OPENING_DONE`; chưa có manh mối. |
 | Vào phòng `C1-01` | Chỉ nối từ luồng bắt đầu lượt/mở màn; xong mới trả quyền di chuyển. `enterRoom` quay lại 304 không mở lại đoạn này. |
 | Xem ảnh `C1-02` / cùng Đức `C4-01` | Nhận `CLASS_PHOTO`; ảnh chỉ xác nhận sĩ số lớp, chưa chứng minh đi học hôm cháy. |
-| Mở đúng sổ `C1-04` | Lần đầu → chạy chuông/ghế/bóng; sổ `TABLE_304 → CARRIED`, nhận `ALTERED_REGISTER`. Xem lại dùng câu nhắc. |
+| Mở đúng sổ `C1-04` | Lần đầu, người chơi nghiêng sổ về phía ánh sáng để đọc nét mực bị viết đè, rồi chụp cả trang. Cảnh chuông, ghế và bóng tiếp diễn. Khi cảnh hoàn tất, Linh nhận `ALTERED_REGISTER` và mang sổ theo (`TABLE_304 → CARRIED`). Khi xem lại, Linh đọc trực tiếp trang đã chụp. |
 | Cầu thang `C2-01` | Trước khi mở sổ: nhắc hoàn thành việc chụp ảnh. Sau mở: vòng lặp có dàn cảnh một lần → `LOOP_CONFIRMED`. |
 | Gặp Đức `C2-02` | Sau vòng lặp → `DUC_MET`. Cửa bảo vệ hiện khi có cả hai mốc; đọc nội san là tuỳ chọn. |
 | Nhận chìa `C3-01` | Nhận `CABINET_KEY` một lần. Chưa tự mở kết thúc B. |

@@ -16,6 +16,8 @@ public final class StoryRuntimeChecks {
         content=StoryContent.load(new FileHandle(assets.resolve(catalog.path("story.content")).toFile()));
         world=SceneCatalog.load(new FileHandle(assets.resolve(catalog.path("story.world")).toFile()),catalog);
         world.validateContent(content);PresentationChecks.run(fixtures,assets,catalog,content,world);assert content.blockIds().size()==99;
+        checkRegisterTilt(false);
+        checkRegisterTilt(true);
         StorySession immediate=toDecision();choice(immediate,"C3-04-CHOICE01");assert immediate.ended() && immediate.state().ending()==Ending.B;
         StorySession early=investigate(false,false);early.interact("cabinet");choice(early,"CHO-CAB-LEAVE");drain(early);assert early.ended() && early.state().ending()==Ending.B;
         StorySession a=ready(false);a.interact("desk");drain(a);choice(a,"C6-01-CHOICE03");drain(a);assert a.ended() && a.state().ending()==Ending.A;
@@ -43,6 +45,71 @@ public final class StoryRuntimeChecks {
         Set<String> missing=new TreeSet<>(content.blockIds());missing.removeAll(visited);System.out.println("Unvisited story blocks: "+missing);
         System.out.println("Authored runtime block coverage: "+visited.size()+"/"+content.blockIds().size());
         System.out.println("Story runtime checks passed: full A, early/late B, owned/unheard gate, reopen cancel, notes/book, all 99 blocks loaded.");
+    }
+    private static void checkRegisterTilt(boolean classPhotoFirst) {
+        StorySession session = newGame();
+        if (classPhotoFirst) {
+            session.interact("photo");
+            drain(session);
+        }
+        session.interact("desk");
+        String previousLine = null;
+        for (int i = 0; i < 30 && !session.registerTiltActive(); i++) {
+            var line = session.dialogue().getLine();
+            assert !line.getText().toLowerCase(Locale.ROOT).contains("có mặt") : "Ink shown before tilting";
+            if ("C1-04-READ-D08".equals(line.getId())) assert "C1-04-READ-D06".equals(previousLine);
+            previousLine = line.getId();
+            advanceOneLine(session);
+        }
+        assert "C1-04-READ-D08".equals(previousLine) && session.registerTiltActive();
+        assert session.registerTilt() == 0f && session.registerInkVisibility() == 0f;
+        assert !session.photographRegister() && !session.canSave();
+        session.tiltRegister(-1f, 2f);
+        assert session.registerTilt() == -1f && !session.canPhotographRegister();
+        session.tiltRegister(1f, 1f);
+        assert session.registerInkVisibility() > 0f && session.registerInkVisibility() < 1f;
+        assert !session.photographRegister();
+        session.tiltRegister(1f, 1f);
+        assert session.registerTilt() == 1f && session.canPhotographRegister();
+        session.update(30f);
+        session.advance();
+        session.toggleNotes();
+        session.interact("photo");
+        assert session.registerTiltActive() && !session.isNotes();
+        assert !session.state().knows(Clue.ALTERED_REGISTER);
+        boolean captured = session.photographRegister();
+        assert captured && !session.photographRegister();
+        assert "C1-04-READ-E09".equals(session.cue());
+        session.advance();
+        session.update(0.2f);
+        assert "C1-04-READ-E09".equals(session.cue());
+        session.update(0.21f);
+        assert session.dialogue().getLine().getId().equals("C1-04-READ-D07");
+        session.advance();
+        assert session.dialogue().getLine().getId().equals("C1-04-READ-T02__4");
+        assert !session.state().knows(Clue.ALTERED_REGISTER) && !session.canSave();
+
+        boolean photoBranch = false;
+        for (int i = 0; i < 50 && !session.exploring(); i++) {
+            photoBranch |= "C1-04-PHOTO".equals(session.block());
+            advanceOneLine(session);
+        }
+        assert photoBranch == classPhotoFirst && session.state().knows(Clue.CLASS_PHOTO) == classPhotoFirst;
+        assert session.canSave() && session.state().knows(Clue.ALTERED_REGISTER);
+        session.toggleNotes();
+        session.choose("REGISTER");
+        boolean foundInk = false;
+        for (int i = 0; i < 10 && "REGISTER".equals(session.block()); i++) {
+            assert !session.registerTiltActive();
+            foundInk |= content.text("DOC-REGISTER-05").equals(session.dialogue().getCurrentLine());
+            session.advance();
+        }
+        assert foundInk && "NOTES".equals(session.block());
+    }
+    private static void advanceOneLine(StorySession session) {
+        boolean automatic = session.dialogue().getLine().isAutomatic();
+        session.update(5f);
+        if (!automatic) session.advance();
     }
     private static void checkOptionalRoutes() {
         StorySession s=newGame();s.interact("player");drain(s);s.interact("photo");drain(s);s.interact("desk");drain(s);s.interact("door.hall");s.interact("board");drain(s);s.interact("stairs");drain(s);s.interact("duc");drain(s);choice(s,"C2-02-CHOICE01");choice(s,"C2-02-CHOICE02");choice(s,"C2-02-CHOICE03");s.interact("guard.wall");drain(s);s.interact("cabinet.upper");drain(s);s.interact("cabinet");drain(s);choice(s,"C3-04-CHOICE02");choice(s,"C3-04-CHOICE03");
@@ -115,6 +182,11 @@ public final class StoryRuntimeChecks {
         for(int i=0;i<3000 && s.dialogue().isActive();i++) {
             if(content.blockIds().contains(s.block()))visited.add(s.block());
             if(!s.dialogue().getLine().getChoices().isEmpty()) return;
+            if (s.registerTiltActive()) {
+                s.tiltRegister(1f, 1f);
+                s.photographRegister();
+                continue;
+            }
             s.update(5);s.advance();
         }
         if(s.dialogue().isActive() && s.dialogue().getLine().getChoices().isEmpty()) throw new AssertionError("Sequence stuck " + s.block());

@@ -16,6 +16,8 @@ import static com.room304.story.GameState.*;
 
 /** Playable story runtime. Presentation borrows assets; all progress belongs to StorySession. */
 public final class GameScreen extends ScreenAdapter {
+    private enum Mode { EXPLORE, DIALOGUE, REGISTER_TILT, FADE, PAUSE }
+
     private final GameAssets assets;
     private final StoryContent content;
     private final SceneCatalog catalog;
@@ -25,6 +27,7 @@ public final class GameScreen extends ScreenAdapter {
     private final Consumer<Ending> finish;
     private UiPanel panel;
     private DialogueUI dialogueUI;
+    private RegisterTiltView registerView;
     private StoryWorldView world;
     private Player player;
     private StoryAudio sound;
@@ -34,12 +37,13 @@ public final class GameScreen extends ScreenAdapter {
     private final FitViewport fadeViewport=new FitViewport(640,480);
     private boolean paused,finished,skipFrame;
     private float fadeRemaining,walkDistance;
-    private String mode="";
+    private Mode mode;
     private SceneCatalog.ObjectDef inspectedObject;
     private String inspectedBlock, inspectedRoom;
     public GameScreen(GameAssets assets,StoryContent content,SceneCatalog catalog,SaveStore saves,AudioSettings audio,boolean skipOpening,SaveStore.Loaded saved,Runnable menu,Consumer<Ending> finish) {
         this.assets=assets;this.content=content;this.catalog=catalog;this.saves=saves;this.audio=audio;this.menu=menu;this.finish=finish;
         try {panel=new UiPanel(assets,true);dialogueUI=new DialogueUI(assets,DialogueLayout.load(assets.catalog().path("story.ui.layout")));
+        registerView=new RegisterTiltView(assets,panel.font());
         world=new StoryWorldView(assets,catalog,content,panel.font());
         GameState state=saved==null?new GameState():saved.state();world.enter(state.room());
         SceneCatalog.Point initial=world.scene().spawn("entry");player=new Player(assets,initial.x,initial.y,catalog.player());
@@ -60,10 +64,27 @@ public final class GameScreen extends ScreenAdapter {
     public StoryWorldView world(){return world;}
     public DialogueUI dialogueUI(){return dialogueUI;}
     public boolean isPaused(){return paused;}
+    private Mode currentMode() {
+        if (paused) return Mode.PAUSE;
+        if (fadeRemaining > 0) return Mode.FADE;
+        if (session.registerTiltActive()) return Mode.REGISTER_TILT;
+        return session.dialogue().isActive() ? Mode.DIALOGUE : Mode.EXPLORE;
+    }
     private void sync() {
-        String next=paused?"PAUSE":fadeRemaining>0?"FADE":session.dialogue().isActive()?"DIALOGUE":"EXPLORE";
-        if(!next.equals(mode)){mode=next;input.modeChanged();dialogueUI.clearCommands();panel.clearCommands();}
-        InputProcessor processor=paused?panel.stage():session.dialogue().isActive()&&fadeRemaining==0?dialogueUI.getStage():null;
+        Mode next = currentMode();
+        if (next != mode) {
+            mode = next;
+            input.modeChanged();
+            dialogueUI.clearCommands();
+            panel.clearCommands();
+            registerView.clearCommands();
+        }
+        InputProcessor processor = switch (mode) {
+            case PAUSE -> panel.stage();
+            case REGISTER_TILT -> registerView.stage();
+            case DIALOGUE -> dialogueUI.getStage();
+            default -> null;
+        };
         if(Gdx.input.getInputProcessor()!=processor) Gdx.input.setInputProcessor(processor);
         // A close-up belongs to the initiating scene, not every conversation it chains into.
         if(session.exploring()||session.isNotes()
@@ -88,7 +109,14 @@ public final class GameScreen extends ScreenAdapter {
         walkDistance=0;boolean skipped=skipFrame;skipFrame=false;
         if(input.pressed(Input.Keys.ESCAPE)||dialogueUI.getHud().consumeMenuRequest()){if(paused) resumePlay();else pausePlay();skipped=true;}
         if(!paused && fadeRemaining==0 && !skipped) update(delta);
-        sound.update(session,paused,delta,walkDistance);world.render(session,player,!paused && fadeRemaining==0);dialogueUI.draw();
+        sound.update(session,paused,delta,walkDistance);
+        world.render(session,player,!paused && fadeRemaining==0);
+        if (session.registerTiltActive()) {
+            registerView.draw(paused ? 0 : delta, session.registerTilt(), session.registerInkVisibility(),
+                session.canPhotographRegister());
+        } else {
+            dialogueUI.draw();
+        }
         if(paused){panel.key(input.choiceDirection(),input.pressed(Input.Keys.ENTER));panel.adjustAudio((input.pressed(Input.Keys.RIGHT)?1:0)-(input.pressed(Input.Keys.LEFT)?1:0));panel.draw(delta);panel.executeCommand();}
         else if(fadeRemaining>0) {
             fadeViewport.apply();Gdx.gl.glEnable(com.badlogic.gdx.graphics.GL20.GL_BLEND);Gdx.gl.glBlendFunc(com.badlogic.gdx.graphics.GL20.GL_SRC_ALPHA,com.badlogic.gdx.graphics.GL20.GL_ONE_MINUS_SRC_ALPHA);
@@ -98,6 +126,14 @@ public final class GameScreen extends ScreenAdapter {
         sync();if(session.ended()&&!finished){finished=true;finish.accept(session.state().ending());}
     }
     private void update(float delta) {
+        if (mode == Mode.REGISTER_TILT) {
+            float direction = com.badlogic.gdx.math.MathUtils.clamp(input.horizontal() + registerView.pointerDirection(), -1f, 1f);
+            session.tiltRegister(direction, delta);
+            boolean photograph = registerView.consumePhoto();
+            if (photograph || input.pressed(Input.Keys.ENTER)) session.photographRegister();
+            sync();
+            return;
+        }
         boolean exploration=session.exploring();long revision=session.dialogue().getRevision();
         session.update(delta);sync();dialogueUI.update(delta);
         boolean automaticChanged=revision!=session.dialogue().getRevision();
@@ -140,8 +176,16 @@ public final class GameScreen extends ScreenAdapter {
     }
     private void saveNow(){try{saves.save(session,player.getX(),player.getY(),player.facing(),catalog);pauseMenu("Đã lưu tiến độ.\n"+SaveMenu.summary(saves.load(),content));}catch(RuntimeException e){pauseMenu(e.getMessage());}}
     public void error(String message){paused=true;pauseMenu(message);sync();}
-    @Override public void resize(int w,int h){world.resize(w,h);dialogueUI.resize(w,h);panel.resize(w,h);if(w>0&&h>0)fadeViewport.update(w,h,true);}
+    @Override public void resize(int w,int h){world.resize(w,h);dialogueUI.resize(w,h);registerView.resize(w,h);panel.resize(w,h);if(w>0&&h>0)fadeViewport.update(w,h,true);}
     @Override public void pause(){pausePlay();}
-    @Override public void hide(){if((dialogueUI!=null&&Gdx.input.getInputProcessor()==dialogueUI.getStage())||(panel!=null&&Gdx.input.getInputProcessor()==panel.stage()))Gdx.input.setInputProcessor(null);if(dialogueUI!=null)dialogueUI.clearCommands();if(panel!=null)panel.clearCommands();}
-    @Override public void dispose(){hide();if(session!=null)session.close();if(sound!=null)sound.dispose();if(world!=null)world.dispose();if(player!=null)player.dispose();if(dialogueUI!=null)dialogueUI.dispose();if(panel!=null)panel.dispose();fade.dispose();}
+    @Override public void hide(){
+        InputProcessor processor = Gdx.input.getInputProcessor();
+        if ((dialogueUI != null && processor == dialogueUI.getStage())
+            || (panel != null && processor == panel.stage())
+            || (registerView != null && processor == registerView.stage())) Gdx.input.setInputProcessor(null);
+        if (dialogueUI != null) dialogueUI.clearCommands();
+        if (registerView != null) registerView.clearCommands();
+        if (panel != null) panel.clearCommands();
+    }
+    @Override public void dispose(){hide();if(session!=null)session.close();if(sound!=null)sound.dispose();if(world!=null)world.dispose();if(player!=null)player.dispose();if(dialogueUI!=null)dialogueUI.dispose();if(registerView!=null)registerView.dispose();if(panel!=null)panel.dispose();fade.dispose();}
 }

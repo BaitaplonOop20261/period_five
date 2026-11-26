@@ -29,11 +29,15 @@ Camera mặc định bám theo Linh trong cả bốn khu vực với khung nhìn
 | Di chuyển | WASD hoặc phím hướng |
 | Tương tác với vật/NPC gần nhất | E hoặc Enter |
 | Hiện hết chữ / tiếp tục thoại | Enter hoặc nút Tiếp tục |
+| Nghiêng sổ về phía ánh sáng | Giữ ←/→, A/D hoặc nút nghiêng trên màn hình. Thả để giữ góc. |
+| Chụp trang sổ khi nét mực đã rõ | Enter hoặc nút Chụp trang sổ |
 | Chọn phương án/menu | ↑/↓, Enter; có thể nhấp chuột |
 | Mở/đóng ghi chú khi khám phá/đọc ghi chú | N |
 | Tạm dừng / tiếp tục | Esc |
 
 Thoại, ghi chú, chuyển phòng và pause khóa di chuyển. Phím đang giữ khi đổi ngữ cảnh phải được thả rồi nhấn lại; lần nhấn mở tương tác không đồng thời bỏ qua câu đầu. Tiến trình chỉ cập nhật khi bước truyện hoàn tất; có cassette khác với đã nghe cassette.
+
+**Minigame nghiêng sổ.** Khi Linh lần đầu xem trang ngày 11/09/2015 trong phòng 304, Trang gợi ý nghiêng sổ ra cửa sổ. Giữ phím hoặc nút nghiêng phải để ánh sáng chiếu vào dòng tên Nga. Khi đọc rõ nét mực cũ, chụp cả trang để tiếp tục. Esc cho phép tạm dừng và quay lại đúng góc đang soi. Sau cảnh này, có thể đọc lại trang sổ trong ghi chú.
 
 Tên nhân vật luôn hiện màu trắng trên đầu. Đồ vật chỉ hiện tên vàng khi được chọn và có thể tương tác. Animation `ui/interaction_mark.png` hiện trên đúng một mục tiêu gần nhất trong tầm và hướng tương tác, gồm đồ vật, cửa và NPC; phím E/Enter dùng cùng mục tiêu. Dấu cao 18 world unit, giữ tỉ lệ frame 8:25 và nằm trong khung camera 480×360. Khi hai mục tiêu cách đều nhau, giữ mục tiêu đang chọn để tránh nhấp nháy; ẩn dấu khi đọc thoại, ghi chú, tạm dừng hoặc chuyển phòng.
 
